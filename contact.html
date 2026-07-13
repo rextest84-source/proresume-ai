@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us — ProResume AI</title>
+  <meta name="description" content="Contact ProResume AI for customer support, sales inquiries, or general questions. We respond within 1 business day.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>html,body{font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;width:100%}</style>
+</head>
+<body class="bg-zinc-950 text-white overflow-x-hidden">
+
+  <nav class="bg-zinc-950 border-b border-white/10">
+    <div class="w-full max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 font-bold text-lg">
+        <span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-sm">PR</span>
+        ProResume AI
+      </a>
+      <div class="flex items-center gap-6 text-sm text-zinc-300">
+        <a href="/" class="hover:text-white transition">Home</a>
+        <a href="/about.html" class="hover:text-white transition">About</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="w-full max-w-5xl mx-auto px-6 py-20">
+    <div class="text-center mb-16">
+      <h1 class="text-4xl font-bold mb-4">Contact Us</h1>
+      <p class="text-xl text-zinc-400">We're here to help. Reach out and we'll respond within 1 business day.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-12">
+      <div class="space-y-8">
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
+          <i class="fa-solid fa-headset text-emerald-400 text-2xl mb-4"></i>
+          <h3 class="font-semibold text-lg mb-2">Customer Support</h3>
+          <p class="text-zinc-400 text-sm mb-3">Account issues, billing questions, technical help, and refund requests.</p>
+          <a href="mailto:support@proresumeai.com" class="text-emerald-400 hover:underline">support@proresumeai.com</a>
+        </div>
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
+          <i class="fa-solid fa-briefcase text-emerald-400 text-2xl mb-4"></i>
+          <h3 class="font-semibold text-lg mb-2">Sales & Enterprise</h3>
+          <p class="text-zinc-400 text-sm mb-3">Team plans, volume licensing, and partnership inquiries.</p>
+          <a href="mailto:sales@proresumeai.com" class="text-emerald-400 hover:underline">sales@proresumeai.com</a>
+        </div>
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
+          <i class="fa-solid fa-building text-emerald-400 text-2xl mb-4"></i>
+          <h3 class="font-semibold text-lg mb-2">Company</h3>
+          <p class="text-zinc-400 text-sm mb-3">ProResume AI, Inc.</p>
+          <p class="text-zinc-400 text-sm">San Francisco, California</p>
+          <p class="text-zinc-400 text-sm">United States</p>
+        </div>
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
+          <i class="fa-solid fa-clock text-emerald-400 text-2xl mb-4"></i>
+          <h3 class="font-semibold text-lg mb-2">Business Hours</h3>
+          <p class="text-zinc-400 text-sm">Monday – Friday, 9:00 AM – 6:00 PM (Pacific Time)</p>
+          <p class="text-zinc-500 text-sm mt-2">Excluding U.S. federal holidays</p>
+        </div>
+      </div>
+
+      <div>
+        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/contact.html" class="bg-zinc-900 p-8 rounded-2xl border border-white/5 space-y-6">
+          <input type="hidden" name="form-name" value="contact">
+          <p class="hidden"><label>Don't fill this out: <input name="bot-field"></label></p>
+
+          <div>
+            <label for="name" class="block text-sm font-medium mb-2">Full Name</label>
+            <input type="text" id="name" name="name" required class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition">
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium mb-2">Email Address</label>
+            <input type="email" id="email" name="email" required class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition">
+          </div>
+          <div>
+            <label for="subject" class="block text-sm font-medium mb-2">Subject</label>
+            <select id="subject" name="subject" required class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition">
+              <option value="">Select a topic</option>
+              <option value="support">Customer Support</option>
+              <option value="billing">Billing & Subscriptions</option>
+              <option value="refund">Refund Request</option>
+              <option value="sales">Sales & Enterprise</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="message" class="block text-sm font-medium mb-2">Message</label>
+            <textarea id="message" name="message" rows="5" required class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
+          </div>
+          <button type="submit" class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold transition">Send Message</button>
+          <p class="text-zinc-500 text-xs text-center">By submitting, you agree to our <a href="/privacy-policy.html" class="text-emerald-400 hover:underline">Privacy Policy</a>.</p>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-black py-12 border-t border-white/10">
+    <div class="w-full max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-zinc-500">
+      <p>© 2026 ProResume AI, Inc. All rights reserved.</p>
+      <div class="flex gap-6">
+        <a href="/terms-of-service.html" class="hover:text-white transition">Terms</a>
+        <a href="/privacy-policy.html" class="hover:text-white transition">Privacy</a>
+        <a href="/refund-policy.html" class="hover:text-white transition">Refunds</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
