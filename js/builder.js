@@ -1,10 +1,24 @@
 // ProResume AI — Resume Builder v2
 
 const STORAGE_KEY = 'proresume_data';
+const CREDITS_KEY = 'proresume_credits';
 const EXPORT_COUNT_KEY = 'proresume_exports';
 const FREE_EXPORT_LIMIT = 1;
-const FREE_TEMPLATES = ['modern', 'classic', 'minimal', 'stanford'];
-const PRO_TEMPLATES = ['executive', 'creative'];
+const STARTING_CREDITS = 10;
+
+const TEMPLATE_TIERS = {
+  modern: 'free', classic: 'free', minimal: 'free', stanford: 'free',
+  corporate: 'starter', elegant: 'starter', compact: 'starter',
+  executive: 'pro', creative: 'pro', tech: 'pro', harvard: 'pro', bold: 'pro',
+  luxury: 'business', international: 'business'
+};
+
+const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($39/mo)' };
+
+const CREDIT_COSTS = {
+  enhance_summary: 2, enhance_exp: 2, export_pdf: 3,
+  job_match: 5, cover_letter: 4, ats_scan: 2, linkedin: 3
+};
 
 const ACTION_VERBS = [
   'Spearheaded', 'Architected', 'Engineered', 'Delivered', 'Optimized',
@@ -36,6 +50,37 @@ function loadData() {
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
   updateSaveIndicator();
+}
+
+// ─── Credits System ───
+
+function getCredits() {
+  const stored = localStorage.getItem(CREDITS_KEY);
+  if (stored === null) {
+    localStorage.setItem(CREDITS_KEY, String(STARTING_CREDITS));
+    return STARTING_CREDITS;
+  }
+  return parseInt(stored, 10);
+}
+
+function setCredits(n) {
+  localStorage.setItem(CREDITS_KEY, String(Math.max(0, n)));
+  updateCreditsDisplay();
+}
+
+function useCredits(amount, featureName) {
+  const current = getCredits();
+  if (current < amount) {
+    showUpgradeModal(`Need ${amount} credits for ${featureName}. You have ${current}.`);
+    return false;
+  }
+  setCredits(current - amount);
+  return true;
+}
+
+function updateCreditsDisplay() {
+  const el = document.getElementById('credits-count');
+  if (el) el.textContent = getCredits();
 }
 
 function updateSaveIndicator() {
@@ -144,18 +189,21 @@ function enhanceDescriptionAI(text, role) {
   return lines.map((line, i) => enhanceLine(line, i, role)).join('\n');
 }
 
-async function runAIEnhance(btn, fn) {
+async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhancement') {
   if (!btn || btn.classList.contains('ai-loading')) return;
+  if (!useCredits(creditCost, featureName)) return;
   const original = btn.innerHTML;
   btn.classList.add('ai-loading');
   btn.innerHTML = '<i class="fa-solid fa-spinner"></i> Enhancing...';
   await new Promise(r => setTimeout(r, 800 + Math.random() * 700));
   try {
     await fn();
-    showToast('✦ Enhanced with AI — check your preview');
+    showToast(`✦ Enhanced! (−${creditCost} credits)`);
     if (window.innerWidth < 768) switchTab('preview');
-  } catch {
-    showToast('Enhancement failed — try again', 'warning');
+  } catch (e) {
+    if (e.message !== 'empty') setCredits(getCredits() + creditCost);
+    if (e.message !== 'empty') showToast('Enhancement failed — credits refunded', 'warning');
+    else showToast('Add some text first', 'warning');
   } finally {
     btn.classList.remove('ai-loading');
     btn.innerHTML = original;
@@ -346,8 +394,47 @@ const TEMPLATE_RENDERERS = {
           ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
         </div>
       </div>`;
-  }
+  },
+
+  corporate() { return renderThemed('corporate', 'corp'); },
+  elegant() { return renderThemed('elegant'); },
+  tech() { return renderThemed('tech', 'tech'); },
+  harvard() { return renderThemed('harvard', 'harvard'); },
+  luxury() { return renderThemed('luxury', 'luxury'); },
+  international() { return renderThemed('international', 'intl'); },
+  bold() { return renderThemed('bold'); },
+  compact() { return renderThemed('compact'); }
 };
+
+function renderThemed(id, variant = 'default') {
+  const name = escapeHtml(resumeData.name || 'Your Name');
+  const title = escapeHtml(resumeData.title || 'Professional Title');
+  const contact = getContactItems().map(c => escapeHtml(c.value)).join(' · ');
+
+  let header = '';
+  if (variant === 'corp') {
+    header = `<div class="tm-corp-bar"><h1 class="tm-themed-name">${name}</h1><p class="tm-themed-title">${title}</p><div class="tm-themed-contact">${contact}</div></div>`;
+  } else if (variant === 'tech') {
+    header = `<div class="tm-tech-bar"><span class="tm-tech-dot" style="background:#ef4444"></span><span class="tm-tech-dot" style="background:#eab308"></span><span class="tm-tech-dot" style="background:#22c55e"></span></div><div class="tm-tech-header"><h1 class="tm-themed-name">${name}</h1><p class="tm-themed-title">${title}</p><div class="tm-themed-contact">${contact}</div></div>`;
+  } else if (variant === 'luxury') {
+    header = `<div class="tm-luxury-header"><h1 class="tm-themed-name">${name}</h1><p class="tm-themed-title">${title}</p><div class="tm-themed-contact">${contact}</div></div>`;
+  } else if (variant === 'intl') {
+    header = `<div class="tm-intl-header"><h1 class="tm-themed-name">${name}</h1><p class="tm-themed-title">${title}</p><div class="tm-themed-contact">${contact}</div></div>`;
+  } else if (variant === 'harvard') {
+    header = `<div class="tm-harvard-rule"></div><div class="tm-themed-header"><h1 class="tm-themed-name">${name}</h1><p class="tm-themed-title">${title}</p><div class="tm-themed-contact">${contact}</div></div>`;
+  } else {
+    header = `<div class="tm-themed-header"><h1 class="tm-themed-name">${name}</h1><p class="tm-themed-title">${title}</p><div class="tm-themed-contact">${contact}</div></div>`;
+  }
+
+  const body = `
+    ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
+    ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
+    ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
+    ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
+  `;
+
+  return `<div class="tm-themed tm-${id}">${header}${body}</div>`;
+}
 
 function renderPreview() {
   const preview = document.getElementById('resume-preview');
@@ -412,8 +499,9 @@ function renderEducationFields() {
 }
 
 function selectTemplate(template) {
-  if (PRO_TEMPLATES.includes(template)) {
-    showUpgradeModal('Premium templates');
+  const tier = TEMPLATE_TIERS[template] || 'free';
+  if (tier !== 'free') {
+    showUpgradeModal(`${TIER_LABELS[tier]} templates`);
     return;
   }
   resumeData.template = template;
@@ -422,13 +510,14 @@ function selectTemplate(template) {
     const active = btn.dataset.template === template;
     btn.classList.toggle('ring-2', active);
     btn.classList.toggle('ring-emerald-400', active);
-    btn.classList.toggle('opacity-60', btn.dataset.pro === 'true' && !active);
   });
   renderPreview();
 }
 
 function showUpgradeModal(feature) {
   document.getElementById('upgrade-feature').textContent = feature || 'This feature';
+  const modalCredits = document.getElementById('modal-credits');
+  if (modalCredits) modalCredits.textContent = getCredits();
   document.getElementById('upgrade-modal').classList.remove('hidden');
 }
 
@@ -470,10 +559,7 @@ function switchTab(tab) {
 }
 
 async function exportPDF() {
-  if (getExportCount() >= FREE_EXPORT_LIMIT) {
-    showUpgradeModal('Unlimited PDF exports');
-    return;
-  }
+  if (!useCredits(CREDIT_COSTS.export_pdf, 'PDF export')) return;
   const element = document.getElementById('resume-preview');
   try {
     await html2pdf().set({
@@ -483,23 +569,12 @@ async function exportPDF() {
       html2canvas: { scale: 2, useCORS: true, letterRendering: true },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     }).from(element).save();
-    localStorage.setItem(EXPORT_COUNT_KEY, String(getExportCount() + 1));
-    updateExportBadge();
-    showToast('Resume downloaded successfully!');
+    showToast(`Resume downloaded! (−${CREDIT_COSTS.export_pdf} credits)`);
   } catch {
+    setCredits(getCredits() + CREDIT_COSTS.export_pdf);
     window.print();
     showToast('Use Print → Save as PDF');
   }
-}
-
-function getExportCount() {
-  return parseInt(localStorage.getItem(EXPORT_COUNT_KEY) || '0', 10);
-}
-
-function updateExportBadge() {
-  const remaining = FREE_EXPORT_LIMIT - getExportCount();
-  const el = document.getElementById('export-remaining');
-  if (el) el.textContent = remaining > 0 ? `${remaining} free export left` : 'Upgrade for more';
 }
 
 // ─── Event Delegation ───
@@ -519,21 +594,18 @@ function setupEvents() {
           document.getElementById('summary').value = resumeData.summary;
           saveData();
           renderPreview();
-        });
+        }, CREDIT_COSTS.enhance_summary, 'AI summary enhancement');
         break;
 
       case 'enhance-exp':
         await runAIEnhance(btn, () => {
           const exp = resumeData.experience[index];
-          if (!exp?.description?.trim()) {
-            showToast('Add some bullet points first', 'warning');
-            throw new Error('empty');
-          }
+          if (!exp?.description?.trim()) throw new Error('empty');
           exp.description = enhanceDescriptionAI(exp.description, exp.role);
           saveData();
           renderExperienceFields();
           renderPreview();
-        });
+        }, CREDIT_COSTS.enhance_exp, 'AI experience enhancement');
         break;
 
       case 'remove-exp':
@@ -561,13 +633,35 @@ function setupEvents() {
         break;
 
       case 'select-template':
-        if (btn.dataset.pro === 'true') showUpgradeModal('Premium templates');
+        const tier = TEMPLATE_TIERS[btn.dataset.template];
+        if (tier && tier !== 'free') showUpgradeModal(`${TIER_LABELS[tier]} templates`);
         else selectTemplate(btn.dataset.template);
         break;
 
       case 'export-pdf': exportPDF(); break;
       case 'hide-upgrade': hideUpgradeModal(); break;
-      case 'match-job': showUpgradeModal('Job description matching'); break;
+      case 'show-pricing': window.location.href = '/pricing.html'; break;
+      case 'match-job':
+        if (useCredits(CREDIT_COSTS.job_match, 'job description matching')) {
+          showToast('Job matching is a Pro feature — upgrade for full access', 'warning');
+        }
+        break;
+      case 'cover-letter':
+        if (useCredits(CREDIT_COSTS.cover_letter, 'cover letter generator')) {
+          showUpgradeModal('Cover letter generator (Pro)');
+        }
+        break;
+      case 'ats-scan':
+        if (useCredits(CREDIT_COSTS.ats_scan, 'ATS deep scan')) {
+          const score = calculateAtsScore();
+          showToast(`ATS Deep Scan: ${score}% — Upgrade for full report`);
+        }
+        break;
+      case 'linkedin':
+        if (useCredits(CREDIT_COSTS.linkedin, 'LinkedIn optimizer')) {
+          showUpgradeModal('LinkedIn optimizer (Business)');
+        }
+        break;
       case 'switch-tab': switchTab(btn.dataset.tab); break;
     }
   });
@@ -602,7 +696,7 @@ function init() {
   renderEducationFields();
   selectTemplate(resumeData.template);
   renderPreview();
-  updateExportBadge();
+  updateCreditsDisplay();
   setupEvents();
 }
 
