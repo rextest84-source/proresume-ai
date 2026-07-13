@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing & Credits — ProResume AI</title>
+  <meta name="description" content="ProResume AI pricing plans and AI credit packs. Free, Starter, Pro, Business, and Enterprise tiers. Pay securely via Stripe.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>html,body{font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;width:100%}</style>
+</head>
+<body class="bg-zinc-950 text-white overflow-x-hidden">
+
+  <nav class="bg-zinc-950 border-b border-white/10 sticky top-0 z-50">
+    <div class="w-full max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 font-bold text-lg">
+        <span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-sm">PR</span>
+        ProResume AI
+      </a>
+      <div class="flex items-center gap-6 text-sm">
+        <a href="/builder.html" class="text-zinc-300 hover:text-white transition">Resume Builder</a>
+        <a href="/contact.html" class="text-zinc-300 hover:text-white transition">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="w-full max-w-7xl mx-auto px-6 py-16">
+    <div class="text-center mb-16">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-4">Plans & Pricing</h1>
+      <p class="text-xl text-zinc-400 max-w-2xl mx-auto">Start free. Upgrade for more AI credits, templates, and exports. All payments processed securely via Stripe.</p>
+    </div>
+
+    <!-- Subscription Plans -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-20">
+      <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 flex flex-col">
+        <h3 class="text-lg font-semibold mb-1">Free</h3>
+        <p class="text-3xl font-bold mb-1">$0</p>
+        <p class="text-zinc-500 text-xs mb-6">forever</p>
+        <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>10 AI credits</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>4 templates</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>1 PDF export</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>1 resume</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Basic ATS score</li>
+        </ul>
+        <a href="/builder.html" class="block py-3 text-center border border-white/20 rounded-xl font-semibold text-sm hover:bg-white/5 transition">Start Free</a>
+      </div>
+
+      <div class="bg-zinc-900 border border-blue-500/30 rounded-2xl p-6 flex flex-col">
+        <h3 class="text-lg font-semibold mb-1">Starter</h3>
+        <p class="text-3xl font-bold mb-1">$8<span class="text-sm font-normal text-zinc-400">/mo</span></p>
+        <p class="text-zinc-500 text-xs mb-6">billed monthly</p>
+        <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
+          <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>50 AI credits/mo</li>
+          <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>7 templates</li>
+          <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>10 PDF exports/mo</li>
+          <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>3 resumes</li>
+          <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>Email support</li>
+        </ul>
+        <a href="/contact.html?plan=starter" class="block py-3 text-center bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-sm transition">Get Starter</a>
+      </div>
+
+      <div class="bg-gradient-to-b from-emerald-600 to-emerald-700 border border-emerald-400 rounded-2xl p-6 flex flex-col relative">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-xs font-bold px-4 py-1 rounded-full">Popular</span>
+        <h3 class="text-lg font-semibold mb-1">Pro</h3>
+        <p class="text-3xl font-bold mb-1">$15<span class="text-sm font-normal">/mo</span></p>
+        <p class="text-emerald-100 text-xs mb-6">billed monthly</p>
+        <ul class="space-y-3 text-sm flex-1 mb-6">
+          <li><i class="fa-solid fa-check mr-2"></i>200 AI credits/mo</li>
+          <li><i class="fa-solid fa-check mr-2"></i>12 premium templates</li>
+          <li><i class="fa-solid fa-check mr-2"></i>Unlimited PDF exports</li>
+          <li><i class="fa-solid fa-check mr-2"></i>Job description matching</li>
+          <li><i class="fa-solid fa-check mr-2"></i>Cover letter generator</li>
+          <li><i class="fa-solid fa-check mr-2"></i>Priority support</li>
+        </ul>
+        <a href="/contact.html?plan=pro" class="block py-3 text-center bg-white text-emerald-700 hover:bg-zinc-100 rounded-xl font-semibold text-sm transition">Get Pro</a>
+      </div>
+
+      <div class="bg-zinc-900 border border-purple-500/30 rounded-2xl p-6 flex flex-col">
+        <h3 class="text-lg font-semibold mb-1">Business</h3>
+        <p class="text-3xl font-bold mb-1">$39<span class="text-sm font-normal text-zinc-400">/mo</span></p>
+        <p class="text-zinc-500 text-xs mb-6">billed monthly</p>
+        <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Unlimited AI credits</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>All 14 templates</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Unlimited exports</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>LinkedIn optimizer</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Team sharing (5 seats)</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>ATS deep scan reports</li>
+        </ul>
+        <a href="/contact.html?plan=business" class="block py-3 text-center bg-purple-600 hover:bg-purple-500 rounded-xl font-semibold text-sm transition">Get Business</a>
+      </div>
+
+      <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 flex flex-col">
+        <h3 class="text-lg font-semibold mb-1">Enterprise</h3>
+        <p class="text-3xl font-bold mb-1">Custom</p>
+        <p class="text-zinc-500 text-xs mb-6">volume pricing</p>
+        <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Everything in Business</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Unlimited team seats</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>SSO & admin dashboard</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Custom branding</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Dedicated manager</li>
+        </ul>
+        <a href="/contact.html?plan=enterprise" class="block py-3 text-center border border-white/20 rounded-xl font-semibold text-sm hover:bg-white/5 transition">Contact Sales</a>
+      </div>
+    </div>
+
+    <!-- AI Credit Packs -->
+    <section class="mb-20">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-3">AI Credit Packs</h2>
+        <p class="text-zinc-400 max-w-xl mx-auto">Need more AI power without a subscription? Buy credits anytime. One-time purchase via Stripe — credits never expire.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 text-center">
+          <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-bolt text-amber-400"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-1">25 Credits</h3>
+          <p class="text-3xl font-bold text-amber-400 mb-2">$4.99</p>
+          <p class="text-zinc-500 text-sm mb-6">~12 AI enhancements</p>
+          <ul class="text-sm text-zinc-400 space-y-2 mb-6 text-left">
+            <li>• AI summary rewrite (2 credits)</li>
+            <li>• Experience enhance (2 credits)</li>
+            <li>• PDF export (3 credits)</li>
+          </ul>
+          <a href="/contact.html?credits=25" class="block py-3 border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 rounded-xl font-semibold transition">Buy 25 Credits</a>
+        </div>
+        <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl p-8 text-center relative">
+          <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-4 py-1 rounded-full">Best Value</span>
+          <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-bolt text-amber-400 text-xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-1">100 Credits</h3>
+          <p class="text-3xl font-bold text-amber-400 mb-2">$14.99</p>
+          <p class="text-zinc-500 text-sm mb-6">~50 AI enhancements</p>
+          <ul class="text-sm text-zinc-400 space-y-2 mb-6 text-left">
+            <li>• Job matching (5 credits)</li>
+            <li>• Cover letter (4 credits)</li>
+            <li>• ATS deep scan (2 credits)</li>
+          </ul>
+          <a href="/contact.html?credits=100" class="block py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-semibold transition">Buy 100 Credits</a>
+        </div>
+        <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 text-center">
+          <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-bolt text-amber-400 text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-1">500 Credits</h3>
+          <p class="text-3xl font-bold text-amber-400 mb-2">$49.99</p>
+          <p class="text-zinc-500 text-sm mb-6">Power users & agencies</p>
+          <ul class="text-sm text-zinc-400 space-y-2 mb-6 text-left">
+            <li>• LinkedIn optimize (3 credits)</li>
+            <li>• All AI features included</li>
+            <li>• Never expires</li>
+          </ul>
+          <a href="/contact.html?credits=500" class="block py-3 border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 rounded-xl font-semibold transition">Buy 500 Credits</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Credit costs table -->
+    <section class="max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold text-center mb-8">What credits are used for</h2>
+      <div class="bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-zinc-800 text-zinc-300">
+            <tr><th class="text-left p-4 font-semibold">Feature</th><th class="text-right p-4 font-semibold">Credits</th></tr>
+          </thead>
+          <tbody class="text-zinc-400 divide-y divide-white/5">
+            <tr><td class="p-4">AI Summary Enhancement</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
+            <tr><td class="p-4">AI Experience Enhancement</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
+            <tr><td class="p-4">PDF Export</td><td class="p-4 text-right text-amber-400 font-semibold">3</td></tr>
+            <tr><td class="p-4">Job Description Matching</td><td class="p-4 text-right text-amber-400 font-semibold">5</td></tr>
+            <tr><td class="p-4">Cover Letter Generator</td><td class="p-4 text-right text-amber-400 font-semibold">4</td></tr>
+            <tr><td class="p-4">ATS Deep Scan Report</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
+            <tr><td class="p-4">LinkedIn Profile Optimizer</td><td class="p-4 text-right text-amber-400 font-semibold">3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-center text-zinc-500 text-sm mt-6">Subscriptions include monthly credit allowances. <a href="/refund-policy.html" class="text-emerald-400 hover:underline">14-day money-back guarantee</a> on all purchases.</p>
+    </section>
+  </main>
+
+  <footer class="bg-black py-12 border-t border-white/10 mt-16">
+    <div class="w-full max-w-7xl mx-auto px-6 text-center text-sm text-zinc-500">
+      <p>© 2026 ProResume AI, Inc. · Payments via Stripe · <a href="/terms-of-service.html" class="hover:text-white">Terms</a> · <a href="/privacy-policy.html" class="hover:text-white">Privacy</a></p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -28,12 +28,12 @@
         <span class="hidden sm:inline">ProResume AI</span>
       </a>
       <div class="flex items-center gap-2 sm:gap-4">
-        <span id="save-indicator" class="text-xs text-zinc-500">Saved</span>
-        <span id="export-remaining" class="text-xs text-zinc-500 hidden sm:inline"></span>
+        <span class="credits-pill"><i class="fa-solid fa-bolt text-amber-400"></i> <span id="credits-count">10</span></span>
+        <span id="save-indicator" class="text-xs text-zinc-500 hidden sm:inline">Saved</span>
         <button data-action="export-pdf" class="px-3 sm:px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-xs sm:text-sm font-semibold transition">
-          <i class="fa-solid fa-download mr-1"></i> Export PDF
+          <i class="fa-solid fa-download mr-1"></i> Export <span class="hidden sm:inline">PDF</span>
         </button>
-        <a href="/#pricing" class="px-3 sm:px-4 py-1.5 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 rounded-lg text-xs sm:text-sm font-semibold transition hidden sm:inline-flex">Upgrade</a>
+        <a href="/pricing.html" class="px-3 sm:px-4 py-1.5 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 rounded-lg text-xs sm:text-sm font-semibold transition">Upgrade</a>
       </div>
     </div>
   </header>
@@ -53,33 +53,74 @@
 
       <!-- Templates -->
       <section>
-        <h2 class="text-sm font-semibold text-zinc-300 mb-3">Choose a template</h2>
-        <div class="grid grid-cols-3 gap-2 sm:gap-3">
-          <button data-action="select-template" data-template="modern" class="template-btn p-2 sm:p-3 bg-zinc-800 rounded-xl border border-white/10 text-center ring-2 ring-emerald-400">
+        <h2 class="text-sm font-semibold text-zinc-300 mb-1">Choose a template</h2>
+        <p class="text-zinc-500 text-xs mb-3">14 designs · 4 free, 10 premium</p>
+        <div class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+          <button data-action="select-template" data-template="modern" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center ring-2 ring-emerald-400 relative">
             <div class="tpl-thumb tpl-thumb-modern"></div>
-            <span class="text-[10px] sm:text-xs font-medium">Modern</span>
+            <span class="text-[9px] font-medium">Modern</span>
           </button>
-          <button data-action="select-template" data-template="classic" class="template-btn p-2 sm:p-3 bg-zinc-800 rounded-xl border border-white/10 text-center">
+          <button data-action="select-template" data-template="classic" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
             <div class="tpl-thumb tpl-thumb-classic"></div>
-            <span class="text-[10px] sm:text-xs font-medium">Classic</span>
+            <span class="text-[9px] font-medium">Classic</span>
           </button>
-          <button data-action="select-template" data-template="minimal" class="template-btn p-2 sm:p-3 bg-zinc-800 rounded-xl border border-white/10 text-center">
+          <button data-action="select-template" data-template="minimal" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
             <div class="tpl-thumb tpl-thumb-minimal"></div>
-            <span class="text-[10px] sm:text-xs font-medium">Minimal</span>
+            <span class="text-[9px] font-medium">Minimal</span>
           </button>
-          <button data-action="select-template" data-template="stanford" class="template-btn p-2 sm:p-3 bg-zinc-800 rounded-xl border border-white/10 text-center">
+          <button data-action="select-template" data-template="stanford" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
             <div class="tpl-thumb tpl-thumb-stanford"></div>
-            <span class="text-[10px] sm:text-xs font-medium">Professional</span>
+            <span class="text-[9px] font-medium">Pro</span>
           </button>
-          <button data-action="select-template" data-template="executive" data-pro="true" class="template-btn p-2 sm:p-3 bg-zinc-800 rounded-xl border border-white/10 text-center relative">
+          <button data-action="select-template" data-template="corporate" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-corporate"></div>
+            <span class="text-[9px] font-medium">Corporate</span>
+            <span class="tier-badge tier-starter">$8</span>
+          </button>
+          <button data-action="select-template" data-template="elegant" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-elegant"></div>
+            <span class="text-[9px] font-medium">Elegant</span>
+            <span class="tier-badge tier-starter">$8</span>
+          </button>
+          <button data-action="select-template" data-template="compact" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-compact"></div>
+            <span class="text-[9px] font-medium">Compact</span>
+            <span class="tier-badge tier-starter">$8</span>
+          </button>
+          <button data-action="select-template" data-template="executive" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
             <div class="tpl-thumb tpl-thumb-executive"></div>
-            <span class="text-[10px] sm:text-xs font-medium">Executive</span>
-            <span class="absolute top-1 right-1 text-[8px] bg-emerald-500/20 text-emerald-400 px-1 rounded font-bold">PRO</span>
+            <span class="text-[9px] font-medium">Executive</span>
+            <span class="tier-badge tier-pro">$15</span>
           </button>
-          <button data-action="select-template" data-template="creative" data-pro="true" class="template-btn p-2 sm:p-3 bg-zinc-800 rounded-xl border border-white/10 text-center relative">
+          <button data-action="select-template" data-template="creative" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
             <div class="tpl-thumb tpl-thumb-creative"></div>
-            <span class="text-[10px] sm:text-xs font-medium">Creative</span>
-            <span class="absolute top-1 right-1 text-[8px] bg-emerald-500/20 text-emerald-400 px-1 rounded font-bold">PRO</span>
+            <span class="text-[9px] font-medium">Creative</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
+          <button data-action="select-template" data-template="tech" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-tech"></div>
+            <span class="text-[9px] font-medium">Tech</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
+          <button data-action="select-template" data-template="harvard" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-harvard"></div>
+            <span class="text-[9px] font-medium">Harvard</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
+          <button data-action="select-template" data-template="bold" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-bold"></div>
+            <span class="text-[9px] font-medium">Bold</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
+          <button data-action="select-template" data-template="luxury" data-tier="business" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-luxury"></div>
+            <span class="text-[9px] font-medium">Luxury</span>
+            <span class="tier-badge tier-business">$39</span>
+          </button>
+          <button data-action="select-template" data-template="international" data-tier="business" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-international"></div>
+            <span class="text-[9px] font-medium">Intl</span>
+            <span class="tier-badge tier-business">$39</span>
           </button>
         </div>
       </section>
@@ -126,13 +167,32 @@
         <input id="skills" type="text" placeholder="JavaScript, React, Project Management, SQL..." class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
       </section>
 
-      <section class="bg-zinc-800/50 border border-emerald-500/20 rounded-2xl p-5 space-y-3">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-lock text-emerald-400 text-sm"></i>
-          <h2 class="text-sm font-semibold">Job Description Matching <span class="text-emerald-400 text-xs font-normal">Pro</span></h2>
+      <!-- AI Tools (credit-based) -->
+      <section class="space-y-3">
+        <h2 class="text-sm font-semibold text-zinc-300">AI Tools <span class="text-amber-400 font-normal text-xs">uses credits</span></h2>
+        <div class="grid grid-cols-2 gap-2">
+          <button data-action="match-job" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
+            <i class="fa-solid fa-bullseye text-emerald-400 text-sm mb-1"></i>
+            <p class="text-xs font-semibold">Job Match</p>
+            <p class="text-[10px] text-zinc-500">5 credits</p>
+          </button>
+          <button data-action="cover-letter" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
+            <i class="fa-solid fa-envelope text-emerald-400 text-sm mb-1"></i>
+            <p class="text-xs font-semibold">Cover Letter</p>
+            <p class="text-[10px] text-zinc-500">4 credits · Pro</p>
+          </button>
+          <button data-action="ats-scan" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
+            <i class="fa-solid fa-chart-line text-emerald-400 text-sm mb-1"></i>
+            <p class="text-xs font-semibold">ATS Deep Scan</p>
+            <p class="text-[10px] text-zinc-500">2 credits</p>
+          </button>
+          <button data-action="linkedin" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
+            <i class="fa-brands fa-linkedin text-emerald-400 text-sm mb-1"></i>
+            <p class="text-xs font-semibold">LinkedIn Optimize</p>
+            <p class="text-[10px] text-zinc-500">3 credits · Business</p>
+          </button>
         </div>
-        <p class="text-zinc-400 text-xs">Paste a job posting and AI tailors your resume to match keywords.</p>
-        <button data-action="match-job" class="w-full py-2.5 border border-emerald-500/30 text-emerald-400 rounded-xl text-sm font-medium hover:bg-emerald-500/10 transition">Unlock with Pro — $12/mo</button>
+        <a href="/pricing.html" class="block text-center text-xs text-amber-400 hover:text-amber-300 font-medium">Buy more credits or upgrade →</a>
       </section>
     </div>
 
@@ -147,15 +207,36 @@
     </div>
   </div>
 
-  <div id="upgrade-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-    <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 max-w-md w-full text-center">
-      <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-        <i class="fa-solid fa-crown text-emerald-400 text-xl"></i>
+  <div id="upgrade-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 overflow-y-auto">
+    <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 max-w-lg w-full my-4">
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <i class="fa-solid fa-bolt text-amber-400"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-1">Upgrade or Buy Credits</h3>
+        <p class="text-zinc-400 text-sm"><span id="upgrade-feature">This feature</span> requires a paid plan or more AI credits.</p>
+        <p class="text-amber-400 text-sm mt-2 font-medium">You have <span id="modal-credits">10</span> credits remaining</p>
       </div>
-      <h3 class="text-xl font-bold mb-2">Upgrade to Pro</h3>
-      <p class="text-zinc-400 text-sm mb-6"><span id="upgrade-feature">This feature</span> is available on the Pro plan ($12/month).</p>
-      <a href="/contact.html" class="block w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold mb-3 transition">Start Pro Trial</a>
-      <button data-action="hide-upgrade" class="text-zinc-500 text-sm hover:text-white transition">Continue with Free</button>
+      <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+        <a href="/pricing.html" class="p-3 bg-blue-600/20 border border-blue-500/30 rounded-xl text-center hover:bg-blue-600/30 transition">
+          <p class="font-bold text-blue-400">Starter $8</p>
+          <p class="text-[10px] text-zinc-400">50 credits/mo</p>
+        </a>
+        <a href="/pricing.html" class="p-3 bg-emerald-600/20 border border-emerald-500/30 rounded-xl text-center hover:bg-emerald-600/30 transition">
+          <p class="font-bold text-emerald-400">Pro $15</p>
+          <p class="text-[10px] text-zinc-400">200 credits/mo</p>
+        </a>
+        <a href="/pricing.html" class="p-3 bg-purple-600/20 border border-purple-500/30 rounded-xl text-center hover:bg-purple-600/30 transition">
+          <p class="font-bold text-purple-400">Business $39</p>
+          <p class="text-[10px] text-zinc-400">Unlimited</p>
+        </a>
+        <a href="/pricing.html" class="p-3 bg-amber-600/20 border border-amber-500/30 rounded-xl text-center hover:bg-amber-600/30 transition">
+          <p class="font-bold text-amber-400">100 Credits</p>
+          <p class="text-[10px] text-zinc-400">$14.99 one-time</p>
+        </a>
+      </div>
+      <a href="/pricing.html" class="block w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-center mb-2 transition">View All Plans & Credits</a>
+      <button data-action="hide-upgrade" class="block w-full text-zinc-500 text-sm hover:text-white transition text-center">Continue with Free</button>
     </div>
   </div>
 
