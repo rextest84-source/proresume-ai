@@ -48,14 +48,14 @@
     <div id="editor-panel" class="w-full md:w-[42%] lg:w-[40%] overflow-y-auto p-4 sm:p-6 space-y-6 border-r border-white/5">
       <div>
         <h1 class="text-2xl font-bold mb-1">Build your resume</h1>
-        <p class="text-zinc-400 text-sm">Fill in your details — preview updates live. Tap <strong class="text-white">Enhance with AI</strong> to rewrite your content.</p>
+        <p class="text-zinc-400 text-sm">Fill in your details — preview updates live. Use <strong class="text-white">AI Build</strong> to generate a complete resume, or <strong class="text-white">Enhance</strong> for new variations every time.</p>
       </div>
 
       <!-- Templates -->
       <section>
         <h2 class="text-sm font-semibold text-zinc-300 mb-1">Choose a template</h2>
-        <p class="text-zinc-500 text-xs mb-3">14 designs · 4 free, 10 premium</p>
-        <div class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+        <p class="text-zinc-500 text-xs mb-3">24 professional designs · 6 free, 18 premium</p>
+        <div class="grid grid-cols-4 gap-2 max-h-56 overflow-y-auto pr-1">
           <button data-action="select-template" data-template="modern" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center ring-2 ring-emerald-400 relative">
             <div class="tpl-thumb tpl-thumb-modern"></div>
             <span class="text-[9px] font-medium">Modern</span>
@@ -70,7 +70,15 @@
           </button>
           <button data-action="select-template" data-template="stanford" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
             <div class="tpl-thumb tpl-thumb-stanford"></div>
-            <span class="text-[9px] font-medium">Pro</span>
+            <span class="text-[9px] font-medium">Stanford</span>
+          </button>
+          <button data-action="select-template" data-template="horizon" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
+            <div class="tpl-thumb tpl-thumb-horizon"></div>
+            <span class="text-[9px] font-medium">Horizon</span>
+          </button>
+          <button data-action="select-template" data-template="serif" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
+            <div class="tpl-thumb tpl-thumb-serif"></div>
+            <span class="text-[9px] font-medium">Serif</span>
           </button>
           <button data-action="select-template" data-template="corporate" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
             <div class="tpl-thumb tpl-thumb-corporate"></div>
@@ -85,6 +93,21 @@
           <button data-action="select-template" data-template="compact" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
             <div class="tpl-thumb tpl-thumb-compact"></div>
             <span class="text-[9px] font-medium">Compact</span>
+            <span class="tier-badge tier-starter">$8</span>
+          </button>
+          <button data-action="select-template" data-template="metro" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-metro"></div>
+            <span class="text-[9px] font-medium">Metro</span>
+            <span class="tier-badge tier-starter">$8</span>
+          </button>
+          <button data-action="select-template" data-template="slate" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-slate"></div>
+            <span class="text-[9px] font-medium">Slate</span>
+            <span class="tier-badge tier-starter">$8</span>
+          </button>
+          <button data-action="select-template" data-template="canvas" data-tier="starter" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-canvas"></div>
+            <span class="text-[9px] font-medium">Canvas</span>
             <span class="tier-badge tier-starter">$8</span>
           </button>
           <button data-action="select-template" data-template="executive" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
@@ -112,6 +135,26 @@
             <span class="text-[9px] font-medium">Bold</span>
             <span class="tier-badge tier-pro">$15</span>
           </button>
+          <button data-action="select-template" data-template="nova" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-nova"></div>
+            <span class="text-[9px] font-medium">Nova</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
+          <button data-action="select-template" data-template="apex" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-apex"></div>
+            <span class="text-[9px] font-medium">Apex</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
+          <button data-action="select-template" data-template="pioneer" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-pioneer"></div>
+            <span class="text-[9px] font-medium">Pioneer</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
+          <button data-action="select-template" data-template="academic" data-tier="pro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-academic"></div>
+            <span class="text-[9px] font-medium">Academic</span>
+            <span class="tier-badge tier-pro">$15</span>
+          </button>
           <button data-action="select-template" data-template="luxury" data-tier="business" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
             <div class="tpl-thumb tpl-thumb-luxury"></div>
             <span class="text-[9px] font-medium">Luxury</span>
@@ -122,7 +165,24 @@
             <span class="text-[9px] font-medium">Intl</span>
             <span class="tier-badge tier-business">$39</span>
           </button>
+          <button data-action="select-template" data-template="refined" data-tier="business" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative opacity-75">
+            <div class="tpl-thumb tpl-thumb-refined"></div>
+            <span class="text-[9px] font-medium">Refined</span>
+            <span class="tier-badge tier-business">$39</span>
+          </button>
         </div>
+      </section>
+
+      <!-- AI Build -->
+      <section class="p-4 bg-gradient-to-br from-emerald-500/10 to-purple-500/10 border border-emerald-500/20 rounded-xl space-y-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i>
+          <h2 class="text-sm font-semibold text-white">AI Resume Builder</h2>
+        </div>
+        <p class="text-zinc-400 text-xs">Enter your job title, then let AI write your summary, skills, and experience bullets. Each run produces unique, role-specific content.</p>
+        <button data-action="build-resume" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-sm font-semibold transition">
+          <i class="fa-solid fa-file-circle-plus mr-1"></i> AI Build Full Resume (5 credits)
+        </button>
       </section>
 
       <section class="space-y-3">
@@ -137,11 +197,16 @@
       </section>
 
       <section class="space-y-3">
-        <div class="flex justify-between items-center gap-2">
+        <div class="flex justify-between items-center gap-2 flex-wrap">
           <h2 class="text-sm font-semibold text-zinc-300">Professional Summary</h2>
-          <button data-action="enhance-summary" class="ai-btn flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-semibold transition shrink-0">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Enhance with AI
-          </button>
+          <div class="flex gap-1.5">
+            <button data-action="regenerate-summary" class="ai-btn flex items-center gap-1 px-2.5 py-1.5 bg-zinc-800 border border-white/10 text-zinc-300 hover:text-white rounded-lg text-xs font-medium transition shrink-0" title="Generate a different variation">
+              <i class="fa-solid fa-rotate"></i> New
+            </button>
+            <button data-action="enhance-summary" class="ai-btn flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-semibold transition shrink-0">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Enhance
+            </button>
+          </div>
         </div>
         <textarea id="summary" rows="4" placeholder="Brief overview of your experience and career goals..." class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm resize-none focus:border-emerald-500/50 focus:outline-none transition"></textarea>
       </section>
@@ -163,33 +228,36 @@
       </section>
 
       <section class="space-y-3">
-        <h2 class="text-sm font-semibold text-zinc-300">Skills</h2>
+        <div class="flex justify-between items-center gap-2">
+          <h2 class="text-sm font-semibold text-zinc-300">Skills</h2>
+          <button data-action="suggest-skills" class="text-xs text-emerald-400 hover:text-emerald-300 font-medium shrink-0"><i class="fa-solid fa-lightbulb mr-1"></i> AI Suggest</button>
+        </div>
         <input id="skills" type="text" placeholder="JavaScript, React, Project Management, SQL..." class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
       </section>
 
-      <!-- AI Tools (credit-based) -->
+      <!-- AI Tools -->
       <section class="space-y-3">
-        <h2 class="text-sm font-semibold text-zinc-300">AI Tools <span class="text-amber-400 font-normal text-xs">uses credits</span></h2>
+        <h2 class="text-sm font-semibold text-zinc-300">AI Career Tools <span class="text-amber-400 font-normal text-xs">unique results every run</span></h2>
         <div class="grid grid-cols-2 gap-2">
           <button data-action="match-job" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
             <i class="fa-solid fa-bullseye text-emerald-400 text-sm mb-1"></i>
             <p class="text-xs font-semibold">Job Match</p>
-            <p class="text-[10px] text-zinc-500">5 credits</p>
+            <p class="text-[10px] text-zinc-500">Tailor to job posting · 5 credits</p>
           </button>
           <button data-action="cover-letter" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
             <i class="fa-solid fa-envelope text-emerald-400 text-sm mb-1"></i>
             <p class="text-xs font-semibold">Cover Letter</p>
-            <p class="text-[10px] text-zinc-500">4 credits · Pro</p>
+            <p class="text-[10px] text-zinc-500">Role-specific letter · 4 credits</p>
           </button>
           <button data-action="ats-scan" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
             <i class="fa-solid fa-chart-line text-emerald-400 text-sm mb-1"></i>
             <p class="text-xs font-semibold">ATS Deep Scan</p>
-            <p class="text-[10px] text-zinc-500">2 credits</p>
+            <p class="text-[10px] text-zinc-500">Full report + tips · 2 credits</p>
           </button>
           <button data-action="linkedin" class="p-3 bg-zinc-800/50 border border-white/10 rounded-xl text-left hover:border-emerald-500/30 transition">
             <i class="fa-brands fa-linkedin text-emerald-400 text-sm mb-1"></i>
             <p class="text-xs font-semibold">LinkedIn Optimize</p>
-            <p class="text-[10px] text-zinc-500">3 credits · Business</p>
+            <p class="text-[10px] text-zinc-500">Headline & about · 3 credits</p>
           </button>
         </div>
         <a href="/pricing.html" class="block text-center text-xs text-amber-400 hover:text-amber-300 font-medium">Buy more credits or upgrade →</a>
@@ -242,6 +310,7 @@
 
   <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-sm font-medium z-50 bg-emerald-600 text-white shadow-xl"></div>
 
+  <script src="/js/ai-engine.js"></script>
   <script src="/js/builder.js"></script>
 </body>
 </html>
