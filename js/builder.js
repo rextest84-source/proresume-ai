@@ -436,17 +436,42 @@ function renderThemed(id, variant = 'default') {
   return `<div class="tm-themed tm-${id}">${header}${body}</div>`;
 }
 
+function normalizeTemplate(tpl) {
+  if (!tpl || !TEMPLATE_RENDERERS[tpl]) return 'modern';
+  const tier = TEMPLATE_TIERS[tpl];
+  if (tier && tier !== 'free') return 'modern';
+  return tpl;
+}
+
 function renderPreview() {
   const preview = document.getElementById('resume-preview');
   if (!preview) return;
 
-  const tpl = resumeData.template || 'modern';
-  const renderer = TEMPLATE_RENDERERS[tpl] || TEMPLATE_RENDERERS.modern;
+  const tpl = normalizeTemplate(resumeData.template);
+  if (tpl !== resumeData.template) {
+    resumeData.template = tpl;
+    saveData();
+  }
+
+  const renderer = TEMPLATE_RENDERERS[tpl];
   preview.className = `resume-preview template-${tpl}`;
-  preview.innerHTML = renderer(resumeData);
+
+  try {
+    preview.innerHTML = renderer();
+  } catch (err) {
+    console.error('Preview render failed:', err);
+    preview.innerHTML = TEMPLATE_RENDERERS.modern();
+    preview.className = 'resume-preview template-modern';
+  }
 
   const scoreEl = document.getElementById('ats-score');
   if (scoreEl) scoreEl.textContent = calculateAtsScore() + '%';
+
+  requestAnimationFrame(() => {
+    const frame = document.getElementById('preview-frame');
+    if (frame) frame.scrollTop = 0;
+    if (window.innerWidth < 768) window.scrollTo(0, 0);
+  });
 }
 
 // ─── Form UI ───
@@ -543,10 +568,17 @@ function switchTab(tab) {
   if (isMobile) {
     editor.classList.toggle('hidden', tab !== 'edit');
     preview.classList.toggle('hidden', tab !== 'preview');
-    preview.classList.remove('md:block');
+    if (tab === 'preview') {
+      preview.classList.remove('hidden');
+      preview.classList.add('block');
+    } else {
+      preview.classList.add('hidden');
+      preview.classList.remove('block');
+    }
   } else {
     editor.classList.remove('hidden');
     preview.classList.remove('hidden');
+    preview.classList.add('md:block');
   }
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -555,7 +587,10 @@ function switchTab(tab) {
     btn.classList.toggle('text-white', active);
     btn.classList.toggle('text-zinc-400', !active);
   });
-  if (tab === 'preview') renderPreview();
+  if (tab === 'preview') {
+    renderPreview();
+    requestAnimationFrame(() => window.scrollTo(0, 0));
+  }
 }
 
 async function exportPDF() {
@@ -684,6 +719,8 @@ function setupEvents() {
 }
 
 function init() {
+  resumeData.template = normalizeTemplate(resumeData.template);
+
   bindInput('name', 'name');
   bindInput('title', 'title');
   bindInput('email', 'email');
