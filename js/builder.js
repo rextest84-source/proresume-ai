@@ -4,7 +4,7 @@ const STORAGE_KEY = 'proresume_data';
 const CREDITS_KEY = 'proresume_credits';
 const EXPORT_COUNT_KEY = 'proresume_exports';
 const FREE_EXPORT_LIMIT = 1;
-const STARTING_CREDITS = 10;
+const STARTING_CREDITS = 20;
 
 const TEMPLATE_TIERS = {
   modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
@@ -785,20 +785,75 @@ function switchTab(tab) {
 
 async function exportPDF() {
   if (!useCredits(CREDIT_COSTS.export_pdf, 'PDF export')) return;
-  const element = document.getElementById('resume-preview');
-  try {
-    await html2pdf().set({
-      margin: 0,
-      filename: (resumeData.name || 'resume').replace(/\s+/g, '_') + '_resume.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    }).from(element).save();
-    showToast(`Resume downloaded! (−${CREDIT_COSTS.export_pdf} credits)`);
-  } catch {
+
+  const btn = document.querySelector('[data-action="export-pdf"]');
+  const originalBtn = btn?.innerHTML;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Generating PDF...';
+  }
+
+  if (window.innerWidth < 768) switchTab('preview');
+  renderPreview();
+
+  const source = document.getElementById('resume-preview');
+  if (!source) {
     setCredits(getCredits() + CREDIT_COSTS.export_pdf);
-    window.print();
-    showToast('Use Print → Save as PDF');
+    showToast('Preview not found — credits refunded', 'warning');
+    if (btn) { btn.disabled = false; btn.innerHTML = originalBtn; }
+    return;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('aria-hidden', 'true');
+  wrapper.style.cssText = 'position:fixed;left:-10000px;top:0;width:816px;background:#fff;overflow:visible;';
+  const clone = source.cloneNode(true);
+  clone.style.width = '816px';
+  clone.style.maxWidth = '816px';
+  clone.style.minHeight = '1056px';
+  clone.style.background = '#ffffff';
+  clone.style.boxShadow = 'none';
+  clone.querySelectorAll('i').forEach(icon => { icon.style.display = 'none'; });
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  try {
+    if (document.fonts?.ready) await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 300));
+
+    const filename = (resumeData.name || 'resume').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_') + '_resume.pdf';
+
+    await html2pdf().set({
+      margin: [0.35, 0.4, 0.35, 0.4],
+      filename,
+      image: { type: 'jpeg', quality: 0.96 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        letterRendering: true,
+        backgroundColor: '#ffffff',
+        width: 816,
+        windowWidth: 816,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        logging: false
+      },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
+      pagebreak: { mode: ['css', 'legacy'] }
+    }).from(clone).save();
+
+    showToast(`PDF downloaded: ${filename} (−${CREDIT_COSTS.export_pdf} credits)`);
+  } catch (err) {
+    console.error('PDF export failed:', err);
+    setCredits(getCredits() + CREDIT_COSTS.export_pdf);
+    showToast('PDF export failed — credits refunded. Please try again.', 'warning');
+  } finally {
+    wrapper.remove();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalBtn;
+    }
   }
 }
 
