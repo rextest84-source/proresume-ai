@@ -9,7 +9,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>html,body{font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;width:100%}</style>
+  <style>
+    html, body {
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    input, select, textarea, button { max-width: 100%; }
+  </style>
 </head>
 <body class="bg-zinc-950 text-white overflow-x-hidden">
 
@@ -32,8 +41,8 @@
       <p class="text-xl text-zinc-400">We're here to help. Reach out and we'll respond within 1 business day.</p>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-12">
-      <div class="space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 w-full">
+      <div class="space-y-6 w-full min-w-0">
         <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
           <i class="fa-solid fa-headset text-emerald-400 text-2xl mb-4"></i>
           <h3 class="font-semibold text-lg mb-2">Customer Support</h3>
@@ -61,8 +70,8 @@
         </div>
       </div>
 
-      <div>
-        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/contact.html" class="bg-zinc-900 p-8 rounded-2xl border border-white/5 space-y-6">
+      <div class="w-full min-w-0">
+        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/contact-success.html" class="bg-zinc-900 p-6 sm:p-8 rounded-2xl border border-white/5 space-y-6 w-full">
           <input type="hidden" name="form-name" value="contact">
           <p class="hidden"><label>Don't fill this out: <input name="bot-field"></label></p>
 
@@ -76,7 +85,7 @@
           </div>
           <div>
             <label for="subject" class="block text-sm font-medium mb-2">Subject</label>
-            <select id="subject" name="subject" required class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition">
+            <select id="subject" name="subject" required class="w-full max-w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition appearance-none">
               <option value="">Select a topic</option>
               <option value="support">Customer Support</option>
               <option value="billing">Billing & Subscriptions</option>
@@ -97,9 +106,9 @@
   </main>
 
   <footer class="bg-black py-12 border-t border-white/10">
-    <div class="w-full max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-zinc-500">
+    <div class="w-full max-w-7xl mx-auto px-6 flex flex-col items-center gap-4 text-sm text-zinc-500 text-center">
       <p>© 2026 ProResume AI, Inc. All rights reserved.</p>
-      <div class="flex gap-6">
+      <div class="flex flex-wrap justify-center gap-4 sm:gap-6">
         <a href="/terms-of-service.html" class="hover:text-white transition">Terms</a>
         <a href="/privacy-policy.html" class="hover:text-white transition">Privacy</a>
         <a href="/refund-policy.html" class="hover:text-white transition">Refunds</a>
