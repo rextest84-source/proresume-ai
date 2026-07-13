@@ -2,24 +2,23 @@
 
 AI-powered professional resume builder.
 
-## Live Site
+## Deploy with Netlify
 
-Once GitHub Pages is enabled, the landing page is available at:
+This is a static site — no build step required. Connect the repo to Netlify and deploy in a few clicks.
 
-**https://rextest84-source.github.io/proresume-ai/**
+### One-time setup
 
-## Enable GitHub Pages (one-time setup)
+1. Sign in at [app.netlify.com](https://app.netlify.com)
+2. Click **Add new site → Import an existing project**
+3. Choose **GitHub** and select this repository (`rextest84-source/proresume-ai`)
+4. Netlify will auto-detect settings from `netlify.toml`:
+   - **Build command:** *(leave empty)*
+   - **Publish directory:** `.`
+5. Click **Deploy site**
 
-The site files are ready on the `gh-pages` branch. To go live:
+Every push to `main` will trigger an automatic redeploy.
 
-1. Open [Repository Settings → Pages](https://github.com/rextest84-source/proresume-ai/settings/pages)
-2. Under **Build and deployment**, set **Source** to **Deploy from a branch**
-3. Select branch **`gh-pages`** and folder **`/ (root)`**
-4. Click **Save**
-
-The site should be live within a minute. Future pushes to `main` automatically update `gh-pages` via the GitHub Actions workflow.
-
-## Local Preview
+### Local preview
 
 Open `index.html` in a browser, or run:
 
