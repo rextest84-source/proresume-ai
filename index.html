@@ -7,42 +7,46 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; }
+    html, body {
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      width: 100%;
+    }
   </style>
 </head>
-<body class="bg-zinc-950 text-white">
+<body class="bg-zinc-950 text-white overflow-x-hidden">
 
   <!-- Hero -->
   <header class="min-h-screen flex items-center bg-gradient-to-br from-zinc-900 via-zinc-950 to-black">
-    <div class="max-w-7xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-12 items-center">
-      <div>
-        <h1 class="text-6xl md:text-7xl font-bold leading-tight mb-6">
+    <div class="w-full max-w-7xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-12 items-center">
+      <div class="w-full">
+        <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight mb-6">
           Build a <span class="text-emerald-400">professional resume</span> with AI
         </h1>
         <p class="text-xl text-zinc-400 mb-8 max-w-lg">
           ProResume AI helps you create ATS-friendly, beautiful resumes in minutes. Stand out from the crowd with AI-powered suggestions.
         </p>
-        <div class="flex items-center gap-4">
-          <a href="#pricing" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-lg transition">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <a href="#pricing" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-lg transition text-center">
             Get Started Free
           </a>
-          <a href="#" class="px-8 py-4 border border-white/30 hover:bg-white/10 rounded-xl font-semibold text-lg transition">
+          <a href="#" class="px-8 py-4 border border-white/30 hover:bg-white/10 rounded-xl font-semibold text-lg transition text-center">
             Watch Demo
           </a>
         </div>
         <p class="text-zinc-500 mt-6 text-sm">No credit card required • Cancel anytime</p>
       </div>
-      <div class="relative">
-        <img src="https://picsum.photos/id/1015/800/600" alt="Resume Preview" class="rounded-3xl shadow-2xl border border-white/10">
+      <div class="relative w-full">
+        <img src="https://picsum.photos/id/1015/800/600" alt="Resume Preview" class="w-full h-auto rounded-3xl shadow-2xl border border-white/10">
       </div>
     </div>
   </header>
 
   <!-- Features -->
   <section class="py-24 bg-zinc-900">
-    <div class="max-w-7xl mx-auto px-6">
-      <h2 class="text-4xl font-bold text-center mb-16">Everything you need to land your dream job</h2>
-      <div class="grid md:grid-cols-3 gap-8">
+    <div class="w-full max-w-7xl mx-auto px-6">
+      <h2 class="text-3xl sm:text-4xl font-bold text-center mb-16">Everything you need to land your dream job</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-zinc-800 p-8 rounded-3xl">
           <i class="fa-solid fa-wand-magic-sparkles text-4xl text-emerald-400 mb-6"></i>
           <h3 class="text-2xl font-semibold mb-3">AI-Powered Writing</h3>
@@ -64,11 +68,11 @@
 
   <!-- Pricing -->
   <section id="pricing" class="py-24 bg-black">
-    <div class="max-w-7xl mx-auto px-6">
-      <h2 class="text-4xl font-bold text-center mb-4">Simple, transparent pricing</h2>
+    <div class="w-full max-w-7xl mx-auto px-6">
+      <h2 class="text-3xl sm:text-4xl font-bold text-center mb-4">Simple, transparent pricing</h2>
       <p class="text-center text-zinc-400 mb-16">Start free. Upgrade when you're ready.</p>
 
-      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto w-full">
         <div class="bg-zinc-900 border border-white/10 rounded-3xl p-8">
           <h3 class="text-2xl font-semibold mb-2">Free</h3>
           <p class="text-5xl font-bold mb-8">$0<span class="text-base font-normal text-zinc-400">/month</span></p>
@@ -80,7 +84,7 @@
           <a href="#" class="block w-full py-4 text-center border border-white/30 rounded-2xl font-semibold">Get Started Free</a>
         </div>
 
-        <div class="bg-gradient-to-b from-emerald-500 to-emerald-600 border border-emerald-400 rounded-3xl p-8 relative scale-105">
+        <div class="bg-gradient-to-b from-emerald-500 to-emerald-600 border border-emerald-400 rounded-3xl p-8 relative md:scale-105">
           <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-xs font-bold px-6 py-1 rounded-full">Most Popular</div>
           <h3 class="text-2xl font-semibold mb-2">Pro</h3>
           <p class="text-5xl font-bold mb-8">$12<span class="text-base font-normal">/month</span></p>
@@ -109,7 +113,7 @@
 
   <!-- Footer -->
   <footer class="bg-black py-16 border-t border-white/10">
-    <div class="max-w-7xl mx-auto px-6 text-center">
+    <div class="w-full max-w-7xl mx-auto px-6 text-center">
       <p class="text-zinc-500">© 2026 ProResume AI. All rights reserved.</p>
       <p class="text-zinc-600 mt-2 text-sm">Built for job seekers who want to stand out.</p>
     </div>
