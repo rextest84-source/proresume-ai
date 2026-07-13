@@ -13,7 +13,7 @@ const TEMPLATE_TIERS = {
   luxury: 'business', international: 'business', refined: 'business'
 };
 
-const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($39/mo)' };
+const TIER_LABELS = { free: 'Free', starter: 'Starter ($3/mo)', pro: 'Pro ($10/mo)', business: 'Business ($20/mo)' };
 
 const CREDIT_COSTS = {
   enhance_summary: 2, enhance_exp: 2, export_pdf: 3, regenerate: 1,
