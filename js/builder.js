@@ -7,24 +7,52 @@ const FREE_EXPORT_LIMIT = 1;
 const STARTING_CREDITS = 10;
 
 const TEMPLATE_TIERS = {
-  modern: 'free', classic: 'free', minimal: 'free', stanford: 'free',
-  corporate: 'starter', elegant: 'starter', compact: 'starter',
-  executive: 'pro', creative: 'pro', tech: 'pro', harvard: 'pro', bold: 'pro',
-  luxury: 'business', international: 'business'
+  modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
+  corporate: 'starter', elegant: 'starter', compact: 'starter', metro: 'starter', slate: 'starter', canvas: 'starter',
+  executive: 'pro', creative: 'pro', tech: 'pro', harvard: 'pro', bold: 'pro', nova: 'pro', apex: 'pro', pioneer: 'pro', academic: 'pro',
+  luxury: 'business', international: 'business', refined: 'business'
 };
 
 const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($39/mo)' };
 
 const CREDIT_COSTS = {
-  enhance_summary: 2, enhance_exp: 2, export_pdf: 3,
+  enhance_summary: 2, enhance_exp: 2, export_pdf: 3, regenerate: 1,
+  build_resume: 5, suggest_skills: 1,
   job_match: 5, cover_letter: 4, ats_scan: 2, linkedin: 3
 };
 
-const ACTION_VERBS = [
-  'Spearheaded', 'Architected', 'Engineered', 'Delivered', 'Optimized',
-  'Led', 'Developed', 'Implemented', 'Achieved', 'Increased', 'Reduced',
-  'Built', 'Designed', 'Launched', 'Streamlined', 'Drove', 'Scaled'
-];
+// ─── AI (powered by ai-engine.js) ───
+
+function enhanceSummaryAI(text, title, skills) {
+  return AIEngine.enhanceSummary(text, title, skills, resumeData.experience);
+}
+
+function enhanceDescriptionAI(text, role) {
+  return AIEngine.enhanceDescription(text, role, resumeData.skills);
+}
+
+async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhancement', regenerate = true) {
+  if (!btn || btn.classList.contains('ai-loading')) return;
+  if (!useCredits(creditCost, featureName)) return;
+  if (regenerate) AIEngine.regenerateSeed();
+  const original = btn.innerHTML;
+  btn.classList.add('ai-loading');
+  btn.innerHTML = '<i class="fa-solid fa-spinner"></i> Generating...';
+  await new Promise(r => setTimeout(r, 900 + Math.random() * 1100));
+  try {
+    await fn();
+    showToast(`✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
+    if (window.innerWidth < 768) switchTab('preview');
+  } catch (e) {
+    if (e.message !== 'empty') setCredits(getCredits() + creditCost);
+    if (e.message === 'empty') showToast(e.hint || 'Add some text first', 'warning');
+    else if (e.message === 'need_title') showToast('Add your job title first', 'warning');
+    else showToast('Generation failed — credits refunded', 'warning');
+  } finally {
+    btn.classList.remove('ai-loading');
+    btn.innerHTML = original;
+  }
+}
 
 const defaultData = {
   name: '', title: '', email: '', phone: '', location: '',
@@ -108,121 +136,10 @@ function bulletsToHtml(bullets) {
   return `<ul class="tm-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
 }
 
-// ─── AI Enhancement Engine ───
-
-function pickVerb(index) {
-  return ACTION_VERBS[index % ACTION_VERBS.length];
-}
-
-function hasNumber(text) {
-  return /\d+/.test(text);
-}
-
-function enhanceLine(line, index, role) {
-  let l = line.trim().replace(/^[-•*]\s*/, '').replace(/\.$/, '');
-  if (!l) return '';
-
-  const lower = l.toLowerCase();
-  const alreadyStrong = ACTION_VERBS.some(v => lower.startsWith(v.toLowerCase()));
-  const verb = pickVerb(index);
-
-  if (!alreadyStrong) {
-    if (/^(responsible|worked|helped|assisted|involved)/i.test(l)) {
-      l = l.replace(/^(responsible for|worked on|helped with|assisted with|involved in)\s*/i, '');
-      l = `${verb} ${l.charAt(0).toLowerCase()}${l.slice(1)}`;
-    } else if (/^(managed|led|developed|built|created)/i.test(l)) {
-      l = l.charAt(0).toUpperCase() + l.slice(1);
-    } else {
-      l = `${verb} ${l.charAt(0).toLowerCase()}${l.slice(1)}`;
-    }
-  }
-
-  if (!hasNumber(l) && role) {
-    const metrics = [
-      ', improving efficiency by 25%',
-      ', resulting in a 30% increase in team productivity',
-      ', reducing processing time by 40%',
-      ', contributing to a 20% revenue growth',
-      ', saving 15+ hours per week through automation'
-    ];
-    if (index < metrics.length && l.length > 30) {
-      l += metrics[index % metrics.length];
-    }
-  }
-
-  return l.endsWith('.') ? l : l + '.';
-}
-
-function enhanceSummaryAI(text, title, skills) {
-  const role = title || 'professional';
-  const skillList = skills ? skills.split(',').map(s => s.trim()).filter(Boolean).slice(0, 4) : [];
-  const skillPhrase = skillList.length ? ` Proficient in ${skillList.join(', ')}.` : '';
-
-  if (!text?.trim()) {
-    return `Accomplished ${role} with a demonstrated history of delivering high-impact results in fast-paced environments. Combines technical expertise with strategic thinking to solve complex challenges and drive measurable business outcomes.${skillPhrase} Committed to continuous improvement and cross-functional collaboration.`;
-  }
-
-  let t = text.trim().replace(/\s+/g, ' ');
-
-  const openers = ['Accomplished', 'Results-driven', 'Strategic', 'Innovative', 'Dedicated'];
-  const opener = openers[Math.floor(Math.random() * openers.length)];
-
-  if (!/^(accomplished|results-driven|strategic|innovative|dedicated|experienced|proven)/i.test(t)) {
-    t = `${opener} ${role} with expertise in ${t.charAt(0).toLowerCase()}${t.slice(1)}`;
-  }
-
-  if (!/\d/.test(t) && t.length < 200) {
-    t += ' Track record of exceeding targets and delivering projects on time and within scope.';
-  }
-
-  if (skillPhrase && !t.toLowerCase().includes('proficient')) {
-    t += skillPhrase;
-  }
-
-  if (!t.endsWith('.')) t += '.';
-  return t;
-}
-
-function enhanceDescriptionAI(text, role) {
-  const lines = parseBullets(text);
-  if (!lines.length) return text;
-  return lines.map((line, i) => enhanceLine(line, i, role)).join('\n');
-}
-
-async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhancement') {
-  if (!btn || btn.classList.contains('ai-loading')) return;
-  if (!useCredits(creditCost, featureName)) return;
-  const original = btn.innerHTML;
-  btn.classList.add('ai-loading');
-  btn.innerHTML = '<i class="fa-solid fa-spinner"></i> Enhancing...';
-  await new Promise(r => setTimeout(r, 800 + Math.random() * 700));
-  try {
-    await fn();
-    showToast(`✦ Enhanced! (−${creditCost} credits)`);
-    if (window.innerWidth < 768) switchTab('preview');
-  } catch (e) {
-    if (e.message !== 'empty') setCredits(getCredits() + creditCost);
-    if (e.message !== 'empty') showToast('Enhancement failed — credits refunded', 'warning');
-    else showToast('Add some text first', 'warning');
-  } finally {
-    btn.classList.remove('ai-loading');
-    btn.innerHTML = original;
-  }
-}
-
 // ─── ATS Score ───
 
 function calculateAtsScore() {
-  let s = 35;
-  if (resumeData.name) s += 8;
-  if (resumeData.title) s += 7;
-  if (resumeData.email) s += 5;
-  if (resumeData.phone) s += 3;
-  if (resumeData.summary?.length > 80) s += 12;
-  if (resumeData.experience.some(e => e.company && e.role && e.description)) s += 15;
-  if (resumeData.skills) s += 8;
-  if (resumeData.education.some(e => e.school)) s += 7;
-  return Math.min(s, 97);
+  return AIEngine.analyzeATS(resumeData).score;
 }
 
 // ─── Data helpers ───
@@ -403,8 +320,281 @@ const TEMPLATE_RENDERERS = {
   luxury() { return renderThemed('luxury', 'luxury'); },
   international() { return renderThemed('international', 'intl'); },
   bold() { return renderThemed('bold'); },
-  compact() { return renderThemed('compact'); }
+  compact() { return renderThemed('compact'); },
+  refined() { return renderRefined(); },
+
+  horizon() {
+    return `
+      <div class="tm-horizon">
+        <header class="tm-horizon-top">
+          <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+          <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+          <div class="tm-contact">${getContactItems().map(c => `<span>${escapeHtml(c.value)}</span>`).join('')}</div>
+        </header>
+        <div class="tm-horizon-body">
+          ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
+          ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
+          ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
+          ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
+        </div>
+      </div>`;
+  },
+
+  serif() {
+    return `
+      <div class="tm-serif">
+        <div class="tm-serif-header">
+          <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+          <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+          <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>
+        </div>
+        ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Professional Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
+        ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
+        ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
+        ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><p>${getSkillsArray().map(escapeHtml).join(' · ')}</p></div>` : ''}
+      </div>`;
+  },
+
+  metro() { return renderMetro(); },
+  slate() { return renderSlate(); },
+  nova() { return renderNova(); },
+  apex() { return renderApex(); },
+  canvas() { return renderCanvas(); },
+  pioneer() { return renderPioneer(); },
+  academic() { return renderAcademic(); }
 };
+
+function renderStandardBody() {
+  return `
+    ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
+    ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
+    ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
+    ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
+  `;
+}
+
+function renderMetro() {
+  const contact = getContactItems().map(c => `<div>${escapeHtml(c.value)}</div>`).join('');
+  return `
+    <div class="tm-metro">
+      <header class="tm-metro-header">
+        <div class="tm-metro-left">
+          <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+          <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+        </div>
+        <div class="tm-metro-accent"></div>
+        <div class="tm-metro-right">${contact}</div>
+      </header>
+      <div class="tm-metro-body">
+        <div>${renderStandardBody()}</div>
+        ${getSkillsArray().length ? `<aside><div class="tm-side-title">Expertise</div>${getSkillsArray().map(s => `<div class="tm-skill-item">${escapeHtml(s)}</div>`).join('')}</aside>` : '<aside></aside>'}
+      </div>
+    </div>`;
+}
+
+function renderSlate() {
+  const skills = getSkillsArray();
+  return `
+    <div class="tm-slate">
+      <main class="tm-slate-main">
+        <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+        <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+        ${renderStandardBody()}
+      </main>
+      <aside class="tm-slate-side">
+        <div class="tm-side-section">
+          <div class="tm-side-label">Contact</div>
+          ${renderContactHtml()}
+        </div>
+        ${skills.length ? `<div class="tm-side-section"><div class="tm-side-label">Skills</div>${renderSkillPills('tm-skill-pill')}</div>` : ''}
+      </aside>
+    </div>`;
+}
+
+function renderNova() {
+  return `
+    <div class="tm-nova">
+      <header class="tm-nova-header">
+        <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+        <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+        <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join('  ·  ')}</div>
+      </header>
+      <div class="tm-nova-body">${renderStandardBody()}</div>
+    </div>`;
+}
+
+function renderApex() {
+  const exp = getExperienceEntries();
+  const edu = getEducationEntries();
+  return `
+    <div class="tm-apex">
+      <header class="tm-apex-banner">
+        <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+        <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+        <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>
+      </header>
+      <div class="tm-apex-body">
+        ${resumeData.summary ? `<div class="tm-section tm-apex-full"><div class="tm-section-title">Executive Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
+        ${exp.length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
+        ${edu.length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
+        ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Core Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderCanvas() {
+  return `
+    <div class="tm-canvas">
+      <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+      <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+      <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' — ')}</div>
+      ${renderStandardBody()}
+    </div>`;
+}
+
+function renderPioneer() {
+  return `
+    <div class="tm-pioneer">
+      <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+      <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+      <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>
+      ${renderStandardBody()}
+    </div>`;
+}
+
+function renderAcademic() {
+  return `
+    <div class="tm-academic">
+      <div class="tm-acad-header">
+        <div>
+          <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+          <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+        </div>
+        <div class="tm-contact">${getContactItems().map(c => `<div>${escapeHtml(c.value)}</div>`).join('')}</div>
+      </div>
+      ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Research Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
+      ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Professional Experience</div>${renderExperienceBlocks()}</div>` : ''}
+      ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
+      ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Technical Skills</div><p>${getSkillsArray().map(escapeHtml).join(' · ')}</p></div>` : ''}
+    </div>`;
+}
+
+function renderRefined() {
+  return `
+    <div class="tm-refined">
+      <header class="tm-refined-header">
+        <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
+        <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
+        <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>
+      </header>
+      <div class="tm-refined-body">${renderStandardBody()}</div>
+    </div>`;
+}
+
+function syncFormFields() {
+  ['name', 'title', 'email', 'phone', 'location', 'summary', 'skills'].forEach(field => {
+    const el = document.getElementById(field);
+    if (el) el.value = resumeData[field] || '';
+  });
+  renderExperienceFields();
+  renderEducationFields();
+  renderPreview();
+}
+
+function applyAIBuild() {
+  if (!resumeData.title?.trim()) throw Object.assign(new Error('need_title'), { hint: 'Add your job title first' });
+  const built = AIEngine.buildFullResume(resumeData);
+  resumeData.summary = built.summary;
+  resumeData.skills = built.skills;
+  resumeData.experience = built.experience;
+  resumeData.education = built.education;
+  saveData();
+  syncFormFields();
+}
+
+function showTextModal(title, content, readonly = true) {
+  let modal = document.getElementById('text-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'text-modal';
+    modal.className = 'hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70';
+    modal.innerHTML = `
+      <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col">
+        <h3 id="text-modal-title" class="text-lg font-bold mb-3"></h3>
+        <textarea id="text-modal-content" class="flex-1 w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white resize-none min-h-[240px]"></textarea>
+        <div class="flex gap-2 mt-4">
+          <button data-action="copy-modal-text" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-sm font-semibold">Copy to Clipboard</button>
+          <button data-action="close-text-modal" class="px-6 py-2.5 border border-white/10 rounded-xl text-sm text-zinc-400 hover:text-white">Close</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  document.getElementById('text-modal-title').textContent = title;
+  const ta = document.getElementById('text-modal-content');
+  ta.value = content;
+  ta.readOnly = readonly;
+  modal.classList.remove('hidden');
+}
+
+function hideTextModal() {
+  document.getElementById('text-modal')?.classList.add('hidden');
+}
+
+function promptJobDescription() {
+  return new Promise(resolve => {
+    let modal = document.getElementById('job-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'job-modal';
+      modal.className = 'hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70';
+      modal.innerHTML = `
+        <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-lg w-full">
+          <h3 class="text-lg font-bold mb-2">Paste Job Description</h3>
+          <p class="text-zinc-400 text-sm mb-3">AI will tailor your resume keywords and bullets to match this role.</p>
+          <textarea id="job-desc-input" rows="8" placeholder="Paste the full job posting here..." class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white resize-none mb-4"></textarea>
+          <div class="flex gap-2">
+            <button type="button" id="job-match-submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-sm font-semibold">Match Resume</button>
+            <button type="button" id="job-match-cancel" class="px-5 py-2.5 border border-white/10 rounded-xl text-sm text-zinc-400">Cancel</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      modal.querySelector('#job-match-submit').onclick = () => {
+        const text = document.getElementById('job-desc-input').value;
+        modal.classList.add('hidden');
+        resolve(text);
+      };
+      modal.querySelector('#job-match-cancel').onclick = () => {
+        modal.classList.add('hidden');
+        resolve(null);
+      };
+    }
+    document.getElementById('job-desc-input').value = '';
+    modal.classList.remove('hidden');
+  });
+}
+
+function showATSReport() {
+  const { score, tips } = AIEngine.analyzeATS(resumeData);
+  const report = `ATS Compatibility Score: ${score}%\n\nRecommendations:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nKeep formatting simple, use standard section headings, and mirror keywords from the job description.`;
+  showTextModal('ATS Deep Scan Report', report);
+}
+
+function showCoverLetter() {
+  const letter = AIEngine.generateCoverLetter(resumeData);
+  showTextModal('Generated Cover Letter', letter, false);
+}
+
+function showLinkedInTips() {
+  const roleId = AIEngine.detectRole(resumeData.title, resumeData.skills, resumeData.summary);
+  const tips = [
+    `Headline: ${resumeData.title || 'Your Role'} | ${getSkillsArray().slice(0, 2).join(' · ') || 'Key Skills'}`,
+    `About (first 2 lines): ${(resumeData.summary || '').slice(0, 220)}...`,
+    `Featured skills to pin: ${getSkillsArray().slice(0, 5).join(', ') || 'Add skills in builder'}`,
+    `Experience bullets: Use the same quantified achievements from your resume for consistency.`,
+    `Keyword boost for ${roleId} roles: ${AIEngine.extractKeywords(resumeData.skills + ' ' + resumeData.title).slice(0, 8).join(', ')}`
+  ].join('\n\n');
+  showTextModal('LinkedIn Profile Optimization', tips);
+}
 
 function renderThemed(id, variant = 'default') {
   const name = escapeHtml(resumeData.name || 'Your Name');
@@ -635,12 +825,35 @@ function setupEvents() {
       case 'enhance-exp':
         await runAIEnhance(btn, () => {
           const exp = resumeData.experience[index];
-          if (!exp?.description?.trim()) throw new Error('empty');
-          exp.description = enhanceDescriptionAI(exp.description, exp.role);
+          if (!exp) throw new Error('empty');
+          exp.description = enhanceDescriptionAI(exp.description || '', exp.role || resumeData.title);
           saveData();
           renderExperienceFields();
           renderPreview();
         }, CREDIT_COSTS.enhance_exp, 'AI experience enhancement');
+        break;
+
+      case 'regenerate-summary':
+        await runAIEnhance(btn, () => {
+          resumeData.summary = enhanceSummaryAI(resumeData.summary, resumeData.title, resumeData.skills);
+          document.getElementById('summary').value = resumeData.summary;
+          saveData();
+          renderPreview();
+        }, CREDIT_COSTS.regenerate, 'summary variation');
+        break;
+
+      case 'build-resume':
+        await runAIEnhance(btn, () => applyAIBuild(), CREDIT_COSTS.build_resume, 'full resume builder');
+        break;
+
+      case 'suggest-skills':
+        await runAIEnhance(btn, () => {
+          if (!resumeData.title?.trim()) throw Object.assign(new Error('need_title'));
+          resumeData.skills = AIEngine.suggestSkills(resumeData.title, resumeData.skills);
+          document.getElementById('skills').value = resumeData.skills;
+          saveData();
+          renderPreview();
+        }, CREDIT_COSTS.suggest_skills, 'skill suggestions', true);
         break;
 
       case 'remove-exp':
@@ -677,26 +890,44 @@ function setupEvents() {
       case 'hide-upgrade': hideUpgradeModal(); break;
       case 'show-pricing': window.location.href = '/pricing.html'; break;
       case 'match-job':
-        if (useCredits(CREDIT_COSTS.job_match, 'job description matching')) {
-          showToast('Job matching is a Pro feature — upgrade for full access', 'warning');
-        }
+        await runAIEnhance(btn, async () => {
+          const jobText = await promptJobDescription();
+          if (!jobText?.trim()) {
+            setCredits(getCredits() + CREDIT_COSTS.job_match);
+            throw Object.assign(new Error('empty'), { hint: 'Cancelled' });
+          }
+          const matched = AIEngine.matchJobDescription(resumeData, jobText);
+          resumeData.summary = matched.summary;
+          resumeData.skills = matched.skills;
+          resumeData.experience = matched.experience;
+          saveData();
+          syncFormFields();
+        }, CREDIT_COSTS.job_match, 'job description matching');
         break;
+
       case 'cover-letter':
-        if (useCredits(CREDIT_COSTS.cover_letter, 'cover letter generator')) {
-          showUpgradeModal('Cover letter generator (Pro)');
-        }
+        await runAIEnhance(btn, () => {
+          if (!resumeData.name?.trim() || !resumeData.title?.trim()) {
+            throw Object.assign(new Error('need_title'), { hint: 'Add your name and title first' });
+          }
+          showCoverLetter();
+        }, CREDIT_COSTS.cover_letter, 'cover letter generator', true);
         break;
+
       case 'ats-scan':
-        if (useCredits(CREDIT_COSTS.ats_scan, 'ATS deep scan')) {
-          const score = calculateAtsScore();
-          showToast(`ATS Deep Scan: ${score}% — Upgrade for full report`);
-        }
+        await runAIEnhance(btn, () => showATSReport(), CREDIT_COSTS.ats_scan, 'ATS deep scan', false);
         break;
+
       case 'linkedin':
-        if (useCredits(CREDIT_COSTS.linkedin, 'LinkedIn optimizer')) {
-          showUpgradeModal('LinkedIn optimizer (Business)');
-        }
+        await runAIEnhance(btn, () => showLinkedInTips(), CREDIT_COSTS.linkedin, 'LinkedIn optimizer', true);
         break;
+
+      case 'copy-modal-text':
+        navigator.clipboard?.writeText(document.getElementById('text-modal-content')?.value || '');
+        showToast('Copied to clipboard');
+        break;
+
+      case 'close-text-modal': hideTextModal(); break;
       case 'switch-tab': switchTab(btn.dataset.tab); break;
     }
   });
