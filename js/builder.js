@@ -12,7 +12,7 @@ const STARTING_CREDITS = 20;
 //   Free ($0):     modern, classic, minimal, stanford, horizon, serif (6 templates)
 //   Starter ($3):  corporate, elegant, compact, metro, slate, canvas (+6)
 //   Pro ($10):     executive, creative, tech, harvard, bold, nova, apex, pioneer, academic (+9)
-//   Business ($20): luxury, international, refined (+3) = 24 total
+//   Business ($20): luxury, international, refined (+3) = 32 total
 // Credit costs: enhance 2, export 3, build 5, job match 5, cover letter 4, ats 2, linkedin 3
 const TESTING_UNLOCK = true;
 
@@ -20,13 +20,16 @@ const TEMPLATE_TIERS = {
   modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
   corporate: 'starter', elegant: 'starter', compact: 'starter', metro: 'starter', slate: 'starter', canvas: 'starter',
   executive: 'pro', creative: 'pro', tech: 'pro', harvard: 'pro', bold: 'pro', nova: 'pro', apex: 'pro', pioneer: 'pro', academic: 'pro',
-  luxury: 'business', international: 'business', refined: 'business'
+  luxury: 'business', international: 'business', refined: 'business',
+  fusion: 'starter', monarch: 'starter', swiss: 'starter',
+  vivid: 'pro', forest: 'pro', onyx: 'pro',
+  radiant: 'business', streamline: 'pro'
 };
 
 const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($39/mo)' };
 
 const CREDIT_COSTS = {
-  enhance_summary: 2, enhance_exp: 2, export_pdf: 3, regenerate: 1,
+  enhance_summary: 2, enhance_exp: 2, export_pdf: 3, export_png: 2, export_jpeg: 2, regenerate: 1,
   build_resume: 5, suggest_skills: 1,
   job_match: 5, cover_letter: 4, ats_scan: 2, linkedin: 3
 };
@@ -372,7 +375,16 @@ const TEMPLATE_RENDERERS = {
   apex() { return renderApex(); },
   canvas() { return renderCanvas(); },
   pioneer() { return renderPioneer(); },
-  academic() { return renderAcademic(); }
+  academic() { return renderAcademic(); },
+
+  fusion() { return renderFusion(); },
+  monarch() { return renderMonarch(); },
+  swiss() { return renderSwiss(); },
+  vivid() { return renderVivid(); },
+  forest() { return renderForest(); },
+  onyx() { return renderOnyx(); },
+  radiant() { return renderRadiant(); },
+  streamline() { return renderStreamline(); }
 };
 
 function renderStandardBody() {
@@ -500,6 +512,38 @@ function renderRefined() {
       </header>
       <div class="tm-refined-body">${renderStandardBody()}</div>
     </div>`;
+}
+
+function renderFusion() {
+  return `<div class="tm-fusion"><header class="tm-fusion-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-fusion-body">${renderStandardBody()}</div></div>`;
+}
+
+function renderMonarch() {
+  return `<div class="tm-monarch"><header class="tm-monarch-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-monarch-body">${renderStandardBody()}</div></div>`;
+}
+
+function renderSwiss() {
+  return `<div class="tm-swiss"><div class="tm-swiss-grid"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><div class="tm-swiss-meta"><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => `<div>${escapeHtml(c.value)}</div>`).join('')}</div></div></div>${renderStandardBody()}</div>`;
+}
+
+function renderVivid() {
+  return `<div class="tm-vivid"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>${renderStandardBody()}</div>`;
+}
+
+function renderForest() {
+  return `<div class="tm-forest"><header class="tm-forest-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-forest-body">${renderStandardBody()}</div></div>`;
+}
+
+function renderOnyx() {
+  return `<div class="tm-onyx"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>${renderStandardBody()}</div>`;
+}
+
+function renderRadiant() {
+  return `<div class="tm-radiant"><header class="tm-radiant-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-radiant-body">${renderStandardBody()}</div></div>`;
+}
+
+function renderStreamline() {
+  return `<div class="tm-streamline"><header class="tm-stream-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-stream-body">${renderStandardBody()}</div></div>`;
 }
 
 function syncFormFields() {
@@ -798,78 +842,175 @@ function switchTab(tab) {
   }
 }
 
-async function exportPDF() {
-  if (!useCredits(CREDIT_COSTS.export_pdf, 'PDF export')) return;
+const EXPORT_WIDTH = 816;
+const EXPORT_MIN_HEIGHT = 1056;
 
-  const btn = document.querySelector('[data-action="export-pdf"]');
-  const originalBtn = btn?.innerHTML;
-  if (btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Generating PDF...';
+function getExportBaseName() {
+  const base = (resumeData.name || 'resume').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_');
+  return base || 'resume';
+}
+
+function prepareExportClone(source) {
+  const wrapper = document.createElement('div');
+  wrapper.id = 'resume-export-wrapper';
+  wrapper.setAttribute('aria-hidden', 'true');
+  wrapper.style.cssText = `position:fixed;left:0;top:0;width:${EXPORT_WIDTH}px;background:#fff;z-index:2147483646;opacity:0.01;pointer-events:none;overflow:visible;`;
+
+  const clone = source.cloneNode(true);
+  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-height:${EXPORT_MIN_HEIGHT}px;background:#fff;color:#1e293b;box-shadow:none;margin:0;`;
+  clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
+  clone.querySelectorAll('.tm-name').forEach(el => {
+    const style = window.getComputedStyle(el);
+    if (style.webkitTextFillColor === 'rgba(0, 0, 0, 0)' || style.webkitTextFillColor === 'transparent') {
+      el.style.setProperty('-webkit-text-fill-color', 'unset');
+      el.style.background = 'none';
+      el.style.webkitBackgroundClip = 'unset';
+      el.style.color = el.closest('.tm-nova') ? '#c4b5fd' : '#0f172a';
+    }
+  });
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+  return { wrapper, clone };
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function blobFromCanvas(canvas, type, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Failed to create image')), type, quality);
+  });
+}
+
+async function captureResumeCanvas(clone) {
+  if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
+  return html2canvas(clone, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    width: EXPORT_WIDTH,
+    windowWidth: EXPORT_WIDTH,
+    scrollX: 0,
+    scrollY: 0,
+    logging: false
+  });
+}
+
+function saveCanvasAsPdf(canvas, filename) {
+  if (!window.jspdf?.jsPDF) throw new Error('PDF library not loaded. Please refresh the page.');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 24;
+  const contentWidth = pageWidth - margin * 2;
+  const scale = contentWidth / canvas.width;
+  const pageSliceHeight = Math.floor((pageHeight - margin * 2) / scale);
+  let offsetY = 0;
+  let pageIndex = 0;
+
+  while (offsetY < canvas.height) {
+    if (pageIndex > 0) pdf.addPage();
+    const sliceHeight = Math.min(pageSliceHeight, canvas.height - offsetY);
+    const slice = document.createElement('canvas');
+    slice.width = canvas.width;
+    slice.height = sliceHeight;
+    const ctx = slice.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, slice.width, slice.height);
+    ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+    pdf.addImage(slice.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, contentWidth, sliceHeight * scale);
+    offsetY += sliceHeight;
+    pageIndex++;
   }
+  pdf.save(filename);
+}
+
+const EXPORT_CREDIT_MAP = { pdf: 'export_pdf', png: 'export_png', jpeg: 'export_jpeg' };
+const EXPORT_EXT_MAP = { pdf: 'pdf', png: 'png', jpeg: 'jpg' };
+const EXPORT_LABEL_MAP = { pdf: 'PDF', png: 'PNG', jpeg: 'JPEG' };
+
+async function exportResume(format = 'pdf') {
+  const creditKey = EXPORT_CREDIT_MAP[format] || 'export_pdf';
+  const creditCost = CREDIT_COSTS[creditKey] || 3;
+  const label = EXPORT_LABEL_MAP[format] || 'File';
+
+  if (!useCredits(creditCost, `${label} export`)) return;
+
+  const menuBtn = document.querySelector('[data-action="toggle-export-menu"]');
+  const originalBtn = menuBtn?.innerHTML;
+  if (menuBtn) {
+    menuBtn.disabled = true;
+    menuBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Exporting...';
+  }
+  hideExportMenu();
 
   if (window.innerWidth < 768) switchTab('preview');
   renderPreview();
 
   const source = document.getElementById('resume-preview');
   if (!source) {
-    if (!TESTING_UNLOCK) setCredits(getCredits() + CREDIT_COSTS.export_pdf);
+    if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
     showToast('Preview not found — credits refunded', 'warning');
-    if (btn) { btn.disabled = false; btn.innerHTML = originalBtn; }
+    if (menuBtn) { menuBtn.disabled = false; menuBtn.innerHTML = originalBtn; }
     return;
   }
 
-  const wrapper = document.createElement('div');
-  wrapper.setAttribute('aria-hidden', 'true');
-  wrapper.style.cssText = 'position:fixed;left:-10000px;top:0;width:816px;background:#fff;overflow:visible;';
-  const clone = source.cloneNode(true);
-  clone.style.width = '816px';
-  clone.style.maxWidth = '816px';
-  clone.style.minHeight = '1056px';
-  clone.style.background = '#ffffff';
-  clone.style.boxShadow = 'none';
-  clone.querySelectorAll('i').forEach(icon => { icon.style.display = 'none'; });
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
-
+  const { wrapper, clone } = prepareExportClone(source);
   try {
     if (document.fonts?.ready) await document.fonts.ready;
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 400));
 
-    const filename = (resumeData.name || 'resume').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_') + '_resume.pdf';
+    const canvas = await captureResumeCanvas(clone);
+    const baseName = getExportBaseName();
+    const ext = EXPORT_EXT_MAP[format] || 'pdf';
+    const filename = `${baseName}_resume.${ext}`;
 
-    await html2pdf().set({
-      margin: [0.35, 0.4, 0.35, 0.4],
-      filename,
-      image: { type: 'jpeg', quality: 0.96 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        letterRendering: true,
-        backgroundColor: '#ffffff',
-        width: 816,
-        windowWidth: 816,
-        scrollX: 0,
-        scrollY: -window.scrollY,
-        logging: false
-      },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
-      pagebreak: { mode: ['css', 'legacy'] }
-    }).from(clone).save();
+    if (format === 'pdf') {
+      saveCanvasAsPdf(canvas, filename);
+    } else if (format === 'png') {
+      const blob = await blobFromCanvas(canvas, 'image/png');
+      downloadBlob(blob, filename);
+    } else if (format === 'jpeg') {
+      const blob = await blobFromCanvas(canvas, 'image/jpeg', 0.92);
+      downloadBlob(blob, filename);
+    }
 
-    showToast(TESTING_UNLOCK ? `PDF downloaded: ${filename}` : `PDF downloaded: ${filename} (−${CREDIT_COSTS.export_pdf} credits)`);
+    const creditMsg = TESTING_UNLOCK ? '' : ` (−${creditCost} credits)`;
+    showToast(`${label} downloaded: ${filename}${creditMsg}`);
   } catch (err) {
-    console.error('PDF export failed:', err);
-    if (!TESTING_UNLOCK) setCredits(getCredits() + CREDIT_COSTS.export_pdf);
-    showToast('PDF export failed — credits refunded. Please try again.', 'warning');
+    console.error('Export failed:', err);
+    if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
+    showToast(`Export failed — ${err.message || 'please try again'}`, 'warning');
   } finally {
     wrapper.remove();
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = originalBtn;
+    if (menuBtn) {
+      menuBtn.disabled = false;
+      menuBtn.innerHTML = originalBtn;
     }
   }
+}
+
+function toggleExportMenu() {
+  document.getElementById('export-menu')?.classList.toggle('hidden');
+}
+
+function hideExportMenu() {
+  document.getElementById('export-menu')?.classList.add('hidden');
+}
+
+async function exportPDF() {
+  return exportResume('pdf');
 }
 
 // ─── Event Delegation ───
@@ -954,7 +1095,17 @@ function setupEvents() {
         selectTemplate(btn.dataset.template);
         break;
 
-      case 'export-pdf': exportPDF(); break;
+      case 'toggle-export-menu':
+        toggleExportMenu();
+        break;
+
+      case 'export-resume':
+        await exportResume(btn.dataset.format || 'pdf');
+        break;
+
+      case 'export-pdf':
+        await exportResume('pdf');
+        break;
       case 'hide-upgrade': hideUpgradeModal(); break;
       case 'show-pricing': window.location.href = '/pricing.html'; break;
       case 'match-job':
@@ -1034,6 +1185,11 @@ function init() {
   renderPreview();
   updateCreditsDisplay();
   setupEvents();
+
+  document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('export-menu-wrap');
+    if (wrap && !wrap.contains(e.target)) hideExportMenu();
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
