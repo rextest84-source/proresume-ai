@@ -6,6 +6,16 @@ const EXPORT_COUNT_KEY = 'proresume_exports';
 const FREE_EXPORT_LIMIT = 1;
 const STARTING_CREDITS = 20;
 
+// ─── TESTING MODE (set false before launch) ───
+// Removes all subscription/credit gates so every feature can be tested freely.
+// ORIGINAL SUBSCRIPTION TIERS (restore when TESTING_UNLOCK = false):
+//   Free ($0):     modern, classic, minimal, stanford, horizon, serif (6 templates)
+//   Starter ($3):  corporate, elegant, compact, metro, slate, canvas (+6)
+//   Pro ($10):     executive, creative, tech, harvard, bold, nova, apex, pioneer, academic (+9)
+//   Business ($20): luxury, international, refined (+3) = 24 total
+// Credit costs: enhance 2, export 3, build 5, job match 5, cover letter 4, ats 2, linkedin 3
+const TESTING_UNLOCK = true;
+
 const TEMPLATE_TIERS = {
   modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
   corporate: 'starter', elegant: 'starter', compact: 'starter', metro: 'starter', slate: 'starter', canvas: 'starter',
@@ -41,13 +51,13 @@ async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhanceme
   await new Promise(r => setTimeout(r, 900 + Math.random() * 1100));
   try {
     await fn();
-    showToast(`✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
+    showToast(TESTING_UNLOCK ? '✦ Generated!' : `✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
     if (window.innerWidth < 768) switchTab('preview');
   } catch (e) {
-    if (e.message !== 'empty') setCredits(getCredits() + creditCost);
+    if (!TESTING_UNLOCK && e.message !== 'empty') setCredits(getCredits() + creditCost);
     if (e.message === 'empty') showToast(e.hint || 'Add some text first', 'warning');
     else if (e.message === 'need_title') showToast('Add your job title first', 'warning');
-    else showToast('Generation failed — credits refunded', 'warning');
+    else showToast('Generation failed' + (TESTING_UNLOCK ? '' : ' — credits refunded'), 'warning');
   } finally {
     btn.classList.remove('ai-loading');
     btn.innerHTML = original;
@@ -97,6 +107,7 @@ function setCredits(n) {
 }
 
 function useCredits(amount, featureName) {
+  if (TESTING_UNLOCK) return true;
   const current = getCredits();
   if (current < amount) {
     showUpgradeModal(`Need ${amount} credits for ${featureName}. You have ${current}.`);
@@ -108,7 +119,7 @@ function useCredits(amount, featureName) {
 
 function updateCreditsDisplay() {
   const el = document.getElementById('credits-count');
-  if (el) el.textContent = getCredits();
+  if (el) el.textContent = TESTING_UNLOCK ? '∞' : getCredits();
 }
 
 function updateSaveIndicator() {
@@ -628,8 +639,10 @@ function renderThemed(id, variant = 'default') {
 
 function normalizeTemplate(tpl) {
   if (!tpl || !TEMPLATE_RENDERERS[tpl]) return 'modern';
-  const tier = TEMPLATE_TIERS[tpl];
-  if (tier && tier !== 'free') return 'modern';
+  if (!TESTING_UNLOCK) {
+    const tier = TEMPLATE_TIERS[tpl];
+    if (tier && tier !== 'free') return 'modern';
+  }
   return tpl;
 }
 
@@ -714,10 +727,12 @@ function renderEducationFields() {
 }
 
 function selectTemplate(template) {
-  const tier = TEMPLATE_TIERS[template] || 'free';
-  if (tier !== 'free') {
-    showUpgradeModal(`${TIER_LABELS[tier]} templates`);
-    return;
+  if (!TESTING_UNLOCK) {
+    const tier = TEMPLATE_TIERS[template] || 'free';
+    if (tier !== 'free') {
+      showUpgradeModal(`${TIER_LABELS[tier]} templates`);
+      return;
+    }
   }
   resumeData.template = template;
   saveData();
@@ -798,7 +813,7 @@ async function exportPDF() {
 
   const source = document.getElementById('resume-preview');
   if (!source) {
-    setCredits(getCredits() + CREDIT_COSTS.export_pdf);
+    if (!TESTING_UNLOCK) setCredits(getCredits() + CREDIT_COSTS.export_pdf);
     showToast('Preview not found — credits refunded', 'warning');
     if (btn) { btn.disabled = false; btn.innerHTML = originalBtn; }
     return;
@@ -843,10 +858,10 @@ async function exportPDF() {
       pagebreak: { mode: ['css', 'legacy'] }
     }).from(clone).save();
 
-    showToast(`PDF downloaded: ${filename} (−${CREDIT_COSTS.export_pdf} credits)`);
+    showToast(TESTING_UNLOCK ? `PDF downloaded: ${filename}` : `PDF downloaded: ${filename} (−${CREDIT_COSTS.export_pdf} credits)`);
   } catch (err) {
     console.error('PDF export failed:', err);
-    setCredits(getCredits() + CREDIT_COSTS.export_pdf);
+    if (!TESTING_UNLOCK) setCredits(getCredits() + CREDIT_COSTS.export_pdf);
     showToast('PDF export failed — credits refunded. Please try again.', 'warning');
   } finally {
     wrapper.remove();
@@ -936,9 +951,7 @@ function setupEvents() {
         break;
 
       case 'select-template':
-        const tier = TEMPLATE_TIERS[btn.dataset.template];
-        if (tier && tier !== 'free') showUpgradeModal(`${TIER_LABELS[tier]} templates`);
-        else selectTemplate(btn.dataset.template);
+        selectTemplate(btn.dataset.template);
         break;
 
       case 'export-pdf': exportPDF(); break;
@@ -948,7 +961,7 @@ function setupEvents() {
         await runAIEnhance(btn, async () => {
           const jobText = await promptJobDescription();
           if (!jobText?.trim()) {
-            setCredits(getCredits() + CREDIT_COSTS.job_match);
+            if (!TESTING_UNLOCK) setCredits(getCredits() + CREDIT_COSTS.job_match);
             throw Object.assign(new Error('empty'), { hint: 'Cancelled' });
           }
           const matched = AIEngine.matchJobDescription(resumeData, jobText);
