@@ -808,29 +808,73 @@ function getPreviewClassName(tpl) {
   return `resume-preview page-preview orientation-${orient} template-${id}`;
 }
 
+function isPreviewPanelVisible() {
+  const panel = document.getElementById('preview-panel');
+  if (!panel) return true;
+  if (window.innerWidth >= 768) return true;
+  return !panel.classList.contains('hidden');
+}
+
+function getPreviewContainerWidth() {
+  const frame = document.getElementById('preview-frame');
+  if (frame?.clientWidth > 0) return frame.clientWidth;
+
+  const panel = document.getElementById('preview-panel');
+  if (panel?.clientWidth > 0) {
+    const style = window.getComputedStyle(panel);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    return Math.max(panel.clientWidth - padX, 0);
+  }
+
+  const vp = window.visualViewport?.width || window.innerWidth;
+  return Math.max(vp - 48, 280);
+}
+
+function schedulePreviewScale() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => updatePreviewScale());
+  });
+}
+
 function updatePreviewScale() {
   const frame = document.getElementById('preview-frame');
+  const outer = document.getElementById('preview-scale-outer');
   const wrap = document.getElementById('preview-scale-wrap');
   const preview = document.getElementById('resume-preview');
-  if (!frame || !wrap || !preview) return;
+  if (!frame || !outer || !wrap || !preview) return;
+  if (!isPreviewPanelVisible()) return;
 
   const tpl = normalizeTemplate(resumeData.template);
   const pageWidth = getTemplatePageSize(tpl).width;
-  const available = Math.max(frame.clientWidth - 8, 200);
-  const scale = available < pageWidth ? available / pageWidth : 1;
 
+  wrap.style.transform = 'none';
   wrap.style.width = `${pageWidth}px`;
   wrap.style.minWidth = `${pageWidth}px`;
-  wrap.style.transform = scale < 1 ? `scale(${scale})` : 'none';
-  wrap.style.transformOrigin = 'top center';
-  wrap.style.margin = '0 auto';
+  wrap.style.margin = '0';
+
+  const available = Math.max(getPreviewContainerWidth() - 4, 120);
+  const scale = available < pageWidth ? available / pageWidth : 1;
+  const contentHeight = Math.max(preview.offsetHeight, preview.scrollHeight, 1);
 
   if (scale < 1) {
-    const h = preview.offsetHeight || preview.scrollHeight;
-    wrap.style.marginBottom = `${Math.ceil(h * (scale - 1))}px`;
-    frame.style.minHeight = `${Math.ceil(h * scale) + 8}px`;
+    const scaledW = Math.ceil(pageWidth * scale);
+    const scaledH = Math.ceil(contentHeight * scale);
+
+    outer.style.width = `${scaledW}px`;
+    outer.style.height = `${scaledH}px`;
+    outer.style.margin = '0 auto';
+    outer.style.overflow = 'hidden';
+
+    wrap.style.transform = `scale(${scale})`;
+    wrap.style.transformOrigin = 'top left';
+    frame.style.minHeight = `${scaledH + 4}px`;
   } else {
-    wrap.style.marginBottom = '0';
+    outer.style.width = `${pageWidth}px`;
+    outer.style.height = 'auto';
+    outer.style.margin = '0 auto';
+    outer.style.overflow = 'visible';
+
+    wrap.style.transform = 'none';
     frame.style.minHeight = '';
   }
 }
@@ -859,15 +903,13 @@ function renderPreview(resetScroll = false) {
   const scoreEl = document.getElementById('ats-score');
   if (scoreEl) scoreEl.textContent = calculateAtsScore() + '%';
 
-  requestAnimationFrame(() => {
-    updatePreviewScale();
-    if (resetScroll) {
-      const scrollEl = isMobileEditor()
-        ? document.getElementById('preview-panel')
-        : document.getElementById('preview-frame');
-      if (scrollEl) scrollEl.scrollTop = 0;
-    }
-  });
+  schedulePreviewScale();
+  if (resetScroll) {
+    const scrollEl = isMobileEditor()
+      ? document.getElementById('preview-panel')
+      : document.getElementById('preview-frame');
+    if (scrollEl) scrollEl.scrollTop = 0;
+  }
 }
 
 let previewUpdateTimer = null;
@@ -1052,6 +1094,8 @@ function switchTab(tab) {
   if (tab === 'preview') {
     previewStale = false;
     renderPreview(true);
+    schedulePreviewScale();
+    setTimeout(schedulePreviewScale, 50);
   }
 }
 
@@ -1638,15 +1682,14 @@ function init() {
   setupMobileScrollGuard();
 
   let resizeTimer;
-  window.addEventListener('resize', () => {
+  const onViewportChange = () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(updatePreviewScale, 100);
-  });
+    resizeTimer = setTimeout(schedulePreviewScale, 100);
+  };
+  window.addEventListener('resize', onViewportChange);
   if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(updatePreviewScale, 100);
-    });
+    window.visualViewport.addEventListener('resize', onViewportChange);
+    window.visualViewport.addEventListener('scroll', onViewportChange);
   }
 
   document.addEventListener('click', (e) => {
