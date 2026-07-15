@@ -789,6 +789,52 @@ function normalizeTemplate(tpl) {
   return tpl;
 }
 
+function getTemplateOrientation(tpl) {
+  const id = normalizeTemplate(tpl);
+  return window.TEMPLATE_EXTENSIONS?.getOrientation?.(id) || 'portrait';
+}
+
+function getTemplatePageSize(tpl) {
+  const id = normalizeTemplate(tpl);
+  return window.TEMPLATE_EXTENSIONS?.getPageSize?.(id)
+    || (getTemplateOrientation(id) === 'landscape'
+      ? { orientation: 'landscape', width: 1056, height: 816 }
+      : { orientation: 'portrait', width: 816, height: 1056 });
+}
+
+function getPreviewClassName(tpl) {
+  const id = normalizeTemplate(tpl);
+  const orient = getTemplateOrientation(id);
+  return `resume-preview page-preview orientation-${orient} template-${id}`;
+}
+
+function updatePreviewScale() {
+  const frame = document.getElementById('preview-frame');
+  const wrap = document.getElementById('preview-scale-wrap');
+  const preview = document.getElementById('resume-preview');
+  if (!frame || !wrap || !preview) return;
+
+  const tpl = normalizeTemplate(resumeData.template);
+  const pageWidth = getTemplatePageSize(tpl).width;
+  const available = Math.max(frame.clientWidth - 8, 200);
+  const scale = available < pageWidth ? available / pageWidth : 1;
+
+  wrap.style.width = `${pageWidth}px`;
+  wrap.style.minWidth = `${pageWidth}px`;
+  wrap.style.transform = scale < 1 ? `scale(${scale})` : 'none';
+  wrap.style.transformOrigin = 'top center';
+  wrap.style.margin = '0 auto';
+
+  if (scale < 1) {
+    const h = preview.offsetHeight || preview.scrollHeight;
+    wrap.style.marginBottom = `${Math.ceil(h * (scale - 1))}px`;
+    frame.style.minHeight = `${Math.ceil(h * scale) + 8}px`;
+  } else {
+    wrap.style.marginBottom = '0';
+    frame.style.minHeight = '';
+  }
+}
+
 function renderPreview(resetScroll = false) {
   const preview = document.getElementById('resume-preview');
   if (!preview) return;
@@ -800,27 +846,28 @@ function renderPreview(resetScroll = false) {
   }
 
   const renderer = TEMPLATE_RENDERERS[tpl];
-  preview.className = `resume-preview template-${tpl}`;
+  preview.className = getPreviewClassName(tpl);
 
   try {
     preview.innerHTML = renderer();
   } catch (err) {
     console.error('Preview render failed:', err);
     preview.innerHTML = TEMPLATE_RENDERERS.modern();
-    preview.className = 'resume-preview template-modern';
+    preview.className = getPreviewClassName('modern');
   }
 
   const scoreEl = document.getElementById('ats-score');
   if (scoreEl) scoreEl.textContent = calculateAtsScore() + '%';
 
-  if (resetScroll) {
-    requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    updatePreviewScale();
+    if (resetScroll) {
       const scrollEl = isMobileEditor()
         ? document.getElementById('preview-panel')
         : document.getElementById('preview-frame');
       if (scrollEl) scrollEl.scrollTop = 0;
-    });
-  }
+    }
+  });
 }
 
 let previewUpdateTimer = null;
@@ -1008,8 +1055,6 @@ function switchTab(tab) {
   }
 }
 
-const EXPORT_WIDTH = 816;   // 8.5in @ 96dpi
-const EXPORT_PAGE_HEIGHT = 1056; // 11in @ 96dpi
 const EXPORT_SCALE = 2;
 
 let pendingExport = null;
@@ -1139,6 +1184,10 @@ async function prepareExportFrame() {
   const renderer = TEMPLATE_RENDERERS[tpl];
   if (!renderer) throw new Error('Template not found');
 
+  const pageSize = getTemplatePageSize(tpl);
+  const orient = pageSize.orientation;
+  const previewClass = `resume-preview page-preview orientation-${orient} resume-export-clone template-${tpl}`;
+
   document.documentElement.classList.add('export-capture');
 
   const cssText = window.EXPORT_EDITABLE
@@ -1154,18 +1203,19 @@ async function prepareExportFrame() {
   }
 
   iframe.style.cssText = [
-    'position:fixed', 'left:0', 'top:0', 'width:816px', 'border:0',
+    'position:fixed', 'left:0', 'top:0', `width:${pageSize.width}px`, 'border:0',
     'opacity:0', 'pointer-events:none', 'z-index:-1', 'overflow:hidden'
   ].join(';');
 
   const bodyHtml = renderer();
   const doc = iframe.contentDocument;
   doc.open();
-  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  doc.write(`<!DOCTYPE html><html class="export-iframe"><head><meta charset="UTF-8">
+    <meta name="viewport" content="width=${pageSize.width}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>${cssText}</style>
-  </head><body style="margin:0;padding:0;width:816px;background:#fff;">
-    <div id="resume-export-clone" class="resume-preview resume-export-clone template-${tpl}">${bodyHtml}</div>
+  </head><body style="margin:0;padding:0;width:${pageSize.width}px;background:#fff;">
+    <div id="resume-export-clone" class="${previewClass}">${bodyHtml}</div>
   </body></html>`);
   doc.close();
 
@@ -1173,7 +1223,6 @@ async function prepareExportFrame() {
   await new Promise(r => setTimeout(r, 450));
 
   const clone = doc.getElementById('resume-export-clone');
-  clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
   applyExportCaptureFixes(clone);
 
   void clone.offsetHeight;
@@ -1181,7 +1230,7 @@ async function prepareExportFrame() {
   iframe.style.height = `${contentHeight}px`;
 
   const bgColor = getExportBackgroundColor(clone, doc);
-  return { iframe, clone, contentHeight, bgColor, tpl, bodyHtml, doc };
+  return { iframe, clone, contentHeight, bgColor, tpl, bodyHtml, doc, pageSize };
 }
 
 function cleanupExportFrame(iframe) {
@@ -1193,47 +1242,9 @@ function cleanupExportFrame(iframe) {
 }
 
 function applyExportCaptureFixes(root) {
-  root.querySelectorAll('.tm-skill, .tm-skill-pill, .tm-skill-item').forEach(el => {
-    el.style.display = 'inline-flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.lineHeight = '1.3';
-    el.style.verticalAlign = 'middle';
-    el.style.boxSizing = 'border-box';
-    el.style.overflow = 'hidden';
-    el.style.whiteSpace = 'normal';
-    el.style.wordBreak = 'break-word';
-    el.style.overflowWrap = 'break-word';
-    el.style.textAlign = 'center';
-    el.style.maxWidth = '100%';
-    el.style.minHeight = '1.35em';
-    el.style.padding = '4px 8px';
-  });
-  root.querySelectorAll('.tm-skills, .tm-skills-wrap').forEach(el => {
-    el.style.display = 'flex';
-    el.style.flexWrap = 'wrap';
-    el.style.alignItems = 'flex-start';
-    el.style.gap = '6px';
-  });
-  const gridFixes = [
-    ['.tm-modern', { display: 'grid', gridTemplateColumns: '220px 1fr', width: `${EXPORT_WIDTH}px` }],
-    ['.tm-executive .tm-exec-body', { display: 'grid', gridTemplateColumns: '1fr 200px' }],
-    ['.tm-stanford .tm-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
-    ['.tm-slate', { display: 'grid', gridTemplateColumns: '1fr 200px' }],
-    ['.tm-metro .tm-metro-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
-    ['.tm-apex .tm-apex-body', { display: 'grid', gridTemplateColumns: '1fr 1fr' }],
-    ['.tm-verdant', { display: 'grid', gridTemplateColumns: '210px 1fr' }],
-    ['.tm-jade', { display: 'grid', gridTemplateColumns: '200px 1fr' }],
-    ['.tm-harbor', { display: 'grid', gridTemplateColumns: '1fr 190px' }],
-    ['.tm-lattice .tm-lattice-grid', { display: 'grid', gridTemplateColumns: '1fr 190px' }],
-    ['.tm-echo .tm-echo-cols', { display: 'grid', gridTemplateColumns: '1fr 1fr' }]
-  ];
-  gridFixes.forEach(([sel, styles]) => {
-    root.querySelectorAll(sel).forEach(el => Object.assign(el.style, styles));
-  });
+  root.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
   root.querySelectorAll('[class*="tm-"]').forEach(el => {
     el.style.boxSizing = 'border-box';
-    el.style.maxWidth = '100%';
   });
 }
 
@@ -1254,16 +1265,16 @@ function sliceCanvas(canvas, offsetY, sliceHeight, fillColor = '#ffffff') {
   return slice;
 }
 
-async function captureResumeCanvas(clone, bgColor, contentHeight, doc = document) {
+async function captureResumeCanvas(clone, bgColor, contentHeight, doc = document, pageWidth = 816) {
   if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
   applyExportCaptureFixes(clone);
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   const height = contentHeight || Math.max(clone.scrollHeight, clone.offsetHeight, 1);
   return html2canvas(clone, {
     scale: EXPORT_SCALE,
-    width: EXPORT_WIDTH,
+    width: pageWidth,
     height,
-    windowWidth: EXPORT_WIDTH,
+    windowWidth: pageWidth,
     windowHeight: height,
     useCORS: true,
     allowTaint: true,
@@ -1276,10 +1287,10 @@ async function captureResumeCanvas(clone, bgColor, contentHeight, doc = document
   });
 }
 
-async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff') {
+async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff', orientation = 'portrait') {
   if (!window.jspdf?.jsPDF) throw new Error('PDF library not loaded. Please refresh the page.');
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
+  const pdf = new jsPDF({ orientation, unit: 'pt', format: 'letter', compress: true });
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const pxToPt = pageWidth / canvas.width;
@@ -1370,12 +1381,12 @@ async function exportResume(format = 'pdf') {
     } else {
       const frame = await prepareExportFrame();
       iframe = frame.iframe;
-      const { clone, contentHeight, bgColor, doc } = frame;
+      const { clone, contentHeight, bgColor, doc, pageSize } = frame;
       if (document.fonts?.ready) await document.fonts.ready;
-      const canvas = await captureResumeCanvas(clone, bgColor, contentHeight, doc);
+      const canvas = await captureResumeCanvas(clone, bgColor, contentHeight, doc, pageSize.width);
 
       if (format === 'pdf') {
-        await saveCanvasAsPdf(canvas, filename, bgColor);
+        await saveCanvasAsPdf(canvas, filename, bgColor, pageSize.orientation);
       } else if (format === 'png') {
         const blob = await blobFromCanvas(canvas, 'image/png');
         await deliverExport(blob, filename, 'png');
@@ -1595,12 +1606,15 @@ function renderTemplatePicker() {
 
   if (label) label.textContent = `${catalog.length} professional designs · all unlocked for testing`;
 
-  grid.innerHTML = catalog.map(t => `
+  grid.innerHTML = catalog.map(t => {
+    const orient = window.TEMPLATE_EXTENSIONS?.getOrientation?.(t.id) || 'portrait';
+    const thumbClass = orient === 'landscape' ? 'tpl-thumb-landscape' : 'tpl-thumb-portrait';
+    return `
     <button data-action="select-template" data-template="${t.id}" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative" title="${t.label}">
-      <div class="tpl-thumb tpl-thumb-${t.id}"></div>
+      <div class="tpl-thumb ${thumbClass} tpl-thumb-${t.id}"></div>
       <span class="text-[9px] font-medium leading-tight">${t.label}</span>
-    </button>
-  `).join('');
+    </button>`;
+  }).join('');
 }
 
 function init() {
@@ -1622,6 +1636,18 @@ function init() {
   updateCreditsDisplay();
   setupEvents();
   setupMobileScrollGuard();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(updatePreviewScale, 100);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(updatePreviewScale, 100);
+    });
+  }
 
   document.addEventListener('click', (e) => {
     const wrap = document.getElementById('export-menu-wrap');
