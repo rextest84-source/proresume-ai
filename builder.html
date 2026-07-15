@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Resume Builder — ProResume AI</title>
   <meta name="description" content="Build your professional resume for free with ProResume AI. Live preview, AI writing suggestions, and PDF export.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -24,18 +24,36 @@
     #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
     #preview-panel { -webkit-overflow-scrolling: touch; }
     @media (max-width: 767px) {
-      html, body { overflow: hidden; height: 100dvh; width: 100%; }
+      html { height: 100%; }
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        max-height: 100dvh;
+        overflow: hidden;
+        width: 100%;
+      }
+      #builder-main {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
       #editor-panel:not(.hidden),
       #preview-panel:not(.hidden) {
-        display: block !important;
-        height: calc(100dvh - 7rem);
-        max-height: calc(100dvh - 7rem);
+        display: flex !important;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
         overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
         touch-action: pan-y pinch-zoom;
       }
       #preview-frame {
+        flex-shrink: 0;
         max-height: none !important;
         overflow: visible !important;
       }
@@ -44,7 +62,7 @@
     }
   </style>
 </head>
-<body class="bg-zinc-950 text-white overflow-x-hidden min-h-screen">
+<body class="bg-zinc-950 text-white overflow-x-hidden min-h-screen md:overflow-visible">
 
   <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur border-b border-white/10">
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
@@ -76,7 +94,7 @@
     <button data-action="switch-tab" data-tab="preview" class="tab-btn flex-1 py-3 text-sm font-medium text-zinc-400">Preview</button>
   </div>
 
-  <div class="w-full max-w-7xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)]">
+  <div id="builder-main" class="w-full max-w-7xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)] md:min-h-[calc(100vh-3.5rem)]">
 
     <div id="editor-panel" class="w-full md:w-[42%] lg:w-[40%] overflow-y-auto p-4 sm:p-6 space-y-6 border-r border-white/5">
       <div>
@@ -316,7 +334,7 @@
         <h2 class="text-sm font-semibold text-zinc-300">Live Preview</h2>
         <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-medium">ATS Score: <span id="ats-score">35%</span></span>
       </div>
-      <div id="preview-frame" class="rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-white">
+      <div id="preview-frame" class="rounded-xl overflow-visible md:overflow-hidden shadow-2xl border border-white/10 bg-white">
         <div id="resume-preview" class="resume-preview template-modern"></div>
       </div>
     </div>

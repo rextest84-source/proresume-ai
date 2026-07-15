@@ -328,6 +328,11 @@
   grid-template-columns: 1fr 1fr !important;
 }
 
+html.export-capture #resume-export-wrapper {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* ─── UNIQUE SKILLS STYLES PER TEMPLATE ─── */
 .tm-skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
 .tm-skill {
@@ -679,22 +684,22 @@
 #preview-frame { max-height: 80vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
 @media (max-width: 767px) {
-  #preview-panel { min-height: calc(100dvh - 7rem); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #preview-panel { min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   #preview-frame { max-height: none; overflow: visible; }
 }
 
 @media (max-width: 640px) {
-  .tm-modern { grid-template-columns: 1fr; }
-  .tm-modern .tm-sidebar { padding: 20px; }
-  .tm-executive .tm-exec-body,
-  .tm-stanford .tm-body { grid-template-columns: 1fr; }
-  .tm-slate { grid-template-columns: 1fr; }
-  .tm-slate .tm-slate-side { order: -1; }
-  .tm-metro .tm-metro-body { grid-template-columns: 1fr; }
-  .tm-apex .tm-apex-body { grid-template-columns: 1fr; }
-  .tm-metro .tm-metro-header { grid-template-columns: 1fr; }
-  .tm-metro .tm-metro-accent { display: none; }
-  .tm-metro .tm-metro-right { min-width: auto; }
-  .tm-swiss .tm-swiss-grid { grid-template-columns: 1fr; }
-  .tm-swiss .tm-swiss-meta { text-align: left; margin-top: 8px; }
+  #resume-preview .tm-modern { grid-template-columns: 1fr; }
+  #resume-preview .tm-modern .tm-sidebar { padding: 20px; }
+  #resume-preview .tm-executive .tm-exec-body,
+  #resume-preview .tm-stanford .tm-body { grid-template-columns: 1fr; }
+  #resume-preview .tm-slate { grid-template-columns: 1fr; }
+  #resume-preview .tm-slate .tm-slate-side { order: -1; }
+  #resume-preview .tm-metro .tm-metro-body { grid-template-columns: 1fr; }
+  #resume-preview .tm-apex .tm-apex-body { grid-template-columns: 1fr; }
+  #resume-preview .tm-metro .tm-metro-header { grid-template-columns: 1fr; }
+  #resume-preview .tm-metro .tm-metro-accent { display: none; }
+  #resume-preview .tm-metro .tm-metro-right { min-width: auto; }
+  #resume-preview .tm-swiss .tm-swiss-grid { grid-template-columns: 1fr; }
+  #resume-preview .tm-swiss .tm-swiss-meta { text-align: left; margin-top: 8px; }
 }

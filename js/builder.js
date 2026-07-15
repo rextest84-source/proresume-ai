@@ -809,8 +809,10 @@ function renderPreview(resetScroll = false) {
 
   if (resetScroll) {
     requestAnimationFrame(() => {
-      const frame = document.getElementById('preview-frame');
-      if (frame) frame.scrollTop = 0;
+      const scrollEl = isMobileEditor()
+        ? document.getElementById('preview-panel')
+        : document.getElementById('preview-frame');
+      if (scrollEl) scrollEl.scrollTop = 0;
     });
   }
 }
@@ -1122,10 +1124,21 @@ function prepareExportClone() {
   const renderer = TEMPLATE_RENDERERS[tpl];
   if (!renderer) throw new Error('Template not found');
 
+  document.documentElement.classList.add('export-capture');
+
   const wrapper = document.createElement('div');
   wrapper.id = 'resume-export-wrapper';
   wrapper.setAttribute('aria-hidden', 'true');
-  wrapper.style.cssText = `position:fixed;left:-20000px;top:0;width:${EXPORT_WIDTH}px;z-index:-1;opacity:1;pointer-events:none;overflow:visible;`;
+  wrapper.style.cssText = [
+    'position:fixed',
+    'left:0',
+    'top:0',
+    `width:${EXPORT_WIDTH}px`,
+    'z-index:-1',
+    'opacity:0',
+    'pointer-events:none',
+    'overflow:visible'
+  ].join(';');
 
   const clone = document.createElement('div');
   clone.id = 'resume-export-clone';
@@ -1190,12 +1203,17 @@ function sliceCanvas(canvas, offsetY, sliceHeight, fillColor = '#ffffff') {
   return slice;
 }
 
-async function captureResumeCanvas(clone, bgColor) {
+async function captureResumeCanvas(clone, bgColor, contentHeight) {
   if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
   applyExportCaptureFixes(clone);
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const height = contentHeight || Math.max(clone.scrollHeight, clone.offsetHeight, 1);
   return html2canvas(clone, {
     scale: EXPORT_SCALE,
+    width: EXPORT_WIDTH,
+    height,
+    windowWidth: EXPORT_WIDTH,
+    windowHeight: height,
     useCORS: true,
     allowTaint: true,
     backgroundColor: bgColor === 'rgba(0, 0, 0, 0)' ? null : bgColor,
@@ -1262,12 +1280,12 @@ async function exportResume(format = 'pdf') {
     return;
   }
 
-  const { wrapper, clone, bgColor } = prepareExportClone();
+  const { wrapper, clone, contentHeight, bgColor } = prepareExportClone();
   try {
     if (document.fonts?.ready) await document.fonts.ready;
     await new Promise(r => setTimeout(r, 500));
 
-    const canvas = await captureResumeCanvas(clone, bgColor);
+    const canvas = await captureResumeCanvas(clone, bgColor, contentHeight);
     const baseName = getExportBaseName();
     const ext = EXPORT_EXT_MAP[format] || 'pdf';
     const filename = `${baseName}_resume.${ext}`;
@@ -1293,6 +1311,7 @@ async function exportResume(format = 'pdf') {
     if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
     showToast(`Export failed — ${err.message || 'please try again'}`, 'warning');
   } finally {
+    document.documentElement.classList.remove('export-capture');
     wrapper.remove();
     if (menuBtn) {
       menuBtn.disabled = false;
