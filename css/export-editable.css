@@ -1,0 +1,103 @@
+/* ProResume AI — Editable export (Word, HTML, RTF companion styles) */
+
+/* System fonts — exports must work offline without Google Fonts */
+.resume-document,
+.resume-document * {
+  font-family: Inter, 'Segoe UI', Arial, Helvetica, sans-serif;
+}
+
+.resume-document .tm-serif .tm-name,
+.resume-document .tm-academic .tm-name,
+.resume-document .tm-harvard .tm-themed-name,
+.resume-document .tm-serif .tm-section-title {
+  font-family: Merriweather, Georgia, 'Times New Roman', serif;
+}
+
+/* Word table layouts */
+.tm-word-table {
+  width: 100%;
+  border-collapse: collapse;
+  mso-table-lspace: 0pt;
+  mso-table-rspace: 0pt;
+  border: none;
+}
+
+.tm-word-table td {
+  vertical-align: top;
+  padding: 0;
+  border: none;
+}
+
+.tm-word-table .tm-sidebar,
+.tm-word-table .tm-slate-side,
+.tm-word-table .tm-verdant-side,
+.tm-word-table .tm-jade-side,
+.tm-word-table .tm-harbor-side {
+  padding: 20px 16px;
+}
+
+.tm-word-table .tm-main,
+.tm-word-table .tm-slate-main,
+.tm-word-table .tm-verdant-main,
+.tm-word-table .tm-jade-main,
+.tm-word-table .tm-harbor-main {
+  padding: 24px 28px;
+}
+
+.tm-word-full-row td {
+  padding-bottom: 12px;
+}
+
+/* Word: flatten nested grids inside cells */
+.resume-document .tm-word-table .tm-section {
+  margin-bottom: 16px;
+}
+
+/* Word: flex headers become block flow */
+.resume-document .tm-stanford .tm-header,
+.resume-document .tm-academic .tm-acad-header,
+.resume-document .tm-executive .tm-contact,
+.resume-document .tm-entry-top {
+  display: block !important;
+}
+
+.resume-document .tm-stanford .tm-header .tm-contact,
+.resume-document .tm-academic .tm-acad-header .tm-contact {
+  margin-top: 8px;
+  text-align: left;
+}
+
+/* Hide decorative elements that break Word */
+.resume-document i,
+.resume-document .tm-metro-accent {
+  display: none !important;
+}
+
+/* Editable: keep text selectable and flowing */
+.resume-document a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.resume-document .tm-entry-top {
+  display: block !important;
+}
+
+.resume-document .tm-entry-dates {
+  display: block;
+  margin-top: 2px;
+}
+
+/* Word skill chips — keep readable inline */
+.resume-document .tm-skills .tm-skill {
+  display: inline-block !important;
+  margin: 2px 4px 2px 0;
+}
+
+.resume-document .tm-skills-exec-side .tm-skill,
+.resume-document .tm-skills-stanford-list .tm-skill,
+.resume-document [class*="tm-skills-"][class$="-side"]:not(.tm-skills-modern-side) .tm-skill,
+.resume-document [class*="tm-skills-"][class$="-list"] .tm-skill {
+  display: block !important;
+  margin: 0 0 4px 0;
+}
