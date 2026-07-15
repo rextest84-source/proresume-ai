@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#09090b">
   <title>Resume Builder — ProResume AI</title>
   <meta name="description" content="Build your professional resume for free with ProResume AI. Live preview, AI writing suggestions, and PDF export.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -16,26 +17,91 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    html, body { font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; width: 100%; max-width: 100vw; }
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --header-bar: 3.5rem;
+      --mobile-tabs: 2.75rem;
+    }
+    html {
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+      margin: 0;
+      padding-left: var(--safe-left);
+      padding-right: var(--safe-right);
+    }
     *, *::before, *::after { box-sizing: border-box; }
     input, select, textarea, button { max-width: 100%; }
     #export-menu { min-width: 148px; }
+
+    #app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    #builder-header {
+      flex-shrink: 0;
+      z-index: 40;
+      background: rgba(9, 9, 11, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-top: var(--safe-top);
+    }
+
+    #mobile-tabs {
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    #builder-main {
+      flex: 1 1 auto;
+      width: 100%;
+      min-width: 0;
+    }
+
     /* Prevent iOS Safari zoom-on-focus (causes page jump while typing) */
     #editor-panel input, #editor-panel textarea, #editor-panel select { font-size: 16px; }
     #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
     #preview-panel { -webkit-overflow-scrolling: touch; }
+
+    #template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    @media (min-width: 420px) {
+      #template-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    #toast {
+      bottom: max(1.5rem, calc(var(--safe-bottom) + 0.75rem));
+    }
+
     @media (max-width: 767px) {
-      html { height: 100%; }
-      body {
-        display: flex;
-        flex-direction: column;
+      #app-shell {
         height: 100dvh;
+        height: 100svh;
         max-height: 100dvh;
+        max-height: 100svh;
         overflow: hidden;
-        width: 100%;
       }
       #builder-main {
-        flex: 1 1 auto;
         min-height: 0;
         overflow: hidden;
         display: flex;
@@ -47,11 +113,14 @@
         flex-direction: column;
         flex: 1 1 auto;
         min-height: 0;
+        width: 100%;
         overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
         touch-action: pan-y pinch-zoom;
+        scroll-padding-top: 0.5rem;
+        padding-bottom: max(1rem, var(--safe-bottom));
       }
       #preview-frame {
         flex-shrink: 0;
@@ -60,24 +129,47 @@
       }
       #preview-panel.hidden,
       #editor-panel.hidden { display: none !important; }
+      #builder-header .header-pricing { display: none; }
+      #builder-header .header-save { display: none; }
+    }
+
+    @media (min-width: 768px) {
+      #app-shell { min-height: 100vh; }
+      #builder-header {
+        position: sticky;
+        top: 0;
+      }
+      #builder-main {
+        display: flex;
+        flex-direction: row;
+        min-height: calc(100vh - var(--header-bar) - var(--safe-top));
+      }
+      #editor-panel, #preview-panel {
+        max-height: calc(100vh - var(--header-bar) - var(--safe-top));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #builder-main { min-height: calc(100vh - var(--header-bar) - var(--safe-top)); }
     }
   </style>
 </head>
-<body class="bg-zinc-950 text-white overflow-x-hidden min-h-screen md:overflow-visible">
+<body class="bg-zinc-950 text-white md:overflow-visible">
 
-  <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur border-b border-white/10">
-    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-      <a href="/" class="flex items-center gap-2 font-bold text-sm sm:text-base shrink-0">
-        <span class="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center text-xs">PR</span>
-        <span class="hidden sm:inline">ProResume AI</span>
+  <div id="app-shell">
+  <header id="builder-header">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 min-h-14 flex items-center justify-between gap-2 sm:gap-4">
+      <a href="/" class="flex items-center gap-2 font-bold text-sm sm:text-base shrink-0 min-w-0">
+        <span class="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center text-xs shrink-0">PR</span>
+        <span class="hidden sm:inline truncate">ProResume AI</span>
       </a>
-      <div class="flex items-center gap-2 sm:gap-4">
-        <span class="credits-pill" title="Testing mode — all features unlocked"><i class="fa-solid fa-bolt text-amber-400"></i> <span id="credits-count">∞</span></span>
-        <span id="testing-badge" class="hidden sm:inline text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">Testing — all unlocked</span>
-        <span id="save-indicator" class="text-xs text-zinc-500 hidden sm:inline">Saved</span>
-        <div class="relative" id="export-menu-wrap">
-          <button data-action="toggle-export-menu" class="px-3 sm:px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1">
-            <i class="fa-solid fa-download"></i> Download <i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i>
+      <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
+        <span class="credits-pill shrink-0" title="Testing mode — all features unlocked"><i class="fa-solid fa-bolt text-amber-400"></i> <span id="credits-count">∞</span></span>
+        <span id="testing-badge" class="hidden lg:inline text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full shrink-0">Testing — all unlocked</span>
+        <span id="save-indicator" class="header-save text-xs text-zinc-500 hidden md:inline shrink-0">Saved</span>
+        <div class="relative shrink-0" id="export-menu-wrap">
+          <button data-action="toggle-export-menu" class="px-2.5 sm:px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1">
+            <i class="fa-solid fa-download"></i><span class="hidden sm:inline">Download</span> <i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i>
           </button>
           <div id="export-menu" class="hidden absolute right-0 top-full mt-1.5 bg-zinc-800 border border-white/10 rounded-xl shadow-2xl z-50 py-1 overflow-hidden">
             <button data-action="export-resume" data-format="pdf" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-400 w-4"></i> PDF</button>
@@ -85,21 +177,21 @@
             <button data-action="export-resume" data-format="jpeg" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-file-image text-amber-400 w-4"></i> JPEG</button>
           </div>
         </div>
-        <a href="/pricing.html" class="px-3 sm:px-4 py-1.5 border border-white/20 text-zinc-300 hover:bg-white/5 rounded-lg text-xs sm:text-sm font-semibold transition">Pricing</a>
+        <a href="/pricing.html" class="header-pricing px-2.5 sm:px-4 py-1.5 border border-white/20 text-zinc-300 hover:bg-white/5 rounded-lg text-xs sm:text-sm font-semibold transition shrink-0">Pricing</a>
       </div>
     </div>
   </header>
 
-  <div class="md:hidden flex border-b border-white/10">
+  <div id="mobile-tabs" class="md:hidden flex">
     <button data-action="switch-tab" data-tab="edit" class="tab-btn flex-1 py-3 text-sm font-medium bg-emerald-500 text-white">Edit</button>
     <button data-action="switch-tab" data-tab="preview" class="tab-btn flex-1 py-3 text-sm font-medium text-zinc-400">Preview</button>
   </div>
 
-  <div id="builder-main" class="w-full max-w-7xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)] md:min-h-[calc(100vh-3.5rem)]">
+  <div id="builder-main" class="w-full max-w-7xl mx-auto flex flex-col md:flex-row">
 
-    <div id="editor-panel" class="w-full md:w-[42%] lg:w-[40%] overflow-y-auto p-4 sm:p-6 space-y-6 border-r border-white/5">
-      <div>
-        <h1 class="text-2xl font-bold mb-1">Build your resume</h1>
+    <div id="editor-panel" class="w-full md:w-[42%] lg:w-[40%] overflow-y-auto px-4 pt-4 pb-6 sm:p-6 space-y-6 border-r border-white/5">
+      <div class="pt-0.5">
+        <h1 class="text-xl sm:text-2xl font-bold mb-1 leading-tight">Build your resume</h1>
         <p class="text-zinc-400 text-sm">Fill in your details — preview updates live. Use <strong class="text-white">AI Build</strong> to generate a complete resume, or <strong class="text-white">Enhance</strong> for new variations every time.</p>
       </div>
 
@@ -107,7 +199,7 @@
       <section>
         <h2 class="text-sm font-semibold text-zinc-300 mb-1">Choose a template</h2>
         <p id="template-count-label" class="text-zinc-500 text-xs mb-3">64 professional designs · all unlocked for testing</p>
-        <div id="template-grid" class="grid grid-cols-4 gap-2 max-h-80 overflow-y-auto pr-1"></div>
+        <div id="template-grid" class="max-h-72 sm:max-h-80 overflow-y-auto pr-1"></div>
       </section>
 
       <!-- AI Build -->
@@ -201,7 +293,7 @@
       </section>
     </div>
 
-    <div id="preview-panel" class="hidden md:block w-full md:w-[58%] lg:w-[60%] bg-zinc-900 p-4 sm:p-6 overflow-y-auto">
+    <div id="preview-panel" class="hidden md:block w-full md:w-[58%] lg:w-[60%] bg-zinc-900 px-4 pt-4 pb-6 sm:p-6 overflow-y-auto">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-semibold text-zinc-300">Live Preview</h2>
         <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-medium">ATS Score: <span id="ats-score">35%</span></span>
@@ -211,8 +303,9 @@
       </div>
     </div>
   </div>
+  </div>
 
-  <div id="upgrade-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 overflow-y-auto">
+  <div id="upgrade-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70" style="padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));">
     <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 max-w-lg w-full my-4">
       <div class="text-center mb-6">
         <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
