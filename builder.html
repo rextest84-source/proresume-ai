@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
   <link href="/css/resume-templates.css" rel="stylesheet">
+  <link href="/css/templates-extended.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -105,137 +106,8 @@
       <!-- Templates -->
       <section>
         <h2 class="text-sm font-semibold text-zinc-300 mb-1">Choose a template</h2>
-        <p class="text-zinc-500 text-xs mb-3">32 professional designs · all unlocked for testing</p>
-        <div class="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
-          <button data-action="select-template" data-template="modern" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center ring-2 ring-emerald-400 relative">
-            <div class="tpl-thumb tpl-thumb-modern"></div>
-            <span class="text-[9px] font-medium">Modern</span>
-          </button>
-          <button data-action="select-template" data-template="classic" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-classic"></div>
-            <span class="text-[9px] font-medium">Classic</span>
-          </button>
-          <button data-action="select-template" data-template="minimal" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-minimal"></div>
-            <span class="text-[9px] font-medium">Minimal</span>
-          </button>
-          <button data-action="select-template" data-template="stanford" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-stanford"></div>
-            <span class="text-[9px] font-medium">Stanford</span>
-          </button>
-          <button data-action="select-template" data-template="horizon" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-horizon"></div>
-            <span class="text-[9px] font-medium">Horizon</span>
-          </button>
-          <button data-action="select-template" data-template="serif" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-serif"></div>
-            <span class="text-[9px] font-medium">Serif</span>
-          </button>
-          <button data-action="select-template" data-template="corporate" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-corporate"></div>
-            <span class="text-[9px] font-medium">Corporate</span>
-          </button>
-          <button data-action="select-template" data-template="elegant" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-elegant"></div>
-            <span class="text-[9px] font-medium">Elegant</span>
-          </button>
-          <button data-action="select-template" data-template="compact" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-compact"></div>
-            <span class="text-[9px] font-medium">Compact</span>
-          </button>
-          <button data-action="select-template" data-template="metro" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-metro"></div>
-            <span class="text-[9px] font-medium">Metro</span>
-          </button>
-          <button data-action="select-template" data-template="slate" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-slate"></div>
-            <span class="text-[9px] font-medium">Slate</span>
-          </button>
-          <button data-action="select-template" data-template="canvas" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-canvas"></div>
-            <span class="text-[9px] font-medium">Canvas</span>
-          </button>
-          <button data-action="select-template" data-template="executive" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-executive"></div>
-            <span class="text-[9px] font-medium">Executive</span>
-          </button>
-          <button data-action="select-template" data-template="creative" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-creative"></div>
-            <span class="text-[9px] font-medium">Creative</span>
-          </button>
-          <button data-action="select-template" data-template="tech" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-tech"></div>
-            <span class="text-[9px] font-medium">Tech</span>
-          </button>
-          <button data-action="select-template" data-template="harvard" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-harvard"></div>
-            <span class="text-[9px] font-medium">Harvard</span>
-          </button>
-          <button data-action="select-template" data-template="bold" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-bold"></div>
-            <span class="text-[9px] font-medium">Bold</span>
-          </button>
-          <button data-action="select-template" data-template="nova" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-nova"></div>
-            <span class="text-[9px] font-medium">Nova</span>
-          </button>
-          <button data-action="select-template" data-template="apex" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-apex"></div>
-            <span class="text-[9px] font-medium">Apex</span>
-          </button>
-          <button data-action="select-template" data-template="pioneer" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-pioneer"></div>
-            <span class="text-[9px] font-medium">Pioneer</span>
-          </button>
-          <button data-action="select-template" data-template="academic" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-academic"></div>
-            <span class="text-[9px] font-medium">Academic</span>
-          </button>
-          <button data-action="select-template" data-template="luxury" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-luxury"></div>
-            <span class="text-[9px] font-medium">Luxury</span>
-          </button>
-          <button data-action="select-template" data-template="international" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-international"></div>
-            <span class="text-[9px] font-medium">Intl</span>
-          </button>
-          <button data-action="select-template" data-template="refined" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-refined"></div>
-            <span class="text-[9px] font-medium">Refined</span>
-          </button>
-          <button data-action="select-template" data-template="fusion" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-fusion"></div>
-            <span class="text-[9px] font-medium">Fusion</span>
-          </button>
-          <button data-action="select-template" data-template="monarch" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-monarch"></div>
-            <span class="text-[9px] font-medium">Monarch</span>
-          </button>
-          <button data-action="select-template" data-template="swiss" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-swiss"></div>
-            <span class="text-[9px] font-medium">Swiss</span>
-          </button>
-          <button data-action="select-template" data-template="vivid" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-vivid"></div>
-            <span class="text-[9px] font-medium">Vivid</span>
-          </button>
-          <button data-action="select-template" data-template="forest" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-forest"></div>
-            <span class="text-[9px] font-medium">Forest</span>
-          </button>
-          <button data-action="select-template" data-template="onyx" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-onyx"></div>
-            <span class="text-[9px] font-medium">Onyx</span>
-          </button>
-          <button data-action="select-template" data-template="radiant" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-radiant"></div>
-            <span class="text-[9px] font-medium">Radiant</span>
-          </button>
-          <button data-action="select-template" data-template="streamline" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative">
-            <div class="tpl-thumb tpl-thumb-streamline"></div>
-            <span class="text-[9px] font-medium">Stream</span>
-          </button>
-        </div>
+        <p id="template-count-label" class="text-zinc-500 text-xs mb-3">64 professional designs · all unlocked for testing</p>
+        <div id="template-grid" class="grid grid-cols-4 gap-2 max-h-80 overflow-y-auto pr-1"></div>
       </section>
 
       <!-- AI Build -->
@@ -413,6 +285,7 @@
   <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-sm font-medium z-50 bg-emerald-600 text-white shadow-xl"></div>
 
   <script src="/js/ai-engine.js"></script>
+  <script src="/js/template-extensions.js"></script>
   <script src="/js/builder.js"></script>
 </body>
 </html>

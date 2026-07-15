@@ -12,7 +12,7 @@ const STARTING_CREDITS = 20;
 //   Free ($0):     modern, classic, minimal, stanford, horizon, serif (6 templates)
 //   Starter ($3):  corporate, elegant, compact, metro, slate, canvas (+6)
 //   Pro ($10):     executive, creative, tech, harvard, bold, nova, apex, pioneer, academic (+9)
-//   Business ($20): luxury, international, refined (+3) = 32 total
+//   Business ($20): luxury, international, refined (+3) = 64 total with extended pack
 // Credit costs: enhance 2, export 3, build 5, job match 5, cover letter 4, ats 2, linkedin 3
 const TESTING_UNLOCK = true;
 
@@ -23,7 +23,8 @@ const TEMPLATE_TIERS = {
   luxury: 'business', international: 'business', refined: 'business',
   fusion: 'starter', monarch: 'starter', swiss: 'starter',
   vivid: 'pro', forest: 'pro', onyx: 'pro',
-  radiant: 'business', streamline: 'pro'
+  radiant: 'business', streamline: 'pro',
+  ...(window.TEMPLATE_EXTENSIONS?.tiers || {})
 };
 
 const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($39/mo)' };
@@ -296,8 +297,11 @@ function renderSkillsContent(templateId, placement = 'main') {
       return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-radiant">${s}</span>`).join('')}</div>`;
     case 'streamline':
       return `<div class="tm-skills tm-skills-streamline">${items.map(s => `<span class="tm-skill tm-skill-streamline">${s}</span>`).join('')}</div>`;
-    default:
+    default: {
+      const extSkill = window.TEMPLATE_EXTENSIONS?.skills?.[templateId];
+      if (extSkill) return extSkill();
       return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-default">${s}</span>`).join('')}</div>`;
+    }
   }
 }
 
@@ -492,7 +496,8 @@ const TEMPLATE_RENDERERS = {
   forest() { return renderForest(); },
   onyx() { return renderOnyx(); },
   radiant() { return renderRadiant(); },
-  streamline() { return renderStreamline(); }
+  streamline() { return renderStreamline(); },
+  ...(window.TEMPLATE_EXTENSIONS?.renderers || {})
 };
 
 function renderMetro() {
@@ -1179,7 +1184,12 @@ function applyExportCaptureFixes(root) {
     ['.tm-stanford .tm-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
     ['.tm-slate', { display: 'grid', gridTemplateColumns: '1fr 200px' }],
     ['.tm-metro .tm-metro-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
-    ['.tm-apex .tm-apex-body', { display: 'grid', gridTemplateColumns: '1fr 1fr' }]
+    ['.tm-apex .tm-apex-body', { display: 'grid', gridTemplateColumns: '1fr 1fr' }],
+    ['.tm-verdant', { display: 'grid', gridTemplateColumns: '210px 1fr' }],
+    ['.tm-jade', { display: 'grid', gridTemplateColumns: '200px 1fr' }],
+    ['.tm-harbor', { display: 'grid', gridTemplateColumns: '1fr 190px' }],
+    ['.tm-lattice .tm-lattice-grid', { display: 'grid', gridTemplateColumns: '1fr 190px' }],
+    ['.tm-echo .tm-echo-cols', { display: 'grid', gridTemplateColumns: '1fr 1fr' }]
   ];
   gridFixes.forEach(([sel, styles]) => {
     root.querySelectorAll(sel).forEach(el => Object.assign(el.style, styles));
@@ -1503,7 +1513,24 @@ function setupEvents() {
   });
 }
 
+function renderTemplatePicker() {
+  const grid = document.getElementById('template-grid');
+  const label = document.getElementById('template-count-label');
+  const catalog = window.TEMPLATE_EXTENSIONS?.catalog;
+  if (!grid || !catalog?.length) return;
+
+  if (label) label.textContent = `${catalog.length} professional designs · all unlocked for testing`;
+
+  grid.innerHTML = catalog.map(t => `
+    <button data-action="select-template" data-template="${t.id}" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative" title="${t.label}">
+      <div class="tpl-thumb tpl-thumb-${t.id}"></div>
+      <span class="text-[9px] font-medium leading-tight">${t.label}</span>
+    </button>
+  `).join('');
+}
+
 function init() {
+  renderTemplatePicker();
   resumeData.template = normalizeTemplate(resumeData.template);
 
   bindInput('name', 'name');
