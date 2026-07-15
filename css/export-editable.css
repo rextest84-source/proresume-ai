@@ -103,6 +103,8 @@
 .resume-document .tm-entry-dates {
   display: block;
   margin-top: 2px;
+  white-space: normal;
+  text-align: left;
 }
 
 /* Word skill chips — keep readable inline */
@@ -113,7 +115,7 @@
 
 .resume-document .tm-skills-exec-side .tm-skill,
 .resume-document .tm-skills-stanford-list .tm-skill,
-.resume-document [class*="tm-skills-"][class$="-side"]:not(.tm-skills-modern-side) .tm-skill,
+.resume-document [class*="tm-skills-"][class$="-side"] .tm-skill,
 .resume-document [class*="tm-skills-"][class$="-list"] .tm-skill {
   display: block !important;
   margin: 0 0 4px 0;
