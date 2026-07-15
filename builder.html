@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, interactive-widget=resizes-content">
   <title>Resume Builder — ProResume AI</title>
   <meta name="description" content="Build your professional resume for free with ProResume AI. Live preview, AI writing suggestions, and PDF export.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -21,7 +21,18 @@
     #export-menu { min-width: 148px; }
     /* Prevent iOS Safari zoom-on-focus (causes page jump while typing) */
     #editor-panel input, #editor-panel textarea, #editor-panel select { font-size: 16px; }
-    #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; }
+    #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    @media (max-width: 767px) {
+      html, body { overflow: hidden; height: 100%; width: 100%; position: fixed; }
+      body { touch-action: manipulation; }
+      #editor-panel {
+        height: calc(100dvh - 7rem);
+        max-height: calc(100dvh - 7rem);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #preview-panel.hidden { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-white overflow-x-hidden min-h-screen">
@@ -335,8 +346,9 @@
     </div>
   </div>
 
-  <div id="export-save-modal" class="hidden fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/80">
-    <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+  <div id="export-save-modal" class="hidden fixed inset-0 z-[60] overflow-y-auto overscroll-contain bg-black/80" style="padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));">
+    <div class="min-h-full flex items-center justify-center py-4">
+    <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl max-h-[90dvh] overflow-y-auto">
       <div class="text-center mb-5">
         <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
           <i class="fa-solid fa-file-pdf text-2xl text-red-400" id="export-save-icon"></i>
@@ -367,6 +379,7 @@
         </button>
         <button data-action="export-save-close" type="button" class="w-full py-2 text-zinc-500 text-sm hover:text-white transition">Close</button>
       </div>
+    </div>
     </div>
   </div>
 
