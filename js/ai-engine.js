@@ -449,6 +449,7 @@ const AIEngine = (() => {
     const role = title || pick(['Professional', 'Specialist', 'Consultant']);
     const angle = pick(cfg.summaryAngles);
     const stripped = stripEnhancedBoilerplate(text);
+    const looksEnhanced = /(?:results-driven|key strengths|core competencies|technical proficiencies|committed to quality|known for combining)/i.test(text || '');
     const skillList = skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
     const topSkills = skillList.length ? pickN(skillList, Math.min(4, skillList.length)).join(', ') : pickN(cfg.skills, 4).join(', ');
 
@@ -474,9 +475,9 @@ const AIEngine = (() => {
     ];
 
     const parts = [pick(openers)];
-    if (stripped?.trim()) {
+    if (!looksEnhanced && stripped?.trim()) {
       const sentences = stripped.split(/(?<=[.!?])\s+/).filter(s => s.length > 25);
-      const core = (sentences.length ? sentences.slice(0, 2) : [stripped]).join(' ');
+      const core = (sentences.length ? sentences.slice(0, 1) : [stripped]).join(' ');
       parts.push(core.endsWith('.') ? core : core + '.');
     }
     parts.push(pick(bridges));
