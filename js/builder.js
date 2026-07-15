@@ -6,15 +6,10 @@ const EXPORT_COUNT_KEY = 'proresume_exports';
 const FREE_EXPORT_LIMIT = 1;
 const STARTING_CREDITS = 20;
 
-// ─── TESTING MODE (set false before launch) ───
-// Removes all subscription/credit gates so every feature can be tested freely.
-// ORIGINAL SUBSCRIPTION TIERS (restore when TESTING_UNLOCK = false):
-//   Free ($0):     modern, classic, minimal, stanford, horizon, serif (6 templates)
-//   Starter ($3):  corporate, elegant, compact, metro, slate, canvas (+6)
-//   Pro ($10):     executive, creative, tech, harvard, bold, nova, apex, pioneer, academic (+9)
-//   Business ($20): luxury, international, refined (+3) = 64 total with extended pack
-// Credit costs: enhance 2, export 3, build 5, job match 5, cover letter 4, ats 2, linkedin 3
-const TESTING_UNLOCK = true;
+// ─── UNLIMITED MODE ───
+// All AI features, exports, and templates are free with no credit limits.
+// Set to false before production launch to restore tier/credit gates.
+const UNLIMITED_AI = true;
 
 const TEMPLATE_TIERS = {
   modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
@@ -53,16 +48,16 @@ async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhanceme
   const original = btn.innerHTML;
   btn.classList.add('ai-loading');
   btn.innerHTML = '<i class="fa-solid fa-spinner"></i> Generating...';
-  await new Promise(r => setTimeout(r, 900 + Math.random() * 1100));
+  await new Promise(r => setTimeout(r, 350 + Math.random() * 450));
   try {
     await fn();
-    showToast(TESTING_UNLOCK ? '✦ Generated!' : `✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
+    showToast(UNLIMITED_AI ? '✦ Generated!' : `✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
     schedulePreviewUpdate();
   } catch (e) {
-    if (!TESTING_UNLOCK && e.message !== 'empty') setCredits(getCredits() + creditCost);
+    if (!UNLIMITED_AI && e.message !== 'empty') setCredits(getCredits() + creditCost);
     if (e.message === 'empty') showToast(e.hint || 'Add some text first', 'warning');
     else if (e.message === 'need_title') showToast('Add your job title first', 'warning');
-    else showToast('Generation failed' + (TESTING_UNLOCK ? '' : ' — credits refunded'), 'warning');
+    else showToast('Generation failed' + (UNLIMITED_AI ? '' : ' — credits refunded'), 'warning');
   } finally {
     btn.classList.remove('ai-loading');
     btn.innerHTML = original;
@@ -112,7 +107,7 @@ function setCredits(n) {
 }
 
 function useCredits(amount, featureName) {
-  if (TESTING_UNLOCK) return true;
+  if (UNLIMITED_AI) return true;
   const current = getCredits();
   if (current < amount) {
     showUpgradeModal(`Need ${amount} credits for ${featureName}. You have ${current}.`);
@@ -124,7 +119,7 @@ function useCredits(amount, featureName) {
 
 function updateCreditsDisplay() {
   const el = document.getElementById('credits-count');
-  if (el) el.textContent = TESTING_UNLOCK ? '∞' : getCredits();
+  if (el) el.textContent = UNLIMITED_AI ? '∞' : getCredits();
 }
 
 function updateSaveIndicator() {
@@ -782,7 +777,7 @@ function renderThemed(id, variant = 'default') {
 
 function normalizeTemplate(tpl) {
   if (!tpl || !TEMPLATE_RENDERERS[tpl]) return 'modern';
-  if (!TESTING_UNLOCK) {
+  if (!UNLIMITED_AI) {
     const tier = TEMPLATE_TIERS[tpl];
     if (tier && tier !== 'free') return 'modern';
   }
@@ -1026,7 +1021,7 @@ function renderEducationFields() {
 }
 
 function selectTemplate(template) {
-  if (!TESTING_UNLOCK) {
+  if (!UNLIMITED_AI) {
     const tier = TEMPLATE_TIERS[template] || 'free';
     if (tier !== 'free') {
       showUpgradeModal(`${TIER_LABELS[tier]} templates`);
@@ -1044,6 +1039,7 @@ function selectTemplate(template) {
 }
 
 function showUpgradeModal(feature) {
+  if (UNLIMITED_AI) return;
   document.getElementById('upgrade-feature').textContent = feature || 'This feature';
   const modalCredits = document.getElementById('modal-credits');
   if (modalCredits) modalCredits.textContent = getCredits();
@@ -1405,7 +1401,7 @@ async function exportResume(format = 'pdf') {
 
   const source = document.getElementById('resume-preview');
   if (!source) {
-    if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
+    if (!UNLIMITED_AI) setCredits(getCredits() + creditCost);
     showToast('Preview not found — credits refunded', 'warning');
     if (menuBtn) { menuBtn.disabled = false; menuBtn.innerHTML = originalBtn; }
     return;
@@ -1440,7 +1436,7 @@ async function exportResume(format = 'pdf') {
       }
     }
 
-    const creditMsg = TESTING_UNLOCK ? '' : ` (−${creditCost} credits)`;
+    const creditMsg = UNLIMITED_AI ? '' : ` (−${creditCost} credits)`;
     if (isMobileIOS()) {
       showToast(`Tap Save to Files to download${creditMsg}`);
     } else {
@@ -1448,7 +1444,7 @@ async function exportResume(format = 'pdf') {
     }
   } catch (err) {
     console.error('Export failed:', err);
-    if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
+    if (!UNLIMITED_AI) setCredits(getCredits() + creditCost);
     showToast(`Export failed — ${err.message || 'please try again'}`, 'warning');
   } finally {
     cleanupExportFrame(iframe);
@@ -1582,7 +1578,7 @@ function setupEvents() {
         await runAIEnhance(btn, async () => {
           const jobText = await promptJobDescription();
           if (!jobText?.trim()) {
-            if (!TESTING_UNLOCK) setCredits(getCredits() + CREDIT_COSTS.job_match);
+            if (!UNLIMITED_AI) setCredits(getCredits() + CREDIT_COSTS.job_match);
             throw Object.assign(new Error('empty'), { hint: 'Cancelled' });
           }
           const matched = AIEngine.matchJobDescription(resumeData, jobText);
@@ -1591,6 +1587,7 @@ function setupEvents() {
           resumeData.experience = matched.experience;
           saveData();
           syncFormFields();
+          showToast(`Resume tailored — ${matched.matchScore}% keyword match`, 'success');
         }, CREDIT_COSTS.job_match, 'job description matching');
         break;
 
@@ -1648,7 +1645,7 @@ function renderTemplatePicker() {
   const catalog = window.TEMPLATE_EXTENSIONS?.catalog;
   if (!grid || !catalog?.length) return;
 
-  if (label) label.textContent = `${catalog.length} professional designs · all unlocked for testing`;
+  if (label) label.textContent = `${catalog.length} professional designs · unlimited access`;
 
   grid.innerHTML = catalog.map(t => {
     const orient = window.TEMPLATE_EXTENSIONS?.getOrientation?.(t.id) || 'portrait';
@@ -1710,4 +1707,4 @@ window.showUpgradeModal = showUpgradeModal;
 window.hideUpgradeModal = hideUpgradeModal;
 window.addExperience = () => document.querySelector('[data-action="add-exp"]')?.click();
 window.addEducation = () => document.querySelector('[data-action="add-edu"]')?.click();
-window.matchJobDescription = () => showUpgradeModal('Job description matching');
+window.matchJobDescription = () => document.querySelector('[data-action="match-job"]')?.click();

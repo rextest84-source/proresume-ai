@@ -374,34 +374,20 @@ const AIEngine = (() => {
   function generateBulletsFromRole(role, company, roleId, count = 4) {
     const cfg = ROLE_CONFIG[roleId] || ROLE_CONFIG.general;
     const co = company || 'the organization';
-    const templates = {
-      software: [
-        `Developed and maintained production applications using modern frameworks, ${fillImpact(pick(cfg.impacts))}`,
-        `Collaborated with product and QA teams to ship features on sprint cadence across ${co}`,
-        `Wrote clean, tested code and participated in code reviews to uphold engineering standards`,
-        `Resolved critical bugs and performance bottlenecks, ${fillImpact(pick(cfg.impacts))}`,
-        `Built RESTful APIs and integrated third-party services supporting core business workflows`,
-        `Contributed to CI/CD pipelines and infrastructure improvements for reliable deployments`
-      ],
-      product: [
-        `Owned product roadmap priorities and user stories from discovery through release at ${co}`,
-        `Conducted user interviews and synthesized insights into actionable requirements`,
-        `Partnered with engineering and design to deliver features, ${fillImpact(pick(cfg.impacts))}`,
-        `Defined success metrics and monitored KPIs to guide iterative improvements`,
-        `Facilitated sprint planning and backlog grooming with cross-functional stakeholders`,
-        `Launched go-to-market initiatives aligned with business objectives and user needs`
-      ],
-      general: [
-        `Managed day-to-day responsibilities with strong attention to detail and accountability at ${co}`,
-        `Collaborated across teams to deliver projects on schedule and within scope`,
-        `Identified process improvements and implemented solutions, ${fillImpact(pick(cfg.impacts))}`,
-        `Maintained accurate records and communicated progress to stakeholders`,
-        `Supported organizational goals through proactive problem-solving and follow-through`,
-        `Trained new team members and documented best practices for consistent execution`
-      ]
-    };
+    const r = role || 'professional';
 
-    const pool = templates[roleId] || templates.general;
+    const frames = [
+      () => `${pick(cfg.verbs)} ${r.toLowerCase()} priorities at ${co}, ${fillImpact(pick(cfg.impacts))}`,
+      () => `${pick(cfg.verbs)} cross-functional initiatives aligned with ${r} objectives and stakeholder goals`,
+      () => `Partnered with leadership to ${pick(cfg.verbs).toLowerCase()} workflows, ${fillImpact(pick(cfg.impacts))}`,
+      () => `${pick(cfg.verbs)} deliverables for ${co} while maintaining quality and timeline accountability`,
+      () => `Applied ${pick(cfg.skills)} to drive ${r.toLowerCase()} outcomes, ${fillImpact(pick(cfg.impacts))}`,
+      () => `${pick(cfg.verbs)} team performance and operational standards across ${co}`,
+      () => `Led ${pick(cfg.verbs).toLowerCase()} efforts supporting ${r} responsibilities, ${fillImpact(pick(cfg.impacts))}`,
+      () => `Contributed to ${pick(cfg.verbs).toLowerCase()} programs that improved efficiency, ${fillImpact(pick(cfg.impacts))}`
+    ];
+
+    const pool = frames.map(f => f());
     return pickN(pool, count).map((t, i) => enhanceBullet(t, i, roleId, role));
   }
 
@@ -477,7 +463,7 @@ const AIEngine = (() => {
     const parts = [pick(openers)];
     if (!looksEnhanced && stripped?.trim()) {
       const sentences = stripped.split(/(?<=[.!?])\s+/).filter(s => s.length > 25);
-      const core = (sentences.length ? sentences.slice(0, 1) : [stripped]).join(' ');
+      const core = (sentences.length ? sentences.slice(0, 2) : [stripped]).join(' ');
       parts.push(core.endsWith('.') ? core : core + '.');
     }
     parts.push(pick(bridges));
@@ -553,24 +539,40 @@ const AIEngine = (() => {
     if (!jobText?.trim()) throw new Error('empty');
     const keywords = extractKeywords(jobText);
     const roleId = detectRole(data.title, data.skills, jobText);
+    const topKw = keywords.filter(k => k.length > 3).slice(0, 10);
     const matchedSkills = [...new Set([
       ...getSkillsArray(data.skills),
-      ...keywords.filter(k => k.length > 3).slice(0, 8)
-    ])].slice(0, 14);
+      ...topKw.slice(0, 8)
+    ])].slice(0, 16);
+
+    const kwPhrase = topKw.slice(0, 6).join(', ');
+    const summarySeed = data.summary?.trim()
+      ? `${data.summary} Role requirements emphasize ${kwPhrase}.`
+      : `${data.title || 'Professional'} with expertise aligned to ${kwPhrase}.`;
 
     const summary = enhanceSummary(
-      `${data.summary || ''} Target role requirements emphasize ${keywords.slice(0, 5).join(', ')}.`,
+      summarySeed,
       data.title,
       matchedSkills.join(', '),
       data.experience
     );
 
-    const experience = data.experience.map(exp => {
-      const kw = pick(keywords);
-      const base = exp.description?.trim() || generateBulletsFromRole(exp.role || data.title, exp.company, roleId, 3).join('\n');
-      const extra = enhanceBullet(`Applied ${kw} expertise to deliver role-specific outcomes aligned with job requirements`, 0, roleId, exp.role);
-      const lines = base.split('\n').filter(Boolean);
-      if (!lines.some(l => l.toLowerCase().includes(kw))) lines.push(extra);
+    const experience = data.experience.map((exp, idx) => {
+      const kw = topKw[idx % topKw.length] || pick(keywords);
+      const base = exp.description?.trim() || generateBulletsFromRole(exp.role || data.title, exp.company, roleId, 4).join('\n');
+      const lines = base.split('\n').filter(Boolean).map((line, i) => {
+        const lk = line.toLowerCase();
+        if (topKw.some(k => lk.includes(k))) return line;
+        const extraKw = topKw[i % topKw.length];
+        return enhanceBullet(`${line.replace(/\.$/, '')} using ${extraKw}`, i, roleId, exp.role);
+      });
+      const roleBullet = enhanceBullet(
+        `Delivered ${kw}-aligned results meeting job requirements for ${exp.role || data.title || 'the role'}`,
+        lines.length,
+        roleId,
+        exp.role
+      );
+      if (!lines.some(l => l.toLowerCase().includes(kw))) lines.push(roleBullet);
       return { ...exp, description: lines.slice(0, 6).join('\n') };
     });
 
@@ -578,8 +580,8 @@ const AIEngine = (() => {
       summary,
       skills: matchedSkills.join(', '),
       experience,
-      keywords,
-      matchScore: Math.min(72 + keywords.length * 2, 98)
+      keywords: topKw,
+      matchScore: Math.min(74 + topKw.length * 2 + matchedSkills.length, 98)
     };
   }
 
@@ -589,11 +591,15 @@ const AIEngine = (() => {
 
   function generateCoverLetter(data, jobText = '') {
     const roleId = detectRole(data.title, data.skills, data.summary);
-    const company = jobText.match(/at\s+([A-Z][A-Za-z0-9&.\s-]+)/)?.[1]?.trim() || 'your organization';
+    const keywords = jobText?.trim() ? extractKeywords(jobText).slice(0, 6) : [];
+    const company = jobText.match(/at\s+([A-Z][A-Za-z0-9&.\s-]+)/)?.[1]?.trim()
+      || jobText.match(/([A-Z][A-Za-z0-9&.\s-]+)\s+is\s+(?:hiring|seeking|looking)/)?.[1]?.trim()
+      || 'your organization';
     const hiring = 'Hiring Manager';
+    const kwLine = keywords.length ? ` Key requirements include ${keywords.join(', ')}.` : '';
     const paragraphs = [
       `Dear ${hiring},`,
-      `I am writing to express my strong interest in the ${data.title || 'open'} position at ${company}. With a background in ${pick(ROLE_CONFIG[roleId].summaryAngles)}, I am confident I can contribute immediately to your team's goals.`,
+      `I am writing to express my strong interest in the ${data.title || 'open'} position at ${company}. With a background in ${pick(ROLE_CONFIG[roleId].summaryAngles)}, I am confident I can contribute immediately to your team's goals.${kwLine}`,
       data.summary || enhanceSummary('', data.title, data.skills, data.experience),
       `In my recent roles, I have consistently delivered measurable results. ${enhanceBullet(pick(ROLE_CONFIG[roleId].impacts.map(fillImpact)), 0, roleId, data.title)} I am eager to bring this same focus on execution and collaboration to ${company}.`,
       `Thank you for your time and consideration. I would welcome the opportunity to discuss how my experience aligns with your needs.`,
