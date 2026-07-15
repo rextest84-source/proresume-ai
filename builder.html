@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, interactive-widget=resizes-content">
   <title>Resume Builder — ProResume AI</title>
   <meta name="description" content="Build your professional resume for free with ProResume AI. Live preview, AI writing suggestions, and PDF export.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -21,7 +21,18 @@
     #export-menu { min-width: 148px; }
     /* Prevent iOS Safari zoom-on-focus (causes page jump while typing) */
     #editor-panel input, #editor-panel textarea, #editor-panel select { font-size: 16px; }
-    #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; }
+    #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    @media (max-width: 767px) {
+      html, body { overflow: hidden; height: 100%; width: 100%; position: fixed; }
+      body { touch-action: manipulation; }
+      #editor-panel {
+        height: calc(100dvh - 7rem);
+        max-height: calc(100dvh - 7rem);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #preview-panel.hidden { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-white overflow-x-hidden min-h-screen">

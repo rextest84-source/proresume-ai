@@ -816,10 +816,65 @@ function renderPreview(resetScroll = false) {
 }
 
 let previewUpdateTimer = null;
+let previewStale = false;
+let editorScrollSnapshot = null;
+
+function isMobileEditor() {
+  return window.innerWidth < 768;
+}
+
+function isEditTabActive() {
+  const editor = document.getElementById('editor-panel');
+  return editor && !editor.classList.contains('hidden');
+}
+
+function captureEditorScroll() {
+  const editor = document.getElementById('editor-panel');
+  if (!editor) return;
+  editorScrollSnapshot = {
+    top: editor.scrollTop,
+    el: document.activeElement
+  };
+}
+
+function restoreEditorScroll() {
+  if (!editorScrollSnapshot) return;
+  const editor = document.getElementById('editor-panel');
+  const { top, el } = editorScrollSnapshot;
+  if (editor) editor.scrollTop = top;
+  if (el && el.focus && document.contains(el)) {
+    try { el.focus({ preventScroll: true }); } catch { el.focus(); }
+  }
+}
 
 function schedulePreviewUpdate() {
+  if (isMobileEditor() && isEditTabActive()) {
+    previewStale = true;
+    return;
+  }
+  captureEditorScroll();
   clearTimeout(previewUpdateTimer);
-  previewUpdateTimer = setTimeout(() => renderPreview(false), 250);
+  previewUpdateTimer = setTimeout(() => {
+    renderPreview(false);
+    requestAnimationFrame(restoreEditorScroll);
+  }, 400);
+}
+
+function setupMobileScrollGuard() {
+  const editor = document.getElementById('editor-panel');
+  if (!editor) return;
+
+  editor.addEventListener('focusin', (e) => {
+    if (e.target.matches('input, textarea, select')) captureEditorScroll();
+  });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (document.activeElement?.closest('#editor-panel')) {
+        requestAnimationFrame(restoreEditorScroll);
+      }
+    });
+  }
 }
 
 // ─── Form UI ───
@@ -830,8 +885,10 @@ function bindInput(id, field) {
   el.value = resumeData[field] || '';
   el.addEventListener('input', () => {
     resumeData[field] = el.value;
+    captureEditorScroll();
     saveData();
     schedulePreviewUpdate();
+    requestAnimationFrame(restoreEditorScroll);
   });
 }
 
@@ -938,6 +995,7 @@ function switchTab(tab) {
     btn.classList.toggle('text-zinc-400', !active);
   });
   if (tab === 'preview') {
+    previewStale = false;
     renderPreview(true);
   }
 }
@@ -1416,13 +1474,17 @@ function setupEvents() {
     const field = e.target.dataset.field;
     if (exp !== undefined && field) {
       resumeData.experience[+exp][field] = e.target.value;
+      captureEditorScroll();
       saveData();
       schedulePreviewUpdate();
+      requestAnimationFrame(restoreEditorScroll);
     }
     if (edu !== undefined && field) {
       resumeData.education[+edu][field] = e.target.value;
+      captureEditorScroll();
       saveData();
       schedulePreviewUpdate();
+      requestAnimationFrame(restoreEditorScroll);
     }
   });
 }
@@ -1444,6 +1506,7 @@ function init() {
   renderPreview();
   updateCreditsDisplay();
   setupEvents();
+  setupMobileScrollGuard();
 
   document.addEventListener('click', (e) => {
     const wrap = document.getElementById('export-menu-wrap');
