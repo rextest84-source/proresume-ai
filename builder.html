@@ -126,8 +126,17 @@
       }
       #preview-frame {
         flex-shrink: 0;
+        width: 100%;
         max-height: none !important;
-        overflow: visible !important;
+        overflow: hidden !important;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      #preview-scale-outer {
+        margin: 0 auto;
+        overflow: hidden;
+        max-width: 100%;
       }
       #preview-panel.hidden,
       #editor-panel.hidden { display: none !important; }
@@ -305,9 +314,11 @@
         <h2 class="text-sm font-semibold text-zinc-300">Live Preview</h2>
         <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-medium">ATS Score: <span id="ats-score">35%</span></span>
       </div>
-      <div id="preview-frame" class="rounded-xl overflow-visible md:overflow-hidden shadow-2xl border border-white/10 bg-white">
-        <div id="preview-scale-wrap">
-          <div id="resume-preview" class="resume-preview page-preview orientation-portrait template-modern"></div>
+      <div id="preview-frame" class="rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-white w-full">
+        <div id="preview-scale-outer">
+          <div id="preview-scale-wrap">
+            <div id="resume-preview" class="resume-preview page-preview orientation-portrait template-modern"></div>
+          </div>
         </div>
       </div>
     </div>

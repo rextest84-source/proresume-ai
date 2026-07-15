@@ -295,14 +295,31 @@
   hyphens: auto !important;
 }
 
-/* Preview scaler wrapper — width set dynamically in JS */
-#preview-scale-wrap {
-  margin: 0 auto;
-  transform-origin: top center;
+/* Preview scaler — dimensions set in JS */
+#preview-frame {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-#preview-frame {
-  overflow-x: auto;
-  overflow-y: visible;
-  -webkit-overflow-scrolling: touch;
+#preview-scale-outer {
+  margin: 0 auto;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+#preview-scale-wrap {
+  transform-origin: top left;
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  #preview-frame {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+  }
 }

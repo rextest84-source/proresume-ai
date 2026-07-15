@@ -621,7 +621,7 @@
 
 @media (max-width: 767px) {
   #preview-panel { min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  #preview-frame { max-height: none; overflow: visible; }
+  #preview-frame { max-height: none; overflow: hidden; }
 }
 
 @media (max-width: 640px) {
