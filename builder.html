@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, interactive-widget=resizes-content">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>Resume Builder — ProResume AI</title>
   <meta name="description" content="Build your professional resume for free with ProResume AI. Live preview, AI writing suggestions, and PDF export.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -22,16 +22,25 @@
     /* Prevent iOS Safari zoom-on-focus (causes page jump while typing) */
     #editor-panel input, #editor-panel textarea, #editor-panel select { font-size: 16px; }
     #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    #preview-panel { -webkit-overflow-scrolling: touch; }
     @media (max-width: 767px) {
-      html, body { overflow: hidden; height: 100%; width: 100%; position: fixed; }
-      body { touch-action: manipulation; }
-      #editor-panel {
+      html, body { overflow: hidden; height: 100dvh; width: 100%; }
+      #editor-panel:not(.hidden),
+      #preview-panel:not(.hidden) {
+        display: block !important;
         height: calc(100dvh - 7rem);
         max-height: calc(100dvh - 7rem);
         overflow-y: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        touch-action: pan-y pinch-zoom;
       }
-      #preview-panel.hidden { display: none !important; }
+      #preview-frame {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      #preview-panel.hidden,
+      #editor-panel.hidden { display: none !important; }
     }
   </style>
 </head>
