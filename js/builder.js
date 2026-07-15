@@ -809,8 +809,10 @@ function renderPreview(resetScroll = false) {
 
   if (resetScroll) {
     requestAnimationFrame(() => {
-      const frame = document.getElementById('preview-frame');
-      if (frame) frame.scrollTop = 0;
+      const scrollEl = isMobileEditor()
+        ? document.getElementById('preview-panel')
+        : document.getElementById('preview-frame');
+      if (scrollEl) scrollEl.scrollTop = 0;
     });
   }
 }
@@ -1122,15 +1124,26 @@ function prepareExportClone() {
   const renderer = TEMPLATE_RENDERERS[tpl];
   if (!renderer) throw new Error('Template not found');
 
+  document.documentElement.classList.add('export-capture');
+
   const wrapper = document.createElement('div');
   wrapper.id = 'resume-export-wrapper';
   wrapper.setAttribute('aria-hidden', 'true');
-  wrapper.style.cssText = `position:fixed;left:0;top:0;width:${EXPORT_WIDTH}px;z-index:-1;opacity:0;pointer-events:none;overflow:hidden;`;
+  wrapper.style.cssText = [
+    'position:fixed',
+    'left:0',
+    'top:0',
+    `width:${EXPORT_WIDTH}px`,
+    'z-index:-1',
+    'opacity:0',
+    'pointer-events:none',
+    'overflow:visible'
+  ].join(';');
 
   const clone = document.createElement('div');
   clone.id = 'resume-export-clone';
   clone.className = `resume-preview resume-export-clone template-${tpl}`;
-  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
+  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-width:${EXPORT_WIDTH}px;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
   clone.innerHTML = renderer();
   clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
 
@@ -1160,15 +1173,16 @@ function applyExportCaptureFixes(root) {
     el.style.alignItems = 'flex-start';
     el.style.gap = '6px';
   });
-  root.querySelectorAll('.tm-modern').forEach(el => {
-    el.style.display = 'grid';
-    el.style.gridTemplateColumns = '220px 1fr';
-    el.style.width = `${EXPORT_WIDTH}px`;
-  });
-  root.querySelectorAll('.tm-executive .tm-exec-body, .tm-stanford .tm-body, .tm-slate, .tm-metro .tm-metro-body, .tm-apex .tm-apex-body').forEach(el => {
-    if (el.classList.contains('tm-slate') || el.classList.contains('tm-metro-body')) {
-      el.style.display = 'grid';
-    }
+  const gridFixes = [
+    ['.tm-modern', { display: 'grid', gridTemplateColumns: '220px 1fr', width: `${EXPORT_WIDTH}px` }],
+    ['.tm-executive .tm-exec-body', { display: 'grid', gridTemplateColumns: '1fr 200px' }],
+    ['.tm-stanford .tm-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
+    ['.tm-slate', { display: 'grid', gridTemplateColumns: '1fr 200px' }],
+    ['.tm-metro .tm-metro-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
+    ['.tm-apex .tm-apex-body', { display: 'grid', gridTemplateColumns: '1fr 1fr' }]
+  ];
+  gridFixes.forEach(([sel, styles]) => {
+    root.querySelectorAll(sel).forEach(el => Object.assign(el.style, styles));
   });
 }
 
@@ -1189,21 +1203,23 @@ function sliceCanvas(canvas, offsetY, sliceHeight, fillColor = '#ffffff') {
   return slice;
 }
 
-async function captureResumeCanvas(clone, bgColor) {
+async function captureResumeCanvas(clone, bgColor, contentHeight) {
   if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
   applyExportCaptureFixes(clone);
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const height = contentHeight || Math.max(clone.scrollHeight, clone.offsetHeight, 1);
   return html2canvas(clone, {
     scale: EXPORT_SCALE,
+    width: EXPORT_WIDTH,
+    height,
+    windowWidth: EXPORT_WIDTH,
+    windowHeight: height,
     useCORS: true,
     allowTaint: true,
     backgroundColor: bgColor === 'rgba(0, 0, 0, 0)' ? null : bgColor,
     scrollX: 0,
     scrollY: 0,
     logging: false,
-    width: EXPORT_WIDTH,
-    height: clone.offsetHeight,
-    windowWidth: EXPORT_WIDTH,
-    windowHeight: clone.offsetHeight,
     onclone: (_doc, clonedEl) => applyExportCaptureFixes(clonedEl)
   });
 }
@@ -1214,20 +1230,17 @@ async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff') {
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 28;
-  const maxW = pageWidth - margin * 2;
-  const maxH = pageHeight - margin * 2;
-  const scale = maxW / canvas.width;
-  const sliceHeightPx = Math.floor(maxH / scale);
+  const pxToPt = pageWidth / canvas.width;
+  const pageSlicePx = Math.floor(pageHeight / pxToPt);
   let offsetY = 0;
   let pageIndex = 0;
 
   while (offsetY < canvas.height) {
     if (pageIndex > 0) pdf.addPage();
-    const sliceHeight = Math.min(sliceHeightPx, canvas.height - offsetY);
+    const sliceHeight = Math.min(pageSlicePx, canvas.height - offsetY);
     const slice = sliceCanvas(canvas, offsetY, sliceHeight, fillColor);
-    const displayH = sliceHeight * scale;
-    pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, maxW, displayH);
+    const displayH = sliceHeight * pxToPt;
+    pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageWidth, displayH);
     offsetY += sliceHeight;
     pageIndex++;
   }
@@ -1267,12 +1280,12 @@ async function exportResume(format = 'pdf') {
     return;
   }
 
-  const { wrapper, clone, bgColor } = prepareExportClone();
+  const { wrapper, clone, contentHeight, bgColor } = prepareExportClone();
   try {
     if (document.fonts?.ready) await document.fonts.ready;
     await new Promise(r => setTimeout(r, 500));
 
-    const canvas = await captureResumeCanvas(clone, bgColor);
+    const canvas = await captureResumeCanvas(clone, bgColor, contentHeight);
     const baseName = getExportBaseName();
     const ext = EXPORT_EXT_MAP[format] || 'pdf';
     const filename = `${baseName}_resume.${ext}`;
@@ -1298,6 +1311,7 @@ async function exportResume(format = 'pdf') {
     if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
     showToast(`Export failed — ${err.message || 'please try again'}`, 'warning');
   } finally {
+    document.documentElement.classList.remove('export-capture');
     wrapper.remove();
     if (menuBtn) {
       menuBtn.disabled = false;
