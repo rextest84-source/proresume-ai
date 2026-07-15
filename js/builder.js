@@ -846,6 +846,8 @@ const EXPORT_WIDTH = 816;   // 8.5in @ 96dpi
 const EXPORT_PAGE_HEIGHT = 1056; // 11in @ 96dpi
 const EXPORT_SCALE = 2;
 
+let pendingExport = null;
+
 function getExportBaseName() {
   const base = (resumeData.name || 'resume').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_');
   return base || 'resume';
@@ -854,6 +856,104 @@ function getExportBaseName() {
 function isMobileIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isMobileDevice() {
+  return isMobileIOS() || window.innerWidth < 768 || /Android/i.test(navigator.userAgent);
+}
+
+function clearPendingExport() {
+  if (pendingExport?.url) URL.revokeObjectURL(pendingExport.url);
+  pendingExport = null;
+}
+
+function showExportSaveModal(blob, filename, format) {
+  clearPendingExport();
+  const url = URL.createObjectURL(blob);
+  pendingExport = { blob, filename, url, format, mime: blob.type || 'application/octet-stream' };
+
+  const modal = document.getElementById('export-save-modal');
+  const link = document.getElementById('export-save-link');
+  const icon = document.getElementById('export-save-icon');
+  const printBtn = document.getElementById('export-print-btn');
+  const iosSteps = document.getElementById('export-ios-steps');
+
+  document.getElementById('export-save-filename').textContent = filename;
+  if (link) {
+    link.href = url;
+    link.download = filename;
+    link.textContent = format === 'pdf' ? 'Open PDF preview' : `Open ${format.toUpperCase()} preview`;
+  }
+  if (icon) {
+    icon.className = format === 'pdf'
+      ? 'fa-solid fa-file-pdf text-2xl text-red-400'
+      : 'fa-solid fa-image text-2xl text-blue-400';
+  }
+  if (printBtn) printBtn.classList.toggle('hidden', format !== 'pdf');
+  if (iosSteps) iosSteps.classList.toggle('hidden', !isMobileIOS());
+
+  modal?.classList.remove('hidden');
+}
+
+function hideExportSaveModal() {
+  document.getElementById('export-save-modal')?.classList.add('hidden');
+}
+
+async function sharePendingExport() {
+  if (!pendingExport) return;
+  const file = new File(
+    [pendingExport.blob],
+    pendingExport.filename,
+    { type: pendingExport.mime }
+  );
+
+  if (navigator.share) {
+    try {
+      const payload = { files: [file], title: pendingExport.filename };
+      if (!navigator.canShare || navigator.canShare(payload)) {
+        await navigator.share(payload);
+        hideExportSaveModal();
+        showToast('Saved — check your Files app');
+        return;
+      }
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+      console.warn('Share failed:', err);
+    }
+  }
+
+  window.open(pendingExport.url, '_blank');
+  showToast('Tap Share (↑) then Save to Files', 'warning');
+}
+
+function openPendingExport() {
+  if (!pendingExport?.url) return;
+  window.open(pendingExport.url, '_blank');
+  if (isMobileIOS()) showToast('Tap Share (↑) → Save to Files → pick folder', 'warning');
+}
+
+function printResumePdf() {
+  hideExportSaveModal();
+  switchTab('preview');
+  renderPreview();
+  setTimeout(() => window.print(), 400);
+}
+
+async function deliverExport(blob, filename, format) {
+  if (isMobileIOS()) {
+    showExportSaveModal(blob, filename, format);
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 function prepareExportClone(source) {
@@ -884,46 +984,6 @@ function prepareExportClone(source) {
   const contentHeight = Math.max(clone.scrollHeight, clone.offsetHeight, 1);
   clone.style.height = `${contentHeight}px`;
   return { wrapper, clone, contentHeight };
-}
-
-async function downloadBlob(blob, filename) {
-  const mime = blob.type || 'application/octet-stream';
-  const file = new File([blob], filename, { type: mime });
-
-  if (navigator.share && navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: filename });
-      return;
-    } catch (err) {
-      if (err?.name === 'AbortError') return;
-    }
-  }
-
-  const url = URL.createObjectURL(blob);
-
-  if (isMobileIOS()) {
-    const opened = window.open(url, '_blank');
-    if (!opened) {
-      const link = document.createElement('a');
-      link.href = url;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 120000);
-    return;
-  }
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 function blobFromCanvas(canvas, type, quality) {
@@ -961,7 +1021,6 @@ async function saveCanvasAsPdf(canvas, filename) {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
   const pageSliceHeight = EXPORT_PAGE_HEIGHT * EXPORT_SCALE;
   let offsetY = 0;
   let pageIndex = 0;
@@ -977,7 +1036,8 @@ async function saveCanvasAsPdf(canvas, filename) {
   }
 
   const blob = pdf.output('blob');
-  await downloadBlob(blob, filename);
+  const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+  await deliverExport(pdfBlob, filename, 'pdf');
 }
 
 const EXPORT_CREDIT_MAP = { pdf: 'export_pdf', png: 'export_png', jpeg: 'export_jpeg' };
@@ -1024,15 +1084,18 @@ async function exportResume(format = 'pdf') {
       await saveCanvasAsPdf(canvas, filename);
     } else if (format === 'png') {
       const blob = await blobFromCanvas(canvas, 'image/png');
-      await downloadBlob(blob, filename);
+      await deliverExport(blob, filename, 'png');
     } else if (format === 'jpeg') {
       const blob = await blobFromCanvas(canvas, 'image/jpeg', 0.92);
-      await downloadBlob(blob, filename);
+      await deliverExport(blob, filename, 'jpeg');
     }
 
-    const iosHint = isMobileIOS() ? ' — tap Share → Save to Files' : '';
     const creditMsg = TESTING_UNLOCK ? '' : ` (−${creditCost} credits)`;
-    showToast(`${label} ready: ${filename}${creditMsg}${iosHint}`);
+    if (isMobileIOS()) {
+      showToast(`Tap Save to Files to download${creditMsg}`);
+    } else {
+      showToast(`${label} downloaded: ${filename}${creditMsg}`);
+    }
   } catch (err) {
     console.error('Export failed:', err);
     if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
@@ -1146,6 +1209,18 @@ function setupEvents() {
 
       case 'export-resume':
         await exportResume(btn.dataset.format || 'pdf');
+        break;
+
+      case 'export-save-share':
+        await sharePendingExport();
+        break;
+
+      case 'export-save-print':
+        printResumePdf();
+        break;
+
+      case 'export-save-close':
+        hideExportSaveModal();
         break;
 
       case 'export-pdf':
