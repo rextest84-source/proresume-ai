@@ -210,6 +210,114 @@ function renderSkillPills(className = 'tm-skill-pill') {
   return getSkillsArray().map(s => `<span class="${className}">${escapeHtml(s)}</span>`).join('');
 }
 
+function renderBodyCore() {
+  return `
+    ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
+    ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
+    ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}`;
+}
+
+const SKILL_SECTION_TITLES = {
+  classic: 'Core Competencies', executive: 'Expertise', stanford: 'Skills', creative: 'Skills',
+  corporate: 'Core Skills', academic: 'Technical Skills', apex: 'Core Skills', serif: 'Skills',
+  metro: 'Expertise', horizon: 'Skills', minimal: 'Skills'
+};
+
+function renderSkillsContent(templateId, placement = 'main') {
+  const skills = getSkillsArray();
+  if (!skills.length) return '';
+  const items = skills.map(escapeHtml);
+
+  switch (templateId) {
+    case 'modern':
+      return `<div class="tm-skills tm-skills-modern-side">${items.map(s => `<span class="tm-skill tm-skill-modern-side">${s}</span>`).join('')}</div>`;
+    case 'classic':
+    case 'serif':
+      return `<p class="tm-skills tm-skills-inline-dots">${items.join(' · ')}</p>`;
+    case 'minimal':
+      return `<div class="tm-skills tm-skills-minimal">${items.map(s => `<span class="tm-skill tm-skill-minimal">${s}</span>`).join('')}</div>`;
+    case 'executive':
+      return `<div class="tm-skills tm-skills-exec-side">${items.map(s => `<span class="tm-skill tm-skill-exec">${s}</span>`).join('')}</div>`;
+    case 'stanford':
+      return `<div class="tm-skills tm-skills-stanford-list">${items.map(s => `<div class="tm-skill tm-skill-stanford">${s}</div>`).join('')}</div>`;
+    case 'creative':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-creative">${s}</span>`).join('')}</div>`;
+    case 'corporate':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-corp">${s}</span>`).join('')}</div>`;
+    case 'elegant':
+      return `<p class="tm-skills tm-skills-elegant">${items.join(', ')}</p>`;
+    case 'tech':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-tech">${s}</span>`).join('')}</div>`;
+    case 'harvard':
+      return `<div class="tm-skills tm-skills-harvard">${items.map(s => `<span class="tm-skill tm-skill-harvard">${s}</span>`).join('')}</div>`;
+    case 'luxury':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-luxury">${s}</span>`).join('')}</div>`;
+    case 'international':
+      return `<div class="tm-skills tm-skills-intl">${items.map(s => `<span class="tm-skill tm-skill-intl">${s}</span>`).join('')}</div>`;
+    case 'bold':
+      return `<div class="tm-skills tm-skills-bold">${items.map(s => `<span class="tm-skill tm-skill-bold">${s}</span>`).join('')}</div>`;
+    case 'compact':
+      return `<p class="tm-skills tm-skills-compact">${items.join(' · ')}</p>`;
+    case 'refined':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-refined">${s}</span>`).join('')}</div>`;
+    case 'horizon':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-horizon">${s}</span>`).join('')}</div>`;
+    case 'metro':
+      return placement === 'sidebar'
+        ? `<div class="tm-skills tm-skills-metro-side">${items.map(s => `<div class="tm-skill tm-skill-metro">${s}</div>`).join('')}</div>`
+        : `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-metro-pill">${s}</span>`).join('')}</div>`;
+    case 'slate':
+      return placement === 'sidebar'
+        ? `<div class="tm-skills tm-skills-slate-side">${items.map(s => `<span class="tm-skill tm-skill-slate">${s}</span>`).join('')}</div>`
+        : `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-slate-pill">${s}</span>`).join('')}</div>`;
+    case 'nova':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-nova">${s}</span>`).join('')}</div>`;
+    case 'apex':
+      return `<div class="tm-skills tm-skills-apex">${items.map(s => `<span class="tm-skill tm-skill-apex">${s}</span>`).join('')}</div>`;
+    case 'canvas':
+      return `<div class="tm-skills tm-skills-canvas">${items.map(s => `<span class="tm-skill tm-skill-canvas">${s}</span>`).join('')}</div>`;
+    case 'pioneer':
+      return `<div class="tm-skills tm-skills-pioneer">${items.map(s => `<span class="tm-skill tm-skill-pioneer">${s}</span>`).join('')}</div>`;
+    case 'academic':
+      return `<p class="tm-skills tm-skills-academic">${items.join(' · ')}</p>`;
+    case 'fusion':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-fusion">${s}</span>`).join('')}</div>`;
+    case 'monarch':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-monarch">${s}</span>`).join('')}</div>`;
+    case 'swiss':
+      return `<div class="tm-skills tm-skills-swiss">${items.map(s => `<span class="tm-skill tm-skill-swiss">${s}</span>`).join('')}</div>`;
+    case 'vivid':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-vivid">${s}</span>`).join('')}</div>`;
+    case 'forest':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-forest">${s}</span>`).join('')}</div>`;
+    case 'onyx':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-onyx">${s}</span>`).join('')}</div>`;
+    case 'radiant':
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-radiant">${s}</span>`).join('')}</div>`;
+    case 'streamline':
+      return `<div class="tm-skills tm-skills-streamline">${items.map(s => `<span class="tm-skill tm-skill-streamline">${s}</span>`).join('')}</div>`;
+    default:
+      return `<div class="tm-skills tm-skills-wrap">${items.map(s => `<span class="tm-skill tm-skill-default">${s}</span>`).join('')}</div>`;
+  }
+}
+
+function renderSkillsSection(templateId, title) {
+  const content = renderSkillsContent(templateId, 'main');
+  if (!content) return '';
+  const sectionTitle = title || SKILL_SECTION_TITLES[templateId] || 'Skills';
+  return `<div class="tm-section tm-skills-section"><div class="tm-section-title">${sectionTitle}</div>${content}</div>`;
+}
+
+function renderSkillsSidebar(templateId, label = 'Skills') {
+  const content = renderSkillsContent(templateId, 'sidebar');
+  if (!content) return '';
+  return `<div class="tm-side-section"><div class="tm-side-label">${label}</div>${content}</div>`;
+}
+
+function renderStandardBody(templateId = 'modern') {
+  return renderBodyCore() + renderSkillsSection(templateId);
+}
+
 function renderContactHtml(inline = false) {
   const items = getContactItems();
   if (inline) {
@@ -232,7 +340,7 @@ const TEMPLATE_RENDERERS = {
             <div class="tm-side-label">Contact</div>
             ${renderContactHtml()}
           </div>
-          ${skills.length ? `<div class="tm-side-section"><div class="tm-side-label">Skills</div>${renderSkillPills()}</div>` : ''}
+          ${skills.length ? renderSkillsSidebar('modern', 'Skills') : ''}
         </aside>
         <main class="tm-main">
           ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Profile</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
@@ -253,7 +361,7 @@ const TEMPLATE_RENDERERS = {
         ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Professional Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
         ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Professional Experience</div>${renderExperienceBlocks()}</div>` : ''}
         ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-        ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Core Competencies</div><p class="tm-skills">${getSkillsArray().map(escapeHtml).join(' · ')}</p></div>` : ''}
+        ${renderSkillsSection('classic')}
       </div>`;
   },
 
@@ -266,7 +374,7 @@ const TEMPLATE_RENDERERS = {
         ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">About</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
         ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
         ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-        ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${getSkillsArray().map(s => `<span class="tm-skill-pill">${escapeHtml(s)}</span>`).join('')}</div></div>` : ''}
+        ${renderSkillsSection('minimal')}
       </div>`;
   },
 
@@ -284,7 +392,7 @@ const TEMPLATE_RENDERERS = {
             ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Professional Experience</div>${renderExperienceBlocks()}</div>` : ''}
             ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
           </div>
-          ${getSkillsArray().length ? `<div class="tm-side-skills"><div class="tm-section-title">Expertise</div>${getSkillsArray().map(s => `<span class="tm-skill-pill">${escapeHtml(s)}</span>`).join('')}</div>` : ''}
+          ${getSkillsArray().length ? `<div class="tm-side-skills"><div class="tm-section-title">Expertise</div>${renderSkillsContent('executive', 'sidebar')}</div>` : ''}
         </div>
       </div>`;
   },
@@ -305,7 +413,7 @@ const TEMPLATE_RENDERERS = {
             ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
             ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
           </div>
-          ${getSkillsArray().length ? `<div class="tm-side-section"><div class="tm-side-title">Skills</div>${getSkillsArray().map(s => `<div class="tm-skill-item">${escapeHtml(s)}</div>`).join('')}</div>` : ''}
+          ${getSkillsArray().length ? `<div class="tm-side-section"><div class="tm-side-title">Skills</div>${renderSkillsContent('stanford', 'sidebar')}</div>` : ''}
         </div>
       </div>`;
   },
@@ -322,7 +430,7 @@ const TEMPLATE_RENDERERS = {
           ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">About Me</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
           ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
           ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-          ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
+          ${renderSkillsSection('creative')}
         </div>
       </div>`;
   },
@@ -349,7 +457,7 @@ const TEMPLATE_RENDERERS = {
           ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
           ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
           ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-          ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
+          ${renderSkillsSection('horizon')}
         </div>
       </div>`;
   },
@@ -365,7 +473,7 @@ const TEMPLATE_RENDERERS = {
         ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Professional Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
         ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
         ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-        ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><p>${getSkillsArray().map(escapeHtml).join(' · ')}</p></div>` : ''}
+        ${renderSkillsSection('serif')}
       </div>`;
   },
 
@@ -387,15 +495,6 @@ const TEMPLATE_RENDERERS = {
   streamline() { return renderStreamline(); }
 };
 
-function renderStandardBody() {
-  return `
-    ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
-    ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
-    ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-    ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
-  `;
-}
-
 function renderMetro() {
   const contact = getContactItems().map(c => `<div>${escapeHtml(c.value)}</div>`).join('');
   return `
@@ -409,27 +508,26 @@ function renderMetro() {
         <div class="tm-metro-right">${contact}</div>
       </header>
       <div class="tm-metro-body">
-        <div>${renderStandardBody()}</div>
-        ${getSkillsArray().length ? `<aside><div class="tm-side-title">Expertise</div>${getSkillsArray().map(s => `<div class="tm-skill-item">${escapeHtml(s)}</div>`).join('')}</aside>` : '<aside></aside>'}
+        <div>${renderBodyCore()}</div>
+        ${getSkillsArray().length ? `<aside class="tm-metro-skills-aside"><div class="tm-side-title">Expertise</div>${renderSkillsContent('metro', 'sidebar')}</aside>` : ''}
       </div>
     </div>`;
 }
 
 function renderSlate() {
-  const skills = getSkillsArray();
   return `
     <div class="tm-slate">
       <main class="tm-slate-main">
         <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
         <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
-        ${renderStandardBody()}
+        ${renderBodyCore()}
       </main>
       <aside class="tm-slate-side">
         <div class="tm-side-section">
           <div class="tm-side-label">Contact</div>
           ${renderContactHtml()}
         </div>
-        ${skills.length ? `<div class="tm-side-section"><div class="tm-side-label">Skills</div>${renderSkillPills('tm-skill-pill')}</div>` : ''}
+        ${renderSkillsSidebar('slate', 'Skills')}
       </aside>
     </div>`;
 }
@@ -442,7 +540,7 @@ function renderNova() {
         <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
         <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join('  ·  ')}</div>
       </header>
-      <div class="tm-nova-body">${renderStandardBody()}</div>
+      <div class="tm-nova-body">${renderStandardBody('nova')}</div>
     </div>`;
 }
 
@@ -460,7 +558,7 @@ function renderApex() {
         ${resumeData.summary ? `<div class="tm-section tm-apex-full"><div class="tm-section-title">Executive Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
         ${exp.length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
         ${edu.length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-        ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Core Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
+        ${renderSkillsSection('apex')}
       </div>
     </div>`;
 }
@@ -471,7 +569,7 @@ function renderCanvas() {
       <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
       <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
       <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' — ')}</div>
-      ${renderStandardBody()}
+      ${renderStandardBody('canvas')}
     </div>`;
 }
 
@@ -481,7 +579,7 @@ function renderPioneer() {
       <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
       <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
       <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>
-      ${renderStandardBody()}
+      ${renderStandardBody('pioneer')}
     </div>`;
 }
 
@@ -498,7 +596,7 @@ function renderAcademic() {
       ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Research Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
       ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Professional Experience</div>${renderExperienceBlocks()}</div>` : ''}
       ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-      ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Technical Skills</div><p>${getSkillsArray().map(escapeHtml).join(' · ')}</p></div>` : ''}
+      ${renderSkillsSection('academic')}
     </div>`;
 }
 
@@ -510,40 +608,40 @@ function renderRefined() {
         <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
         <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>
       </header>
-      <div class="tm-refined-body">${renderStandardBody()}</div>
+      <div class="tm-refined-body">${renderStandardBody('refined')}</div>
     </div>`;
 }
 
 function renderFusion() {
-  return `<div class="tm-fusion"><header class="tm-fusion-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-fusion-body">${renderStandardBody()}</div></div>`;
+  return `<div class="tm-fusion"><header class="tm-fusion-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-fusion-body">${renderStandardBody('fusion')}</div></div>`;
 }
 
 function renderMonarch() {
-  return `<div class="tm-monarch"><header class="tm-monarch-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-monarch-body">${renderStandardBody()}</div></div>`;
+  return `<div class="tm-monarch"><header class="tm-monarch-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-monarch-body">${renderStandardBody('monarch')}</div></div>`;
 }
 
 function renderSwiss() {
-  return `<div class="tm-swiss"><div class="tm-swiss-grid"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><div class="tm-swiss-meta"><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => `<div>${escapeHtml(c.value)}</div>`).join('')}</div></div></div>${renderStandardBody()}</div>`;
+  return `<div class="tm-swiss"><div class="tm-swiss-grid"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><div class="tm-swiss-meta"><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => `<div>${escapeHtml(c.value)}</div>`).join('')}</div></div></div>${renderStandardBody('swiss')}</div>`;
 }
 
 function renderVivid() {
-  return `<div class="tm-vivid"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>${renderStandardBody()}</div>`;
+  return `<div class="tm-vivid"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>${renderStandardBody('vivid')}</div>`;
 }
 
 function renderForest() {
-  return `<div class="tm-forest"><header class="tm-forest-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-forest-body">${renderStandardBody()}</div></div>`;
+  return `<div class="tm-forest"><header class="tm-forest-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-forest-body">${renderStandardBody('forest')}</div></div>`;
 }
 
 function renderOnyx() {
-  return `<div class="tm-onyx"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>${renderStandardBody()}</div>`;
+  return `<div class="tm-onyx"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div>${renderStandardBody('onyx')}</div>`;
 }
 
 function renderRadiant() {
-  return `<div class="tm-radiant"><header class="tm-radiant-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-radiant-body">${renderStandardBody()}</div></div>`;
+  return `<div class="tm-radiant"><header class="tm-radiant-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-radiant-body">${renderStandardBody('radiant')}</div></div>`;
 }
 
 function renderStreamline() {
-  return `<div class="tm-streamline"><header class="tm-stream-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-stream-body">${renderStandardBody()}</div></div>`;
+  return `<div class="tm-streamline"><header class="tm-stream-header"><h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1><p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p><div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' · ')}</div></header><div class="tm-stream-body">${renderStandardBody('streamline')}</div></div>`;
 }
 
 function syncFormFields() {
@@ -671,12 +769,7 @@ function renderThemed(id, variant = 'default') {
     header = `<div class="tm-themed-header"><h1 class="tm-themed-name">${name}</h1><p class="tm-themed-title">${title}</p><div class="tm-themed-contact">${contact}</div></div>`;
   }
 
-  const body = `
-    ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
-    ${getExperienceEntries().length ? `<div class="tm-section"><div class="tm-section-title">Experience</div>${renderExperienceBlocks()}</div>` : ''}
-    ${getEducationEntries().length ? `<div class="tm-section"><div class="tm-section-title">Education</div>${renderEducationBlocks()}</div>` : ''}
-    ${getSkillsArray().length ? `<div class="tm-section"><div class="tm-section-title">Skills</div><div class="tm-skills">${renderSkillPills()}</div></div>` : ''}
-  `;
+  const body = renderBodyCore() + renderSkillsSection(id);
 
   return `<div class="tm-themed tm-${id}">${header}${body}</div>`;
 }
@@ -966,55 +1059,64 @@ function getExportBackgroundColor(clone) {
   return bg && bg !== 'rgba(0, 0, 0, 0)' ? bg : '#ffffff';
 }
 
-function prepareExportClone(source) {
+function prepareExportClone() {
+  const tpl = normalizeTemplate(resumeData.template);
+  const renderer = TEMPLATE_RENDERERS[tpl];
+  if (!renderer) throw new Error('Template not found');
+
   const wrapper = document.createElement('div');
   wrapper.id = 'resume-export-wrapper';
   wrapper.setAttribute('aria-hidden', 'true');
-  wrapper.style.cssText = `position:fixed;left:-12000px;top:0;width:${EXPORT_WIDTH}px;z-index:-1;opacity:1;pointer-events:none;overflow:visible;background:transparent;`;
+  wrapper.style.cssText = `position:fixed;left:0;top:0;width:${EXPORT_WIDTH}px;z-index:-1;opacity:0;pointer-events:none;overflow:hidden;`;
 
-  const clone = source.cloneNode(true);
+  const clone = document.createElement('div');
   clone.id = 'resume-export-clone';
-  clone.classList.add('resume-export-clone');
-  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-height:auto;height:auto;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
-
-  const inner = clone.querySelector('[class*="tm-"]');
-  if (inner) {
-    inner.style.width = '100%';
-    inner.style.maxWidth = '100%';
-    inner.style.boxSizing = 'border-box';
-  }
-  clone.querySelectorAll('.tm-themed, [class*="tm-"]').forEach(el => {
-    el.style.setProperty('width', '100%', 'important');
-    el.style.setProperty('max-width', '100%', 'important');
-    el.style.setProperty('box-sizing', 'border-box', 'important');
-  });
-
+  clone.className = `resume-preview resume-export-clone template-${tpl}`;
+  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
+  clone.innerHTML = renderer();
   clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
 
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
   void clone.offsetHeight;
-  const contentHeight = Math.max(clone.scrollHeight, clone.offsetHeight, 1);
+  const contentHeight = Math.max(Math.ceil(clone.scrollHeight), Math.ceil(clone.offsetHeight), 1);
   clone.style.height = `${contentHeight}px`;
+  wrapper.style.height = `${contentHeight}px`;
   return { wrapper, clone, contentHeight, bgColor: getExportBackgroundColor(clone) };
+}
+
+function applyExportCaptureFixes(root) {
+  root.querySelectorAll('.tm-skill, .tm-skill-pill, .tm-skill-item').forEach(el => {
+    el.style.display = 'inline-flex';
+    el.style.alignItems = 'center';
+    el.style.justifyContent = 'center';
+    el.style.lineHeight = '1.25';
+    el.style.verticalAlign = 'middle';
+    el.style.boxSizing = 'border-box';
+    el.style.overflow = 'visible';
+    el.style.whiteSpace = 'nowrap';
+  });
+  root.querySelectorAll('.tm-skills, .tm-skills-wrap').forEach(el => {
+    el.style.display = 'flex';
+    el.style.flexWrap = 'wrap';
+    el.style.alignItems = 'flex-start';
+    el.style.gap = '6px';
+  });
+  root.querySelectorAll('.tm-modern').forEach(el => {
+    el.style.display = 'grid';
+    el.style.gridTemplateColumns = '220px 1fr';
+    el.style.width = `${EXPORT_WIDTH}px`;
+  });
+  root.querySelectorAll('.tm-executive .tm-exec-body, .tm-stanford .tm-body, .tm-slate, .tm-metro .tm-metro-body, .tm-apex .tm-apex-body').forEach(el => {
+    if (el.classList.contains('tm-slate') || el.classList.contains('tm-metro-body')) {
+      el.style.display = 'grid';
+    }
+  });
 }
 
 function blobFromCanvas(canvas, type, quality) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Failed to create image')), type, quality);
-  });
-}
-
-async function captureResumeCanvas(clone, bgColor) {
-  if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
-  return html2canvas(clone, {
-    scale: EXPORT_SCALE,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: bgColor === 'rgba(0, 0, 0, 0)' ? null : bgColor,
-    scrollX: 0,
-    scrollY: 0,
-    logging: false
   });
 }
 
@@ -1029,21 +1131,45 @@ function sliceCanvas(canvas, offsetY, sliceHeight, fillColor = '#ffffff') {
   return slice;
 }
 
+async function captureResumeCanvas(clone, bgColor) {
+  if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
+  applyExportCaptureFixes(clone);
+  return html2canvas(clone, {
+    scale: EXPORT_SCALE,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: bgColor === 'rgba(0, 0, 0, 0)' ? null : bgColor,
+    scrollX: 0,
+    scrollY: 0,
+    logging: false,
+    width: EXPORT_WIDTH,
+    height: clone.offsetHeight,
+    windowWidth: EXPORT_WIDTH,
+    windowHeight: clone.offsetHeight,
+    onclone: (_doc, clonedEl) => applyExportCaptureFixes(clonedEl)
+  });
+}
+
 async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff') {
   if (!window.jspdf?.jsPDF) throw new Error('PDF library not loaded. Please refresh the page.');
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageSliceHeight = EXPORT_PAGE_HEIGHT * EXPORT_SCALE;
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 28;
+  const maxW = pageWidth - margin * 2;
+  const maxH = pageHeight - margin * 2;
+  const scale = maxW / canvas.width;
+  const sliceHeightPx = Math.floor(maxH / scale);
   let offsetY = 0;
   let pageIndex = 0;
 
   while (offsetY < canvas.height) {
     if (pageIndex > 0) pdf.addPage();
-    const sliceHeight = Math.min(pageSliceHeight, canvas.height - offsetY);
+    const sliceHeight = Math.min(sliceHeightPx, canvas.height - offsetY);
     const slice = sliceCanvas(canvas, offsetY, sliceHeight, fillColor);
-    const displayHeight = (sliceHeight / canvas.width) * pageWidth;
-    pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageWidth, displayHeight);
+    const displayH = sliceHeight * scale;
+    pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, maxW, displayH);
     offsetY += sliceHeight;
     pageIndex++;
   }
@@ -1083,7 +1209,7 @@ async function exportResume(format = 'pdf') {
     return;
   }
 
-  const { wrapper, clone, bgColor } = prepareExportClone(source);
+  const { wrapper, clone, bgColor } = prepareExportClone();
   try {
     if (document.fonts?.ready) await document.fonts.ready;
     await new Promise(r => setTimeout(r, 500));
