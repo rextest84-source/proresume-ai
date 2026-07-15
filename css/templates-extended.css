@@ -1,0 +1,369 @@
+/* ProResume AI — Templates 33–64 */
+
+/* ─── COBALT — deep navy band ─── */
+.tm-cobalt { padding: 0; }
+.tm-cobalt .tm-cobalt-header { background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 55%, #2563eb 100%); color: #fff; padding: 32px 40px 28px; }
+.tm-cobalt .tm-name { font-size: 26pt; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.03em; }
+.tm-cobalt .tm-title { font-size: 11pt; color: #bfdbfe; margin: 0 0 12px; }
+.tm-cobalt .tm-contact { font-size: 8.5pt; color: #dbeafe; }
+.tm-cobalt .tm-cobalt-body { padding: 28px 40px 36px; }
+.tm-cobalt .tm-section-title { color: #1e40af; border-bottom: 3px solid #3b82f6; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; padding-bottom: 5px; }
+.tm-cobalt .tm-entry { border-left: 3px solid #dbeafe; padding-left: 14px; }
+.tm-skill-cobalt { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 4px; border-bottom: 2px solid #3b82f6; }
+.tpl-thumb-cobalt { background: linear-gradient(180deg, #1d4ed8 30%, #fff 30%); }
+
+/* ─── AMBER — warm gold stripe ─── */
+.tm-amber { padding: 34px 40px 36px 48px; border-left: 10px solid #d97706; background: #fffbeb; }
+.tm-amber .tm-name { font-size: 24pt; font-weight: 800; color: #78350f; margin: 0 0 4px; }
+.tm-amber .tm-title { font-size: 11pt; color: #b45309; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 14px; }
+.tm-amber .tm-contact { font-size: 8.5pt; color: #92400e; margin-bottom: 24px; }
+.tm-amber .tm-section-title { color: #92400e; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; padding-left: 10px; border-left: 4px solid #f59e0b; }
+.tm-skill-amber { font-size: 8.5pt; color: #78350f; padding: 4px 0; border-bottom: 1px dashed #fcd34d; }
+.tm-skill-amber + .tm-skill-amber { margin-top: 2px; }
+.tpl-thumb-amber { background: #fffbeb; border-left: 5px solid #d97706; }
+
+/* ─── VERDANT — emerald sidebar ─── */
+.tm-verdant { display: grid; grid-template-columns: 210px 1fr; min-height: auto; }
+.tm-verdant .tm-verdant-side { background: linear-gradient(180deg, #047857, #065f46); color: #fff; padding: 28px 18px; }
+.tm-verdant .tm-verdant-side .tm-name { font-size: 16pt; font-weight: 700; margin: 0 0 6px; line-height: 1.2; }
+.tm-verdant .tm-verdant-side .tm-title { font-size: 8.5pt; color: #a7f3d0; margin: 0 0 18px; }
+.tm-verdant .tm-side-label { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #6ee7b7; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px; }
+.tm-verdant .tm-verdant-side .tm-contact-item { font-size: 7.5pt; color: #d1fae5; margin-bottom: 6px; }
+.tm-verdant .tm-verdant-main { padding: 28px 32px; }
+.tm-verdant .tm-section-title { color: #047857; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid #34d399; margin-bottom: 10px; padding-bottom: 4px; }
+.tm-skill-verdant { display: block; width: 100%; background: rgba(255,255,255,0.12); color: #ecfdf5; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 7.5pt; }
+.tpl-thumb-verdant { background: linear-gradient(90deg, #047857 32%, #fff 32%); }
+
+/* ─── CRIMSON — editorial red ─── */
+.tm-crimson { padding: 0; }
+.tm-crimson .tm-crimson-header { background: linear-gradient(90deg, #7f1d1d, #b91c1c); color: #fff; padding: 30px 38px 26px; }
+.tm-crimson .tm-name { font-size: 25pt; font-weight: 700; margin: 0 0 4px; font-family: 'Merriweather', serif; }
+.tm-crimson .tm-title { font-size: 10pt; color: #fecaca; margin: 0 0 10px; font-style: italic; }
+.tm-crimson .tm-contact { font-size: 8.5pt; color: #fee2e2; }
+.tm-crimson .tm-crimson-body { padding: 28px 38px 34px; }
+.tm-crimson .tm-section-title { color: #991b1b; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; border-bottom: 2px solid #fca5a5; margin-bottom: 10px; padding-bottom: 4px; }
+.tm-skill-crimson { background: #fef2f2; color: #991b1b; padding: 4px 10px; border-radius: 3px; border-left: 3px solid #dc2626; }
+.tpl-thumb-crimson { background: linear-gradient(180deg, #b91c1c 28%, #fff 28%); }
+
+/* ─── NORDIC — scandinavian minimal ─── */
+.tm-nordic { padding: 42px 48px; background: #fafafa; }
+.tm-nordic .tm-name { font-size: 22pt; font-weight: 300; color: #171717; margin: 0 0 6px; letter-spacing: 0.2em; text-transform: uppercase; }
+.tm-nordic .tm-title { font-size: 9pt; color: #737373; margin: 0 0 20px; letter-spacing: 0.15em; text-transform: uppercase; }
+.tm-nordic .tm-contact { font-size: 8pt; color: #a3a3a3; margin-bottom: 36px; }
+.tm-nordic .tm-section-title { font-size: 7.5pt; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #a3a3a3; margin-bottom: 14px; }
+.tm-nordic .tm-entry { margin-bottom: 20px; }
+.tm-nordic .tm-bullets { list-style: none; padding-left: 0; }
+.tm-nordic .tm-bullets li { padding-left: 0; }
+.tpl-thumb-nordic { background: #fafafa; border-bottom: 1px solid #d4d4d4; }
+
+/* ─── ARCTIC — ice blue accent ─── */
+.tm-arctic { padding: 36px 42px; border-top: 8px solid #0ea5e9; background: #f0f9ff; }
+.tm-arctic .tm-name { font-size: 24pt; font-weight: 700; color: #0c4a6e; margin: 0 0 4px; }
+.tm-arctic .tm-title { font-size: 10pt; color: #0284c7; margin: 0 0 14px; font-weight: 500; }
+.tm-arctic .tm-contact { font-size: 8.5pt; color: #0369a1; margin-bottom: 26px; }
+.tm-arctic .tm-section-title { color: #0369a1; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px; }
+.tm-skill-arctic { background: #e0f2fe; color: #075985; padding: 4px 10px; border-radius: 12px; border: 1px solid #7dd3fc; }
+.tpl-thumb-arctic { background: #f0f9ff; border-top: 5px solid #0ea5e9; }
+
+/* ─── SAPPHIRE — royal luxury ─── */
+.tm-sapphire { padding: 0; background: #f8fafc; }
+.tm-sapphire .tm-sapphire-header { background: linear-gradient(180deg, #0f172a, #1e3a8a); color: #fff; padding: 36px 40px 30px; text-align: center; position: relative; }
+.tm-sapphire .tm-sapphire-header::after { content: ''; position: absolute; bottom: 0; left: 15%; right: 15%; height: 2px; background: linear-gradient(90deg, transparent, #93c5fd, transparent); }
+.tm-sapphire .tm-name { font-size: 26pt; font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase; margin: 0 0 6px; color: #e0f2fe; }
+.tm-sapphire .tm-title { font-size: 9pt; color: #93c5fd; letter-spacing: 0.22em; text-transform: uppercase; margin: 0 0 12px; }
+.tm-sapphire .tm-contact { font-size: 8pt; color: #bfdbfe; }
+.tm-sapphire .tm-sapphire-body { padding: 30px 40px 36px; }
+.tm-sapphire .tm-section-title { color: #1e3a8a; font-size: 8.5pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; border-bottom: 1px solid #93c5fd; padding-bottom: 5px; margin-bottom: 10px; }
+.tm-skill-sapphire { background: #eff6ff; color: #1e40af; padding: 4px 12px; border: 1px solid #bfdbfe; letter-spacing: 0.04em; }
+.tpl-thumb-sapphire { background: linear-gradient(180deg, #1e3a8a 32%, #f8fafc 32%); }
+
+/* ─── COPPER — industrial warm ─── */
+.tm-copper { padding: 0; }
+.tm-copper .tm-copper-header { background: linear-gradient(135deg, #9a3412, #c2410c, #ea580c); color: #fff; padding: 30px 36px 26px; }
+.tm-copper .tm-name { font-size: 24pt; font-weight: 800; margin: 0 0 4px; }
+.tm-copper .tm-title { font-size: 10pt; color: #fed7aa; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.tm-copper .tm-contact { font-size: 8.5pt; color: #ffedd5; }
+.tm-copper .tm-copper-body { padding: 28px 36px 34px; }
+.tm-copper .tm-section-title { color: #c2410c; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid #fdba74; margin-bottom: 10px; padding-bottom: 4px; }
+.tm-copper .tm-entry { padding-left: 12px; border-left: 3px solid #fed7aa; }
+.tm-skill-copper { background: #fff7ed; color: #9a3412; padding: 4px 10px; border-radius: 4px; border: 1px solid #fdba74; }
+.tpl-thumb-copper { background: linear-gradient(135deg, #c2410c 40%, #fff7ed 40%); }
+
+/* ─── PLATINUM — silver executive ─── */
+.tm-platinum { padding: 36px 42px; background: #fff; }
+.tm-platinum .tm-name { font-size: 22pt; font-weight: 600; color: #27272a; margin: 0 0 4px; letter-spacing: 0.06em; }
+.tm-platinum .tm-title { font-size: 10pt; color: #71717a; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.12em; }
+.tm-platinum .tm-contact { font-size: 8pt; color: #a1a1aa; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #e4e4e7; }
+.tm-platinum .tm-section-title { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #52525b; margin-bottom: 10px; }
+.tpl-thumb-platinum { background: linear-gradient(180deg, #e4e4e7 15%, #fff 15%); }
+
+/* ─── JADE — jade green sidebar ─── */
+.tm-jade { display: grid; grid-template-columns: 200px 1fr; min-height: auto; }
+.tm-jade .tm-jade-side { background: #134e4a; color: #fff; padding: 28px 18px; }
+.tm-jade .tm-jade-side .tm-name { font-size: 15pt; font-weight: 700; margin: 0 0 6px; }
+.tm-jade .tm-jade-side .tm-title { font-size: 8pt; color: #5eead4; margin: 0 0 16px; text-transform: uppercase; letter-spacing: 0.08em; }
+.tm-jade .tm-side-label { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #99f6e4; margin-bottom: 8px; }
+.tm-jade .tm-jade-side .tm-contact-item { font-size: 7.5pt; color: #ccfbf1; margin-bottom: 5px; }
+.tm-jade .tm-jade-main { padding: 28px 32px; }
+.tm-jade .tm-section-title { color: #0f766e; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid #14b8a6; margin-bottom: 10px; padding-bottom: 4px; }
+.tm-skill-jade { display: block; width: 100%; background: rgba(94,234,212,0.15); color: #ccfbf1; padding: 4px 8px; border-radius: 3px; margin-bottom: 4px; font-size: 7.5pt; }
+.tpl-thumb-jade { background: linear-gradient(90deg, #134e4a 30%, #fff 30%); }
+
+/* ─── GRANITE — structured stone ─── */
+.tm-granite { padding: 32px 38px; }
+.tm-granite .tm-name { font-size: 23pt; font-weight: 800; color: #1c1917; margin: 0 0 4px; padding-bottom: 12px; border-bottom: 4px solid #44403c; }
+.tm-granite .tm-title { font-size: 10pt; color: #57534e; margin: 12px 0 14px; font-weight: 600; }
+.tm-granite .tm-contact { font-size: 8.5pt; color: #78716c; margin-bottom: 24px; }
+.tm-granite .tm-section-title { background: #44403c; color: #fff; display: inline-block; padding: 4px 12px; font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.tm-skill-granite { display: block; width: 100%; color: #44403c; padding: 4px 0 4px 10px; border-left: 3px solid #a8a29e; margin-bottom: 3px; font-size: 8.5pt; }
+.tpl-thumb-granite { background: #fff; border-top: 4px solid #44403c; }
+
+/* ─── AZURE — sky modern ─── */
+.tm-azure { padding: 0; }
+.tm-azure .tm-azure-header { background: linear-gradient(90deg, #0284c7, #38bdf8); color: #fff; padding: 28px 38px 24px; }
+.tm-azure .tm-name { font-size: 25pt; font-weight: 700; margin: 0 0 4px; }
+.tm-azure .tm-title { font-size: 10pt; color: #e0f2fe; margin: 0 0 10px; }
+.tm-azure .tm-contact { font-size: 8.5pt; color: #f0f9ff; }
+.tm-azure .tm-azure-body { padding: 26px 38px 34px; }
+.tm-azure .tm-section-title { color: #0369a1; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.tm-azure .tm-section-title::before { content: ''; width: 16px; height: 3px; background: #38bdf8; }
+.tm-skill-azure { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 4px; font-weight: 500; }
+.tpl-thumb-azure { background: linear-gradient(180deg, #0284c7 25%, #fff 25%); }
+
+/* ─── LATTICE — swiss grid bold ─── */
+.tm-lattice { padding: 30px 36px; }
+.tm-lattice .tm-lattice-grid { display: grid; grid-template-columns: 1fr 190px; gap: 16px; border-bottom: 5px solid #18181b; padding-bottom: 14px; margin-bottom: 22px; }
+.tm-lattice .tm-name { font-size: 26pt; font-weight: 900; color: #000; margin: 0; line-height: 0.95; letter-spacing: -0.04em; }
+.tm-lattice .tm-lattice-meta { text-align: right; font-size: 8pt; color: #404040; line-height: 1.6; }
+.tm-lattice .tm-title { font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px; color: #000; font-size: 8.5pt; }
+.tm-lattice .tm-section-title { font-size: 7.5pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.18em; color: #000; margin-bottom: 10px; }
+.tm-skill-lattice { background: #18181b; color: #fff; padding: 5px 10px; font-weight: 800; text-transform: uppercase; font-size: 6.5pt; letter-spacing: 0.06em; }
+.tpl-thumb-lattice { background: #fff; border-bottom: 5px solid #000; }
+
+/* ─── HAVEN — calm sanctuary ─── */
+.tm-haven { padding: 0; background: #f0fdf4; }
+.tm-haven .tm-haven-header { background: #166534; color: #fff; padding: 28px 36px 24px; }
+.tm-haven .tm-name { font-size: 23pt; font-weight: 600; margin: 0 0 4px; }
+.tm-haven .tm-title { font-size: 10pt; color: #bbf7d0; margin: 0 0 10px; }
+.tm-haven .tm-contact { font-size: 8.5pt; color: #dcfce7; }
+.tm-haven .tm-haven-body { padding: 26px 36px 34px; }
+.tm-haven .tm-section-title { color: #166534; font-size: 9pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.tm-haven .tm-summary { color: #365314; }
+.tm-skill-haven { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 16px; border: 1px solid #86efac; }
+.tpl-thumb-haven { background: linear-gradient(180deg, #166534 22%, #f0fdf4 22%); }
+
+/* ─── HARBOR — maritime sidebar ─── */
+.tm-harbor { display: grid; grid-template-columns: 1fr 190px; min-height: auto; }
+.tm-harbor .tm-harbor-main { padding: 30px 32px; }
+.tm-harbor .tm-harbor-main .tm-name { font-size: 24pt; font-weight: 700; color: #0c4a6e; margin: 0 0 4px; }
+.tm-harbor .tm-harbor-main .tm-title { font-size: 10pt; color: #0369a1; margin: 0 0 20px; text-transform: uppercase; letter-spacing: 0.08em; }
+.tm-harbor .tm-harbor-side { background: linear-gradient(180deg, #0c4a6e, #164e63); color: #fff; padding: 30px 20px; }
+.tm-harbor .tm-side-label { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #7dd3fc; margin-bottom: 8px; }
+.tm-harbor .tm-harbor-side .tm-contact-item { font-size: 7.5pt; color: #e0f2fe; margin-bottom: 5px; }
+.tm-harbor .tm-section-title { color: #0c4a6e; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid #0ea5e9; margin-bottom: 10px; padding-bottom: 4px; }
+.tm-skill-harbor { display: block; width: 100%; background: rgba(125,211,252,0.15); color: #e0f2fe; padding: 4px 8px; border-radius: 3px; margin-bottom: 4px; font-size: 7.5pt; }
+.tpl-thumb-harbor { background: linear-gradient(90deg, #fff 68%, #0c4a6e 68%); }
+
+/* ─── MAHOGANY — traditional brown ─── */
+.tm-mahogany { padding: 36px 42px; font-family: 'Merriweather', Georgia, serif; background: #fffaf5; }
+.tm-mahogany .tm-name { font-size: 22pt; font-weight: 700; color: #431407; margin: 0 0 4px; }
+.tm-mahogany .tm-title { font-size: 11pt; color: #9a3412; font-style: italic; margin: 0 0 12px; }
+.tm-mahogany .tm-contact { font-size: 8.5pt; color: #78716c; font-family: 'Inter', sans-serif; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid #d6d3d1; }
+.tm-mahogany .tm-section-title { font-family: 'Inter', sans-serif; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #78350f; margin-bottom: 10px; }
+.tm-mahogany .tm-bullets, .tm-mahogany .tm-summary { font-family: 'Inter', sans-serif; }
+.tpl-thumb-mahogany { background: #fffaf5; border-bottom: 3px solid #78350f; }
+
+/* ─── OBSIDIAN — dark gold luxury ─── */
+.tm-obsidian { padding: 36px 40px; background: #0c0a09; color: #e7e5e4; }
+.tm-obsidian .tm-name { font-size: 28pt; font-weight: 700; color: #fafaf9; margin: 0 0 4px; letter-spacing: -0.02em; }
+.tm-obsidian .tm-title { font-size: 10pt; color: #d4af37; text-transform: uppercase; letter-spacing: 0.2em; margin: 0 0 16px; }
+.tm-obsidian .tm-contact { font-size: 8pt; color: #a8a29e; margin-bottom: 28px; }
+.tm-obsidian .tm-section-title { color: #d4af37; font-size: 8pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.22em; margin-bottom: 12px; }
+.tm-obsidian .tm-entry-role { color: #fafaf9; }
+.tm-obsidian .tm-summary, .tm-obsidian .tm-bullets { color: #a8a29e; }
+.tm-skill-obsidian { background: transparent; color: #d4af37; padding: 4px 12px; border: 1px solid #d4af37; letter-spacing: 0.06em; font-size: 7pt; text-transform: uppercase; }
+.tpl-thumb-obsidian { background: #0c0a09; border-bottom: 2px solid #d4af37; }
+
+/* ─── SUNSET — warm gradient ─── */
+.tm-sunset { padding: 0; }
+.tm-sunset .tm-sunset-header { background: linear-gradient(135deg, #be185d, #ea580c, #f59e0b); color: #fff; padding: 32px 38px 28px; }
+.tm-sunset .tm-name { font-size: 26pt; font-weight: 800; margin: 0 0 4px; }
+.tm-sunset .tm-title { font-size: 11pt; color: #fff7ed; margin: 0 0 12px; }
+.tm-sunset .tm-contact { font-size: 8.5pt; color: #ffedd5; }
+.tm-sunset .tm-sunset-body { padding: 28px 38px 36px; }
+.tm-sunset .tm-section-title { color: #c2410c; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.tm-skill-sunset { background: linear-gradient(90deg, #fce7f3, #ffedd5); color: #be185d; padding: 4px 10px; border-radius: 12px; }
+.tpl-thumb-sunset { background: linear-gradient(135deg, #ea580c, #f59e0b); }
+
+/* ─── VELVET — deep purple elegance ─── */
+.tm-velvet { padding: 0; background: #faf5ff; }
+.tm-velvet .tm-velvet-header { background: linear-gradient(180deg, #4c1d95, #6d28d9); color: #fff; padding: 34px 40px 28px; text-align: center; }
+.tm-velvet .tm-name { font-size: 26pt; font-weight: 300; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 6px; }
+.tm-velvet .tm-title { font-size: 10pt; color: #e9d5ff; letter-spacing: 0.18em; text-transform: uppercase; margin: 0 0 12px; }
+.tm-velvet .tm-contact { font-size: 8pt; color: #f3e8ff; }
+.tm-velvet .tm-velvet-body { padding: 28px 40px 36px; }
+.tm-velvet .tm-section-title { color: #6d28d9; font-size: 8.5pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; border-bottom: 1px solid #ddd6fe; padding-bottom: 5px; margin-bottom: 10px; }
+.tm-skill-velvet { background: #f3e8ff; color: #5b21b6; padding: 4px 12px; border-radius: 20px; border: 1px solid #c4b5fd; }
+.tpl-thumb-velvet { background: linear-gradient(180deg, #6d28d9 30%, #faf5ff 30%); }
+
+/* ─── ZENITH — gold summit banner ─── */
+.tm-zenith { padding: 0; }
+.tm-zenith .tm-zenith-header { background: linear-gradient(90deg, #1c1917, #292524); color: #fff; padding: 32px 40px; text-align: center; border-bottom: 4px solid #d4af37; }
+.tm-zenith .tm-name { font-size: 28pt; font-weight: 300; letter-spacing: 0.25em; text-transform: uppercase; margin: 0 0 6px; color: #d4af37; }
+.tm-zenith .tm-title { font-size: 9pt; color: #d6d3d1; letter-spacing: 0.3em; text-transform: uppercase; margin: 0 0 12px; }
+.tm-zenith .tm-contact { font-size: 8pt; color: #a8a29e; }
+.tm-zenith .tm-zenith-body { padding: 28px 40px 36px; }
+.tm-zenith .tm-section-title { color: #292524; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; border-bottom: 1px solid #d4af37; padding-bottom: 5px; margin-bottom: 10px; }
+.tm-skill-zenith { background: #fef9e7; color: #78350f; padding: 4px 12px; border: 1px solid #d4af37; letter-spacing: 0.05em; }
+.tpl-thumb-zenith { background: linear-gradient(180deg, #292524 28%, #fff 28%); border-bottom: 2px solid #d4af37; }
+
+/* ─── CIPHER — dark tech mono ─── */
+.tm-cipher { padding: 32px 38px; background: #09090b; color: #d4d4d8; font-family: ui-monospace, 'Cascadia Code', monospace; }
+.tm-cipher .tm-name { font-size: 20pt; font-weight: 700; color: #22d3ee; margin: 0 0 4px; }
+.tm-cipher .tm-title { font-size: 10pt; color: #a1a1aa; margin: 0 0 14px; }
+.tm-cipher .tm-contact { font-size: 8pt; color: #71717a; margin-bottom: 26px; font-family: 'Inter', sans-serif; }
+.tm-cipher .tm-section-title { color: #22d3ee; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+.tm-cipher .tm-section-title::before { content: '> '; color: #52525b; }
+.tm-cipher .tm-summary, .tm-cipher .tm-bullets { font-family: 'Inter', sans-serif; color: #a1a1aa; }
+.tm-cipher .tm-entry-role { color: #fafafa; }
+.tm-skill-cipher { background: #18181b; color: #22d3ee; padding: 3px 8px; border: 1px solid #164e63; font-size: 7.5pt; border-radius: 2px; }
+.tpl-thumb-cipher { background: #09090b; border-top: 4px solid #22d3ee; }
+
+/* ─── FORGE — steel industrial ─── */
+.tm-forge { padding: 32px 40px 36px 48px; border-left: 8px solid #475569; background: #f8fafc; }
+.tm-forge .tm-name { font-size: 24pt; font-weight: 900; color: #0f172a; margin: 0 0 4px; text-transform: uppercase; letter-spacing: -0.02em; }
+.tm-forge .tm-title { font-size: 10pt; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 14px; }
+.tm-forge .tm-contact { font-size: 8.5pt; color: #64748b; margin-bottom: 24px; }
+.tm-forge .tm-section-title { color: #334155; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; padding-left: 10px; border-left: 4px solid #64748b; }
+.tm-skill-forge { display: block; width: 100%; color: #334155; padding: 5px 0 5px 12px; border-left: 3px solid #94a3b8; margin-bottom: 4px; font-weight: 600; font-size: 8.5pt; }
+.tpl-thumb-forge { background: #f8fafc; border-left: 5px solid #475569; }
+
+/* ─── PULSE — dynamic red energy ─── */
+.tm-pulse { padding: 34px 40px; border-top: 6px solid #dc2626; }
+.tm-pulse .tm-name { font-size: 26pt; font-weight: 900; color: #0f172a; margin: 0 0 4px; letter-spacing: -0.04em; line-height: 1; }
+.tm-pulse .tm-title { font-size: 12pt; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 16px; }
+.tm-pulse .tm-contact { font-size: 8.5pt; color: #64748b; margin-bottom: 24px; }
+.tm-pulse .tm-section-title { background: #dc2626; color: #fff; display: inline-block; padding: 4px 12px; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.tm-pulse .tm-entry { border-left: 4px solid #fecaca; padding-left: 12px; }
+.tm-skill-pulse { background: #fef2f2; color: #b91c1c; padding: 5px 12px; font-weight: 700; text-transform: uppercase; font-size: 7.5pt; letter-spacing: 0.04em; }
+.tpl-thumb-pulse { background: #fff; border-top: 5px solid #dc2626; }
+
+/* ─── EMBER — warm dark fire ─── */
+.tm-ember { padding: 34px 40px; background: #1c1917; color: #d6d3d1; }
+.tm-ember .tm-name { font-size: 26pt; font-weight: 800; color: #fafaf9; margin: 0 0 4px; }
+.tm-ember .tm-title { font-size: 10pt; color: #fb923c; text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 16px; }
+.tm-ember .tm-contact { font-size: 8pt; color: #a8a29e; margin-bottom: 28px; }
+.tm-ember .tm-section-title { color: #fb923c; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px; }
+.tm-ember .tm-entry-role { color: #fafaf9; }
+.tm-ember .tm-summary, .tm-ember .tm-bullets { color: #a8a29e; }
+.tm-skill-ember { background: rgba(251,146,60,0.15); color: #fdba74; padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(251,146,60,0.35); }
+.tpl-thumb-ember { background: #1c1917; border-bottom: 2px solid #fb923c; }
+
+/* ─── CANOPY — nature forest bands ─── */
+.tm-canopy { padding: 0; }
+.tm-canopy .tm-canopy-header { background: linear-gradient(180deg, #14532d 0%, #166534 60%, #22c55e 100%); color: #fff; padding: 30px 36px 26px; }
+.tm-canopy .tm-name { font-size: 24pt; font-weight: 700; margin: 0 0 4px; }
+.tm-canopy .tm-title { font-size: 10pt; color: #bbf7d0; margin: 0 0 10px; }
+.tm-canopy .tm-contact { font-size: 8.5pt; color: #dcfce7; }
+.tm-canopy .tm-canopy-body { padding: 28px 36px 34px; background: #f7fee7; }
+.tm-canopy .tm-section-title { color: #166534; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.tm-canopy .tm-summary { color: #365314; }
+.tm-skill-canopy { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 4px; border: 1px solid #86efac; }
+.tpl-thumb-canopy { background: linear-gradient(180deg, #166534 25%, #f7fee7 25%); }
+
+/* ─── STELLAR — cosmic dark ─── */
+.tm-stellar { padding: 34px 40px; background: linear-gradient(180deg, #0f0a1e 0%, #1e1b4b 100%); color: #e0e7ff; }
+.tm-stellar .tm-name { font-size: 26pt; font-weight: 800; margin: 0 0 4px; background: linear-gradient(90deg, #c4b5fd, #67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.tm-stellar .tm-title { font-size: 10pt; color: #a5b4fc; margin: 0 0 16px; letter-spacing: 0.1em; text-transform: uppercase; }
+.tm-stellar .tm-contact { font-size: 8pt; color: #818cf8; margin-bottom: 28px; }
+.tm-stellar .tm-section-title { color: #a5b4fc; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.tm-stellar .tm-section-title::before { content: '✦'; color: #67e8f9; font-size: 10pt; }
+.tm-stellar .tm-entry-role { color: #f1f5f9; }
+.tm-stellar .tm-summary, .tm-stellar .tm-bullets { color: #c7d2fe; }
+.tm-skill-stellar { background: rgba(129,140,248,0.2); color: #c7d2fe; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(129,140,248,0.4); }
+.tpl-thumb-stellar { background: linear-gradient(135deg, #1e1b4b, #0f0a1e); }
+
+/* ─── PRISM — creative rainbow ─── */
+.tm-prism { padding: 32px 40px 36px 44px; border-left: 8px solid; border-image: linear-gradient(180deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #8b5cf6) 1; background: #fff; }
+.tm-prism .tm-name { font-size: 24pt; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
+.tm-prism .tm-title { font-size: 11pt; background: linear-gradient(90deg, #dc2626, #d97706, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; margin: 0 0 14px; }
+.tm-prism .tm-contact { font-size: 8.5pt; color: #64748b; margin-bottom: 24px; }
+.tm-prism .tm-section-title { font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; padding-left: 10px; border-left: 3px solid #8b5cf6; color: #5b21b6; }
+.tm-skill-prism { background: linear-gradient(135deg, #fef2f2, #fef9c3, #ecfdf5, #eff6ff, #f5f3ff); color: #5b21b6; padding: 4px 10px; border-radius: 8px; border: 1px solid #e9d5ff; }
+.tpl-thumb-prism { background: #fff; border-left: 4px solid; border-image: linear-gradient(180deg, #ef4444, #3b82f6, #8b5cf6) 1; }
+
+/* ─── ECHO — dual column mirror ─── */
+.tm-echo { padding: 0; }
+.tm-echo .tm-echo-banner { background: #312e81; color: #fff; padding: 28px 40px; text-align: center; }
+.tm-echo .tm-name { font-size: 24pt; font-weight: 700; margin: 0 0 4px; letter-spacing: 0.08em; }
+.tm-echo .tm-title { font-size: 10pt; color: #c7d2fe; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.15em; }
+.tm-echo .tm-contact { font-size: 8pt; color: #a5b4fc; }
+.tm-echo .tm-echo-cols { padding: 26px 40px 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.tm-echo .tm-echo-full { grid-column: 1 / -1; }
+.tm-echo .tm-section-title { color: #4338ca; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; border-bottom: 2px solid #c7d2fe; margin-bottom: 10px; padding-bottom: 4px; }
+.tm-skill-echo { background: #eef2ff; color: #4338ca; padding: 4px 10px; border-radius: 4px; }
+.tpl-thumb-echo { background: linear-gradient(180deg, #312e81 22%, #fff 22%); }
+
+/* ─── ATLAS — world professional ─── */
+.tm-atlas { padding: 0; background: #f0f9ff; }
+.tm-atlas .tm-atlas-header { background: linear-gradient(135deg, #0c4a6e, #0369a1); color: #fff; padding: 34px 40px 28px; text-align: center; }
+.tm-atlas .tm-name { font-size: 26pt; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 6px; }
+.tm-atlas .tm-title { font-size: 9pt; color: #7dd3fc; letter-spacing: 0.25em; text-transform: uppercase; margin: 0 0 12px; }
+.tm-atlas .tm-contact { font-size: 8pt; color: #bae6fd; }
+.tm-atlas .tm-atlas-body { padding: 28px 40px 36px; }
+.tm-atlas .tm-section-title { color: #0c4a6e; font-size: 8.5pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; border-bottom: 1px solid #7dd3fc; padding-bottom: 5px; margin-bottom: 10px; }
+.tm-skill-atlas { background: #e0f2fe; color: #0c4a6e; padding: 4px 12px; border: 1px solid #7dd3fc; letter-spacing: 0.04em; }
+.tpl-thumb-atlas { background: linear-gradient(180deg, #0369a1 30%, #f0f9ff 30%); }
+
+/* ─── REGAL — crown gold ─── */
+.tm-regal { padding: 0; }
+.tm-regal .tm-regal-header { background: linear-gradient(180deg, #1a1a2e, #16213e); color: #fff; padding: 34px 40px 28px; text-align: center; position: relative; }
+.tm-regal .tm-regal-header::before { content: '◆'; display: block; font-size: 14pt; color: #d4af37; margin-bottom: 8px; }
+.tm-regal .tm-name { font-size: 28pt; font-weight: 300; letter-spacing: 0.22em; text-transform: uppercase; margin: 0 0 6px; color: #fef3c7; }
+.tm-regal .tm-title { font-size: 9pt; color: #d4af37; letter-spacing: 0.28em; text-transform: uppercase; margin: 0 0 12px; }
+.tm-regal .tm-contact { font-size: 8pt; color: #94a3b8; }
+.tm-regal .tm-regal-body { padding: 28px 40px 36px; }
+.tm-regal .tm-section-title { color: #1a1a2e; font-size: 8.5pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; border-bottom: 2px solid #d4af37; padding-bottom: 5px; margin-bottom: 10px; }
+.tm-skill-regal { background: #fef9e7; color: #78350f; padding: 4px 12px; border: 1px solid #d4af37; letter-spacing: 0.06em; text-transform: uppercase; font-size: 7pt; }
+.tpl-thumb-regal { background: linear-gradient(180deg, #1a1a2e 32%, #fff 32%); }
+
+/* ─── PRESTIGE — black & gold ─── */
+.tm-prestige { padding: 0; background: #fafaf9; }
+.tm-prestige .tm-prestige-header { background: #000; color: #fff; padding: 38px 42px 32px; text-align: center; }
+.tm-prestige .tm-name { font-size: 30pt; font-weight: 200; letter-spacing: 0.3em; text-transform: uppercase; margin: 0 0 8px; color: #fff; }
+.tm-prestige .tm-title { font-size: 9pt; color: #d4af37; letter-spacing: 0.35em; text-transform: uppercase; margin: 0 0 14px; }
+.tm-prestige .tm-contact { font-size: 8pt; color: #a3a3a3; }
+.tm-prestige .tm-prestige-body { padding: 30px 42px 38px; }
+.tm-prestige .tm-section-title { color: #000; font-size: 8pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.22em; border-bottom: 1px solid #000; padding-bottom: 6px; margin-bottom: 12px; }
+.tm-skill-prestige { background: transparent; color: #000; padding: 4px 14px; border: 1px solid #000; letter-spacing: 0.1em; text-transform: uppercase; font-size: 7pt; }
+.tpl-thumb-prestige { background: linear-gradient(180deg, #000 35%, #fafaf9 35%); }
+
+/* ─── SOVEREIGN — royal purple banner ─── */
+.tm-sovereign { padding: 0; }
+.tm-sovereign .tm-sovereign-header { background: linear-gradient(135deg, #581c87, #7e22ce, #9333ea); color: #fff; padding: 32px 40px 28px; }
+.tm-sovereign .tm-name { font-size: 27pt; font-weight: 700; margin: 0 0 4px; font-family: 'Merriweather', serif; }
+.tm-sovereign .tm-title { font-size: 10pt; color: #e9d5ff; margin: 0 0 12px; font-style: italic; }
+.tm-sovereign .tm-contact { font-size: 8.5pt; color: #f3e8ff; }
+.tm-sovereign .tm-sovereign-body { padding: 28px 40px 36px; }
+.tm-sovereign .tm-section-title { color: #7e22ce; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; border-bottom: 2px solid #d8b4fe; margin-bottom: 10px; padding-bottom: 4px; }
+.tm-sovereign .tm-entry { border-left: 3px solid #e9d5ff; padding-left: 14px; }
+.tm-skill-sovereign { background: #faf5ff; color: #7e22ce; padding: 4px 12px; border-radius: 4px; border: 1px solid #d8b4fe; }
+.tpl-thumb-sovereign { background: linear-gradient(135deg, #7e22ce, #9333ea); }
+
+/* Export clone grid overrides for extended sidebar/dual layouts */
+.resume-export-clone .tm-verdant,
+.resume-export-clone .tm-jade { display: grid !important; grid-template-columns: 210px 1fr !important; }
+.resume-export-clone .tm-harbor { display: grid !important; grid-template-columns: 1fr 190px !important; }
+.resume-export-clone .tm-lattice .tm-lattice-grid { display: grid !important; grid-template-columns: 1fr 190px !important; }
+.resume-export-clone .tm-echo .tm-echo-cols { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+
+/* Mobile preview stacking for extended layouts */
+@media (max-width: 640px) {
+  #resume-preview .tm-verdant,
+  #resume-preview .tm-jade { grid-template-columns: 1fr; }
+  #resume-preview .tm-harbor { grid-template-columns: 1fr; }
+  #resume-preview .tm-harbor .tm-harbor-side { order: -1; }
+  #resume-preview .tm-lattice .tm-lattice-grid { grid-template-columns: 1fr; }
+  #resume-preview .tm-lattice .tm-lattice-meta { text-align: left; margin-top: 8px; }
+  #resume-preview .tm-echo .tm-echo-cols { grid-template-columns: 1fr; }
+}
