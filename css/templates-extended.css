@@ -353,11 +353,11 @@
 /* Export clone rules consolidated in export-fidelity.css */
 
 @media (max-width: 640px) {
-  #resume-preview:not(.letter-preview) .tm-verdant,
-  #resume-preview:not(.letter-preview) .tm-jade { grid-template-columns: 1fr; }
-  #resume-preview:not(.letter-preview) .tm-harbor { grid-template-columns: 1fr; }
-  #resume-preview:not(.letter-preview) .tm-harbor .tm-harbor-side { order: -1; }
-  #resume-preview:not(.letter-preview) .tm-lattice .tm-lattice-grid { grid-template-columns: 1fr; }
-  #resume-preview:not(.letter-preview) .tm-lattice .tm-lattice-meta { text-align: left; margin-top: 8px; }
-  #resume-preview:not(.letter-preview) .tm-echo .tm-echo-cols { grid-template-columns: 1fr; }
+  #resume-preview:not(.page-preview) .tm-verdant,
+  #resume-preview:not(.page-preview) .tm-jade { grid-template-columns: 1fr; }
+  #resume-preview:not(.page-preview) .tm-harbor { grid-template-columns: 1fr; }
+  #resume-preview:not(.page-preview) .tm-harbor .tm-harbor-side { order: -1; }
+  #resume-preview:not(.page-preview) .tm-lattice .tm-lattice-grid { grid-template-columns: 1fr; }
+  #resume-preview:not(.page-preview) .tm-lattice .tm-lattice-meta { text-align: left; margin-top: 8px; }
+  #resume-preview:not(.page-preview) .tm-echo .tm-echo-cols { grid-template-columns: 1fr; }
 }

@@ -210,12 +210,57 @@
     EXTENDED_RENDERERS[t.id] = () => render(t.id);
   });
 
+  // Per-template page orientation (US Letter @ 96dpi)
+  const LAYOUT_ORIENTATION = {
+    header: 'landscape',
+    swiss: 'landscape',
+    dual: 'landscape',
+    'sidebar-left': 'portrait',
+    'sidebar-right': 'portrait',
+    minimal: 'portrait',
+    accent: 'portrait',
+    dark: 'portrait',
+    luxury: 'portrait'
+  };
+
+  const BASE_ORIENTATION = {
+    metro: 'landscape',
+    horizon: 'landscape',
+    swiss: 'landscape',
+    apex: 'landscape',
+    academic: 'landscape'
+  };
+
+  const PAGE_SIZE_PORTRAIT = { orientation: 'portrait', width: 816, height: 1056 };
+  const PAGE_SIZE_LANDSCAPE = { orientation: 'landscape', width: 1056, height: 816 };
+
+  function getOrientation(id) {
+    if (BASE_ORIENTATION[id]) return BASE_ORIENTATION[id];
+    const ext = EXTENDED_CATALOG.find(t => t.id === id);
+    if (ext?.layout && LAYOUT_ORIENTATION[ext.layout]) return LAYOUT_ORIENTATION[ext.layout];
+    return 'portrait';
+  }
+
+  function getPageSize(id) {
+    return getOrientation(id) === 'landscape' ? PAGE_SIZE_LANDSCAPE : PAGE_SIZE_PORTRAIT;
+  }
+
+  const ORIENTATIONS = {};
+  [...BASE_CATALOG, ...EXTENDED_CATALOG].forEach(t => {
+    ORIENTATIONS[t.id] = getOrientation(t.id);
+  });
+
   window.TEMPLATE_EXTENSIONS = {
     catalog: [...BASE_CATALOG, ...EXTENDED_CATALOG],
     tiers: EXTENDED_TIERS,
     renderers: EXTENDED_RENDERERS,
     skills: EXTENDED_SKILLS,
     sidebarTemplates: ['verdant', 'jade', 'harbor'],
-    gridTemplates: ['lattice', 'echo', 'harbor', 'verdant', 'jade']
+    gridTemplates: ['lattice', 'echo', 'harbor', 'verdant', 'jade'],
+    getOrientation,
+    getPageSize,
+    orientations: ORIENTATIONS,
+    PAGE_SIZE_PORTRAIT,
+    PAGE_SIZE_LANDSCAPE
   };
 })();

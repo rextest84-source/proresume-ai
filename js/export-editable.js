@@ -42,21 +42,40 @@
       .replace(/[^\x00-\x7F]/g, ch => `\\u${ch.charCodeAt(0)}?`);
   }
 
+  function getTemplateOrientation(tpl) {
+    return window.TEMPLATE_EXTENSIONS?.getOrientation?.(tpl) || 'portrait';
+  }
+
+  function getPreviewDocumentClass(tpl) {
+    const orient = getTemplateOrientation(tpl);
+    return `resume-document resume-preview page-preview orientation-${orient} template-${tpl}`;
+  }
+
+  function getPageCss(tpl) {
+    const orient = getTemplateOrientation(tpl);
+    return orient === 'landscape'
+      ? '@page { size: 11in 8.5in; margin: 0.5in; }'
+      : '@page { size: 8.5in 11in; margin: 0.5in; }';
+  }
+
   async function buildEditableHtml(tpl, bodyHtml) {
     const css = await fetchExportCss();
     const title = escapeHtml((resumeData.name || 'Resume') + ' — Resume');
+    const orient = getTemplateOrientation(tpl);
+    const pageWidth = orient === 'landscape' ? 1056 : 816;
+    const docClass = getPreviewDocumentClass(tpl);
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=816">
+  <meta name="viewport" content="width=${pageWidth}">
   <title>${title}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
   <style>${css}</style>
 </head>
 <body style="margin:0;padding:0;background:#fff;">
-  <div class="resume-document resume-preview letter-preview template-${tpl}">${bodyHtml}</div>
+  <div class="${docClass}">${bodyHtml}</div>
 </body>
 </html>`;
   }
@@ -64,6 +83,7 @@
   async function buildWordDocument(tpl, bodyHtml) {
     const css = await fetchExportCss();
     const title = escapeHtml(resumeData.name || 'Resume');
+    const docClass = getPreviewDocumentClass(tpl);
     return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -74,12 +94,12 @@
   <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
   <style>${css}
-    @page { size: 8.5in 11in; margin: 0.5in; }
+    ${getPageCss(tpl)}
     body { font-family: Inter, Arial, sans-serif; margin: 0; padding: 0; }
   </style>
 </head>
 <body>
-  <div class="resume-document resume-preview letter-preview template-${tpl}">${bodyHtml}</div>
+  <div class="${docClass}">${bodyHtml}</div>
 </body>
 </html>`;
   }

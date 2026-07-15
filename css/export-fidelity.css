@@ -1,9 +1,9 @@
-/* ProResume AI — Letter-width fidelity (preview + export must match) */
+/* ProResume AI — Page fidelity (preview + export must match) */
 
-/* Fixed 8.5" letter width everywhere */
-.letter-preview,
-.resume-export-clone,
-.resume-document {
+/* Portrait US Letter: 8.5" × 11" @ 96dpi */
+.page-preview.orientation-portrait,
+.resume-export-clone.orientation-portrait,
+.resume-document.orientation-portrait {
   width: 816px !important;
   max-width: 816px !important;
   min-width: 816px !important;
@@ -14,7 +14,21 @@
   overflow: visible !important;
 }
 
-.letter-preview > [class*="tm-"],
+/* Landscape US Letter: 11" × 8.5" @ 96dpi */
+.page-preview.orientation-landscape,
+.resume-export-clone.orientation-landscape,
+.resume-document.orientation-landscape {
+  width: 1056px !important;
+  max-width: 1056px !important;
+  min-width: 1056px !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+}
+
+.page-preview > [class*="tm-"],
 .resume-export-clone > [class*="tm-"],
 .resume-document > [class*="tm-"] {
   width: 100% !important;
@@ -23,71 +37,71 @@
 }
 
 /* ─── Grid layouts (lock desktop structure for all 64 templates) ─── */
-.letter-preview .tm-modern,
+.page-preview .tm-modern,
 .resume-export-clone .tm-modern,
 .resume-document .tm-modern { display: grid !important; grid-template-columns: 220px 1fr !important; }
 
-.letter-preview .tm-slate,
+.page-preview .tm-slate,
 .resume-export-clone .tm-slate,
 .resume-document .tm-slate { display: grid !important; grid-template-columns: 1fr 200px !important; }
 
-.letter-preview .tm-verdant,
+.page-preview .tm-verdant,
 .resume-export-clone .tm-verdant,
 .resume-document .tm-verdant { display: grid !important; grid-template-columns: 210px 1fr !important; }
 
-.letter-preview .tm-jade,
+.page-preview .tm-jade,
 .resume-export-clone .tm-jade,
 .resume-document .tm-jade { display: grid !important; grid-template-columns: 200px 1fr !important; }
 
-.letter-preview .tm-harbor,
+.page-preview .tm-harbor,
 .resume-export-clone .tm-harbor,
 .resume-document .tm-harbor { display: grid !important; grid-template-columns: 1fr 190px !important; }
 
-.letter-preview .tm-executive .tm-exec-body,
+.page-preview .tm-executive .tm-exec-body,
 .resume-export-clone .tm-executive .tm-exec-body,
 .resume-document .tm-executive .tm-exec-body { display: grid !important; grid-template-columns: 1fr 200px !important; gap: 30px !important; }
 
-.letter-preview .tm-stanford .tm-body,
+.page-preview .tm-stanford .tm-body,
 .resume-export-clone .tm-stanford .tm-body,
 .resume-document .tm-stanford .tm-body { display: grid !important; grid-template-columns: 1fr 180px !important; gap: 24px !important; }
 
-.letter-preview .tm-metro .tm-metro-header,
+.page-preview .tm-metro .tm-metro-header,
 .resume-export-clone .tm-metro .tm-metro-header,
 .resume-document .tm-metro .tm-metro-header { display: grid !important; grid-template-columns: 1fr 8px auto !important; }
 
-.letter-preview .tm-metro .tm-metro-accent,
+.page-preview .tm-metro .tm-metro-accent,
 .resume-export-clone .tm-metro .tm-metro-accent,
 .resume-document .tm-metro .tm-metro-accent { display: block !important; width: 8px !important; }
 
-.letter-preview .tm-metro .tm-metro-body,
+.page-preview .tm-metro .tm-metro-body,
 .resume-export-clone .tm-metro .tm-metro-body,
 .resume-document .tm-metro .tm-metro-body { display: grid !important; grid-template-columns: 1fr 160px !important; gap: 28px !important; }
 
-.letter-preview .tm-apex .tm-apex-body,
+.page-preview .tm-apex .tm-apex-body,
 .resume-export-clone .tm-apex .tm-apex-body,
 .resume-document .tm-apex .tm-apex-body { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 30px !important; }
 
-.letter-preview .tm-apex .tm-apex-full,
+.page-preview .tm-apex .tm-apex-full,
 .resume-export-clone .tm-apex .tm-apex-full,
 .resume-document .tm-apex .tm-apex-full,
-.letter-preview .tm-echo .tm-echo-full,
+.page-preview .tm-echo .tm-echo-full,
 .resume-export-clone .tm-echo .tm-echo-full,
 .resume-document .tm-echo .tm-echo-full { grid-column: 1 / -1 !important; }
 
-.letter-preview .tm-swiss .tm-swiss-grid,
+.page-preview .tm-swiss .tm-swiss-grid,
 .resume-export-clone .tm-swiss .tm-swiss-grid,
 .resume-document .tm-swiss .tm-swiss-grid { display: grid !important; grid-template-columns: 1fr 200px !important; gap: 20px !important; }
 
-.letter-preview .tm-lattice .tm-lattice-grid,
+.page-preview .tm-lattice .tm-lattice-grid,
 .resume-export-clone .tm-lattice .tm-lattice-grid,
 .resume-document .tm-lattice .tm-lattice-grid { display: grid !important; grid-template-columns: 1fr 190px !important; gap: 16px !important; }
 
-.letter-preview .tm-echo .tm-echo-cols,
+.page-preview .tm-echo .tm-echo-cols,
 .resume-export-clone .tm-echo .tm-echo-cols,
 .resume-document .tm-echo .tm-echo-cols { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 28px !important; }
 
 /* ─── Skill containers (flex wrap by default) ─── */
-.letter-preview .tm-skills:not(.tm-skills-inline-dots):not(.tm-skills-compact):not(.tm-skills-elegant):not(.tm-skills-academic):not([class*="tm-skills-nordic"]):not([class*="tm-skills-platinum"]):not([class*="tm-skills-mahogany"]),
+.page-preview .tm-skills:not(.tm-skills-inline-dots):not(.tm-skills-compact):not(.tm-skills-elegant):not(.tm-skills-academic):not([class*="tm-skills-nordic"]):not([class*="tm-skills-platinum"]):not([class*="tm-skills-mahogany"]),
 .resume-export-clone .tm-skills:not(.tm-skills-inline-dots):not(.tm-skills-compact):not(.tm-skills-elegant):not(.tm-skills-academic):not([class*="tm-skills-nordic"]):not([class*="tm-skills-platinum"]):not([class*="tm-skills-mahogany"]),
 .resume-document .tm-skills:not(.tm-skills-inline-dots):not(.tm-skills-compact):not(.tm-skills-elegant):not(.tm-skills-academic):not([class*="tm-skills-nordic"]):not([class*="tm-skills-platinum"]):not([class*="tm-skills-mahogany"]) {
   display: flex !important;
@@ -96,14 +110,14 @@
   gap: 6px !important;
 }
 
-.letter-preview .tm-skills-apex,
+.page-preview .tm-skills-apex,
 .resume-export-clone .tm-skills-apex,
 .resume-document .tm-skills-apex {
   justify-content: center !important;
 }
 
 /* Default chip / pill skills */
-.letter-preview .tm-skills .tm-skill,
+.page-preview .tm-skills .tm-skill,
 .resume-export-clone .tm-skills .tm-skill,
 .resume-document .tm-skills .tm-skill {
   display: inline-flex !important;
@@ -121,21 +135,21 @@
 }
 
 /* Block / list / sidebar skills */
-.letter-preview .tm-skills-exec-side .tm-skill,
-.letter-preview .tm-skills-stanford-list .tm-skill,
-.letter-preview .tm-skills-metro-side .tm-skill,
-.letter-preview .tm-skills-slate-side .tm-skill,
-.letter-preview .tm-skills-verdant-side .tm-skill,
-.letter-preview .tm-skills-jade-side .tm-skill,
-.letter-preview .tm-skills-harbor-side .tm-skill,
-.letter-preview .tm-skills-forge-list .tm-skill,
-.letter-preview .tm-skills-streamline .tm-skill,
-.letter-preview .tm-skills-pioneer .tm-skill,
-.letter-preview .tm-skills-granite-list .tm-skill,
-.letter-preview .tm-skills-amber-list .tm-skill,
-.letter-preview .tm-skills-intl .tm-skill,
-.letter-preview [class*="tm-skills-"][class$="-list"] .tm-skill,
-.letter-preview [class*="tm-skills-"][class$="-side"]:not(.tm-skills-modern-side) .tm-skill,
+.page-preview .tm-skills-exec-side .tm-skill,
+.page-preview .tm-skills-stanford-list .tm-skill,
+.page-preview .tm-skills-metro-side .tm-skill,
+.page-preview .tm-skills-slate-side .tm-skill,
+.page-preview .tm-skills-verdant-side .tm-skill,
+.page-preview .tm-skills-jade-side .tm-skill,
+.page-preview .tm-skills-harbor-side .tm-skill,
+.page-preview .tm-skills-forge-list .tm-skill,
+.page-preview .tm-skills-streamline .tm-skill,
+.page-preview .tm-skills-pioneer .tm-skill,
+.page-preview .tm-skills-granite-list .tm-skill,
+.page-preview .tm-skills-amber-list .tm-skill,
+.page-preview .tm-skills-intl .tm-skill,
+.page-preview [class*="tm-skills-"][class$="-list"] .tm-skill,
+.page-preview [class*="tm-skills-"][class$="-side"]:not(.tm-skills-modern-side) .tm-skill,
 .resume-export-clone .tm-skills-exec-side .tm-skill,
 .resume-export-clone .tm-skills-stanford-list .tm-skill,
 .resume-export-clone .tm-skills-metro-side .tm-skill,
@@ -179,13 +193,13 @@
 }
 
 /* Inline text skills (dots, commas) */
-.letter-preview .tm-skills-inline-dots,
-.letter-preview .tm-skills-compact,
-.letter-preview .tm-skills-elegant,
-.letter-preview .tm-skills-academic,
-.letter-preview [class*="tm-skills-nordic"],
-.letter-preview [class*="tm-skills-platinum"],
-.letter-preview [class*="tm-skills-mahogany"],
+.page-preview .tm-skills-inline-dots,
+.page-preview .tm-skills-compact,
+.page-preview .tm-skills-elegant,
+.page-preview .tm-skills-academic,
+.page-preview [class*="tm-skills-nordic"],
+.page-preview [class*="tm-skills-platinum"],
+.page-preview [class*="tm-skills-mahogany"],
 .resume-export-clone .tm-skills-inline-dots,
 .resume-export-clone .tm-skills-compact,
 .resume-export-clone .tm-skills-elegant,
@@ -208,42 +222,42 @@
 }
 
 /* Hide icons in export/preview fidelity */
-.letter-preview i,
+.page-preview i,
 .resume-export-clone i,
 .resume-document i { display: none !important; }
 
 /* Prevent layout collapse */
-.letter-preview .tm-section,
+.page-preview .tm-section,
 .resume-export-clone .tm-section,
 .resume-document .tm-section { break-inside: avoid; page-break-inside: avoid; }
 
 /* Sidebar / column min-widths */
-.letter-preview .tm-modern .tm-sidebar,
+.page-preview .tm-modern .tm-sidebar,
 .resume-export-clone .tm-modern .tm-sidebar,
 .resume-document .tm-modern .tm-sidebar { min-width: 220px !important; }
 
-.letter-preview .tm-slate .tm-slate-side,
+.page-preview .tm-slate .tm-slate-side,
 .resume-export-clone .tm-slate .tm-slate-side,
 .resume-document .tm-slate .tm-slate-side { min-width: 200px !important; }
 
-.letter-preview .tm-verdant .tm-verdant-side,
+.page-preview .tm-verdant .tm-verdant-side,
 .resume-export-clone .tm-verdant .tm-verdant-side,
 .resume-document .tm-verdant .tm-verdant-side { min-width: 210px !important; }
 
-.letter-preview .tm-jade .tm-jade-side,
+.page-preview .tm-jade .tm-jade-side,
 .resume-export-clone .tm-jade .tm-jade-side,
 .resume-document .tm-jade .tm-jade-side { min-width: 200px !important; }
 
-.letter-preview .tm-harbor .tm-harbor-side,
+.page-preview .tm-harbor .tm-harbor-side,
 .resume-export-clone .tm-harbor .tm-harbor-side,
 .resume-document .tm-harbor .tm-harbor-side { min-width: 190px !important; }
 
-.letter-preview .tm-metro .tm-metro-right,
+.page-preview .tm-metro .tm-metro-right,
 .resume-export-clone .tm-metro .tm-metro-right,
 .resume-document .tm-metro .tm-metro-right { min-width: 180px !important; }
 
 /* Entry rows stay aligned */
-.letter-preview .tm-entry-top,
+.page-preview .tm-entry-top,
 .resume-export-clone .tm-entry-top,
 .resume-document .tm-entry-top {
   display: flex !important;
@@ -253,7 +267,7 @@
   gap: 8px !important;
 }
 
-.letter-preview .tm-academic .tm-acad-header,
+.page-preview .tm-academic .tm-acad-header,
 .resume-export-clone .tm-academic .tm-acad-header,
 .resume-document .tm-academic .tm-acad-header {
   display: flex !important;
@@ -264,10 +278,10 @@
 }
 
 /* Prevent heading overflow */
-.letter-preview .tm-name,
-.letter-preview .tm-title,
-.letter-preview .tm-entry-role,
-.letter-preview .tm-entry-company,
+.page-preview .tm-name,
+.page-preview .tm-title,
+.page-preview .tm-entry-role,
+.page-preview .tm-entry-company,
 .resume-export-clone .tm-name,
 .resume-export-clone .tm-title,
 .resume-export-clone .tm-entry-role,
@@ -281,10 +295,8 @@
   hyphens: auto !important;
 }
 
-/* Preview scaler wrapper */
+/* Preview scaler wrapper — width set dynamically in JS */
 #preview-scale-wrap {
-  width: 816px;
-  min-width: 816px;
   margin: 0 auto;
   transform-origin: top center;
 }
