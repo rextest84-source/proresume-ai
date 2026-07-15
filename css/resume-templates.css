@@ -361,8 +361,11 @@
 @media print {
   body * { visibility: hidden; }
   #resume-preview, #resume-preview * { visibility: visible; }
-  #resume-preview { position: absolute; left: 0; top: 0; width: 100%; min-height: 11in; }
-  .tm-modern, .tm-executive, .tm-creative, .tm-themed, .tm-slate, .tm-nova, .tm-horizon, .tm-apex { min-height: 11in; }
+  #resume-preview { position: absolute; left: 0; top: 0; width: 100%; }
+  #resume-preview.orientation-portrait { min-height: 11in; }
+  #resume-preview.orientation-landscape { min-height: 8.5in; }
+  #resume-preview.orientation-portrait > [class*="tm-"] { min-height: 11in; }
+  #resume-preview.orientation-landscape > [class*="tm-"] { min-height: 8.5in; }
 }
 
 /* ─── SHARED entry styles (themed templates) ─── */
