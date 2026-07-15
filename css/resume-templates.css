@@ -262,6 +262,62 @@
 .ai-loading i { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Export clone — print-friendly letter layout (dark templates → white) */
+.resume-export-clone {
+  width: 816px !important;
+  max-width: 816px !important;
+  min-height: auto !important;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.resume-export-clone .tm-onyx,
+.resume-export-clone .tm-nova,
+.resume-export-clone .tm-luxury,
+.resume-export-clone .tm-refined,
+.resume-export-clone .tm-monarch {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+.resume-export-clone .tm-onyx .tm-name,
+.resume-export-clone .tm-nova .tm-name,
+.resume-export-clone .tm-nova .tm-nova-header,
+.resume-export-clone .tm-luxury .tm-themed-header,
+.resume-export-clone .tm-refined .tm-refined-header,
+.resume-export-clone .tm-monarch .tm-monarch-header {
+  background: #ffffff !important;
+  -webkit-text-fill-color: #0f172a !important;
+  color: #0f172a !important;
+}
+.resume-export-clone .tm-onyx .tm-title,
+.resume-export-clone .tm-onyx .tm-contact,
+.resume-export-clone .tm-onyx .tm-summary,
+.resume-export-clone .tm-onyx .tm-bullets,
+.resume-export-clone .tm-onyx .tm-entry-meta,
+.resume-export-clone .tm-nova .tm-title,
+.resume-export-clone .tm-nova .tm-contact,
+.resume-export-clone .tm-nova .tm-summary,
+.resume-export-clone .tm-nova .tm-bullets,
+.resume-export-clone .tm-nova .tm-entry-meta {
+  color: #475569 !important;
+}
+.resume-export-clone .tm-onyx .tm-section-title,
+.resume-export-clone .tm-onyx .tm-entry-role,
+.resume-export-clone .tm-nova .tm-entry-role,
+.resume-export-clone .tm-nova .tm-section-title {
+  color: #0f172a !important;
+}
+.resume-export-clone .tm-onyx .tm-skill-pill,
+.resume-export-clone .tm-nova .tm-skill-pill {
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+.resume-export-clone .tm-nova .tm-nova-body {
+  background: #ffffff !important;
+}
+
 @media print {
   body * { visibility: hidden; }
   #resume-preview, #resume-preview * { visibility: visible; }

@@ -405,12 +405,50 @@ const AIEngine = (() => {
     return pickN(pool, count).map((t, i) => enhanceBullet(t, i, roleId, role));
   }
 
+  function dedupeSentences(text) {
+    if (!text?.trim()) return '';
+    const sentences = text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 10);
+    const seen = new Set();
+    const unique = [];
+    for (const s of sentences) {
+      const key = s.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(s.endsWith('.') || s.endsWith('!') || s.endsWith('?') ? s : s + '.');
+      }
+    }
+    return unique.join(' ');
+  }
+
+  function stripEnhancedBoilerplate(text) {
+    if (!text?.trim()) return '';
+    let cleaned = cleanLine(text);
+    const patterns = [
+      /(?:Results-driven|Accomplished|Strategic|Dedicated|Proven|Dynamic|Experienced|Versatile|Detail-oriented|Highly motivated)\s+[^.]{8,120}\./gi,
+      /Known for combining analytical thinking[^.]+\./gi,
+      /Skilled at partnering with stakeholders[^.]+\./gi,
+      /Recognized for clear communication[^.]+\./gi,
+      /Committed to quality, accountability[^.]+\./gi,
+      /(?:Core competencies|Technical proficiencies|Key strengths|Proficient in)\s+(?:include\s+)?[^.]+\./gi,
+      /\d+\+?\s*years?\s+of\s+(?:progressive\s+)?experience[^.]+\./gi
+    ];
+    for (const re of patterns) cleaned = cleaned.replace(re, ' ');
+    return dedupeSentences(cleaned.replace(/\s+/g, ' ').trim());
+  }
+
+  function trimToWordCount(text, maxWords = 95) {
+    const words = text.split(/\s+/).filter(Boolean);
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(' ').replace(/[,;]\s*$/, '') + '.';
+  }
+
   function enhanceSummary(text, title, skills, experience) {
     const roleId = detectRole(title, skills, text);
     const cfg = ROLE_CONFIG[roleId];
     const yrs = yearsFromExperience(experience);
     const role = title || pick(['Professional', 'Specialist', 'Consultant']);
     const angle = pick(cfg.summaryAngles);
+    const stripped = stripEnhancedBoilerplate(text);
     const skillList = skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
     const topSkills = skillList.length ? pickN(skillList, Math.min(4, skillList.length)).join(', ') : pickN(cfg.skills, 4).join(', ');
 
@@ -420,12 +458,6 @@ const AIEngine = (() => {
       `Highly motivated ${role} with a ${yrs}-year track record of success in ${angle}.`,
       `${pick(['Experienced', 'Versatile', 'Detail-oriented'])} ${role} bringing ${yrs} years of expertise in ${angle}.`
     ];
-
-    const cores = [];
-    if (text?.trim()) {
-      let core = cleanLine(text).replace(/\.$/, '');
-      if (core.length > 40) cores.push(core);
-    }
 
     const bridges = [
       `Known for combining analytical thinking with hands-on execution to deliver measurable results.`,
@@ -442,11 +474,15 @@ const AIEngine = (() => {
     ];
 
     const parts = [pick(openers)];
-    if (cores.length) parts.push(cores[0].endsWith('.') ? cores[0] : cores[0] + '.');
+    if (stripped?.trim()) {
+      const sentences = stripped.split(/(?<=[.!?])\s+/).filter(s => s.length > 25);
+      const core = (sentences.length ? sentences.slice(0, 2) : [stripped]).join(' ');
+      parts.push(core.endsWith('.') ? core : core + '.');
+    }
     parts.push(pick(bridges));
     parts.push(pick(closers));
 
-    return parts.join(' ').replace(/\s+/g, ' ').trim();
+    return trimToWordCount(dedupeSentences(parts.join(' ').replace(/\s+/g, ' ').trim()));
   }
 
   function enhanceDescription(text, role, skills) {

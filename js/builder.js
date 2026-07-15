@@ -842,39 +842,80 @@ function switchTab(tab) {
   }
 }
 
-const EXPORT_WIDTH = 816;
-const EXPORT_MIN_HEIGHT = 1056;
+const EXPORT_WIDTH = 816;   // 8.5in @ 96dpi
+const EXPORT_PAGE_HEIGHT = 1056; // 11in @ 96dpi
+const EXPORT_SCALE = 2;
 
 function getExportBaseName() {
   const base = (resumeData.name || 'resume').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_');
   return base || 'resume';
 }
 
+function isMobileIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 function prepareExportClone(source) {
   const wrapper = document.createElement('div');
   wrapper.id = 'resume-export-wrapper';
   wrapper.setAttribute('aria-hidden', 'true');
-  wrapper.style.cssText = `position:fixed;left:0;top:0;width:${EXPORT_WIDTH}px;background:#fff;z-index:2147483646;opacity:0.01;pointer-events:none;overflow:visible;`;
+  wrapper.style.cssText = `position:fixed;left:-12000px;top:0;width:${EXPORT_WIDTH}px;background:#fff;z-index:-1;opacity:1;pointer-events:none;overflow:visible;`;
 
   const clone = source.cloneNode(true);
-  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-height:${EXPORT_MIN_HEIGHT}px;background:#fff;color:#1e293b;box-shadow:none;margin:0;`;
+  clone.id = 'resume-export-clone';
+  clone.classList.add('resume-export-clone');
+  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-height:auto;height:auto;background:#fff;color:#1e293b;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
+
   clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
   clone.querySelectorAll('.tm-name').forEach(el => {
     const style = window.getComputedStyle(el);
     if (style.webkitTextFillColor === 'rgba(0, 0, 0, 0)' || style.webkitTextFillColor === 'transparent') {
-      el.style.setProperty('-webkit-text-fill-color', 'unset');
+      el.style.setProperty('-webkit-text-fill-color', '#0f172a');
       el.style.background = 'none';
       el.style.webkitBackgroundClip = 'unset';
-      el.style.color = el.closest('.tm-nova') ? '#c4b5fd' : '#0f172a';
+      el.style.color = '#0f172a';
     }
   });
+
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
-  return { wrapper, clone };
+  void clone.offsetHeight;
+  const contentHeight = Math.max(clone.scrollHeight, clone.offsetHeight, 1);
+  clone.style.height = `${contentHeight}px`;
+  return { wrapper, clone, contentHeight };
 }
 
-function downloadBlob(blob, filename) {
+async function downloadBlob(blob, filename) {
+  const mime = blob.type || 'application/octet-stream';
+  const file = new File([blob], filename, { type: mime });
+
+  if (navigator.share && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+    }
+  }
+
   const url = URL.createObjectURL(blob);
+
+  if (isMobileIOS()) {
+    const opened = window.open(url, '_blank');
+    if (!opened) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
+    return;
+  }
+
   const link = document.createElement('a');
   link.href = url;
   link.download = filename;
@@ -882,7 +923,7 @@ function downloadBlob(blob, filename) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 function blobFromCanvas(canvas, type, quality) {
@@ -894,46 +935,49 @@ function blobFromCanvas(canvas, type, quality) {
 async function captureResumeCanvas(clone) {
   if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
   return html2canvas(clone, {
-    scale: 2,
+    scale: EXPORT_SCALE,
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#ffffff',
-    width: EXPORT_WIDTH,
-    windowWidth: EXPORT_WIDTH,
     scrollX: 0,
     scrollY: 0,
     logging: false
   });
 }
 
-function saveCanvasAsPdf(canvas, filename) {
+function sliceCanvas(canvas, offsetY, sliceHeight) {
+  const slice = document.createElement('canvas');
+  slice.width = canvas.width;
+  slice.height = sliceHeight;
+  const ctx = slice.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, slice.width, slice.height);
+  ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+  return slice;
+}
+
+async function saveCanvasAsPdf(canvas, filename) {
   if (!window.jspdf?.jsPDF) throw new Error('PDF library not loaded. Please refresh the page.');
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 24;
-  const contentWidth = pageWidth - margin * 2;
-  const scale = contentWidth / canvas.width;
-  const pageSliceHeight = Math.floor((pageHeight - margin * 2) / scale);
+  const pageSliceHeight = EXPORT_PAGE_HEIGHT * EXPORT_SCALE;
   let offsetY = 0;
   let pageIndex = 0;
 
   while (offsetY < canvas.height) {
     if (pageIndex > 0) pdf.addPage();
     const sliceHeight = Math.min(pageSliceHeight, canvas.height - offsetY);
-    const slice = document.createElement('canvas');
-    slice.width = canvas.width;
-    slice.height = sliceHeight;
-    const ctx = slice.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, slice.width, slice.height);
-    ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-    pdf.addImage(slice.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, contentWidth, sliceHeight * scale);
+    const slice = sliceCanvas(canvas, offsetY, sliceHeight);
+    const displayHeight = (sliceHeight / canvas.width) * pageWidth;
+    pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageWidth, displayHeight);
     offsetY += sliceHeight;
     pageIndex++;
   }
-  pdf.save(filename);
+
+  const blob = pdf.output('blob');
+  await downloadBlob(blob, filename);
 }
 
 const EXPORT_CREDIT_MAP = { pdf: 'export_pdf', png: 'export_png', jpeg: 'export_jpeg' };
@@ -969,7 +1013,7 @@ async function exportResume(format = 'pdf') {
   const { wrapper, clone } = prepareExportClone(source);
   try {
     if (document.fonts?.ready) await document.fonts.ready;
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 500));
 
     const canvas = await captureResumeCanvas(clone);
     const baseName = getExportBaseName();
@@ -977,17 +1021,18 @@ async function exportResume(format = 'pdf') {
     const filename = `${baseName}_resume.${ext}`;
 
     if (format === 'pdf') {
-      saveCanvasAsPdf(canvas, filename);
+      await saveCanvasAsPdf(canvas, filename);
     } else if (format === 'png') {
       const blob = await blobFromCanvas(canvas, 'image/png');
-      downloadBlob(blob, filename);
+      await downloadBlob(blob, filename);
     } else if (format === 'jpeg') {
       const blob = await blobFromCanvas(canvas, 'image/jpeg', 0.92);
-      downloadBlob(blob, filename);
+      await downloadBlob(blob, filename);
     }
 
+    const iosHint = isMobileIOS() ? ' — tap Share → Save to Files' : '';
     const creditMsg = TESTING_UNLOCK ? '' : ` (−${creditCost} credits)`;
-    showToast(`${label} downloaded: ${filename}${creditMsg}`);
+    showToast(`${label} ready: ${filename}${creditMsg}${iosHint}`);
   } catch (err) {
     console.error('Export failed:', err);
     if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
