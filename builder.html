@@ -14,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
   <link href="/css/resume-templates.css" rel="stylesheet">
   <link href="/css/templates-extended.css" rel="stylesheet">
+  <link href="/css/export-fidelity.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -305,7 +306,9 @@
         <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-medium">ATS Score: <span id="ats-score">35%</span></span>
       </div>
       <div id="preview-frame" class="rounded-xl overflow-visible md:overflow-hidden shadow-2xl border border-white/10 bg-white">
-        <div id="resume-preview" class="resume-preview template-modern"></div>
+        <div id="preview-scale-wrap">
+          <div id="resume-preview" class="resume-preview letter-preview template-modern"></div>
+        </div>
       </div>
     </div>
   </div>

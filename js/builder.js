@@ -789,6 +789,33 @@ function normalizeTemplate(tpl) {
   return tpl;
 }
 
+const LETTER_WIDTH = 816;
+
+function updatePreviewScale() {
+  const frame = document.getElementById('preview-frame');
+  const wrap = document.getElementById('preview-scale-wrap');
+  const preview = document.getElementById('resume-preview');
+  if (!frame || !wrap || !preview) return;
+
+  const available = Math.max(frame.clientWidth - 8, 200);
+  const scale = available < LETTER_WIDTH ? available / LETTER_WIDTH : 1;
+
+  wrap.style.width = `${LETTER_WIDTH}px`;
+  wrap.style.minWidth = `${LETTER_WIDTH}px`;
+  wrap.style.transform = scale < 1 ? `scale(${scale})` : 'none';
+  wrap.style.transformOrigin = 'top center';
+  wrap.style.margin = '0 auto';
+
+  if (scale < 1) {
+    const h = preview.offsetHeight || preview.scrollHeight;
+    wrap.style.marginBottom = `${Math.ceil(h * (scale - 1))}px`;
+    frame.style.minHeight = `${Math.ceil(h * scale) + 8}px`;
+  } else {
+    wrap.style.marginBottom = '0';
+    frame.style.minHeight = '';
+  }
+}
+
 function renderPreview(resetScroll = false) {
   const preview = document.getElementById('resume-preview');
   if (!preview) return;
@@ -800,27 +827,28 @@ function renderPreview(resetScroll = false) {
   }
 
   const renderer = TEMPLATE_RENDERERS[tpl];
-  preview.className = `resume-preview template-${tpl}`;
+  preview.className = `resume-preview letter-preview template-${tpl}`;
 
   try {
     preview.innerHTML = renderer();
   } catch (err) {
     console.error('Preview render failed:', err);
     preview.innerHTML = TEMPLATE_RENDERERS.modern();
-    preview.className = 'resume-preview template-modern';
+    preview.className = 'resume-preview letter-preview template-modern';
   }
 
   const scoreEl = document.getElementById('ats-score');
   if (scoreEl) scoreEl.textContent = calculateAtsScore() + '%';
 
-  if (resetScroll) {
-    requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    updatePreviewScale();
+    if (resetScroll) {
       const scrollEl = isMobileEditor()
         ? document.getElementById('preview-panel')
         : document.getElementById('preview-frame');
       if (scrollEl) scrollEl.scrollTop = 0;
-    });
-  }
+    }
+  });
 }
 
 let previewUpdateTimer = null;
@@ -1161,11 +1189,12 @@ async function prepareExportFrame() {
   const bodyHtml = renderer();
   const doc = iframe.contentDocument;
   doc.open();
-  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  doc.write(`<!DOCTYPE html><html class="export-iframe"><head><meta charset="UTF-8">
+    <meta name="viewport" content="width=816">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>${cssText}</style>
   </head><body style="margin:0;padding:0;width:816px;background:#fff;">
-    <div id="resume-export-clone" class="resume-preview resume-export-clone template-${tpl}">${bodyHtml}</div>
+    <div id="resume-export-clone" class="resume-preview letter-preview resume-export-clone template-${tpl}">${bodyHtml}</div>
   </body></html>`);
   doc.close();
 
@@ -1173,7 +1202,6 @@ async function prepareExportFrame() {
   await new Promise(r => setTimeout(r, 450));
 
   const clone = doc.getElementById('resume-export-clone');
-  clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
   applyExportCaptureFixes(clone);
 
   void clone.offsetHeight;
@@ -1193,47 +1221,9 @@ function cleanupExportFrame(iframe) {
 }
 
 function applyExportCaptureFixes(root) {
-  root.querySelectorAll('.tm-skill, .tm-skill-pill, .tm-skill-item').forEach(el => {
-    el.style.display = 'inline-flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.lineHeight = '1.3';
-    el.style.verticalAlign = 'middle';
-    el.style.boxSizing = 'border-box';
-    el.style.overflow = 'hidden';
-    el.style.whiteSpace = 'normal';
-    el.style.wordBreak = 'break-word';
-    el.style.overflowWrap = 'break-word';
-    el.style.textAlign = 'center';
-    el.style.maxWidth = '100%';
-    el.style.minHeight = '1.35em';
-    el.style.padding = '4px 8px';
-  });
-  root.querySelectorAll('.tm-skills, .tm-skills-wrap').forEach(el => {
-    el.style.display = 'flex';
-    el.style.flexWrap = 'wrap';
-    el.style.alignItems = 'flex-start';
-    el.style.gap = '6px';
-  });
-  const gridFixes = [
-    ['.tm-modern', { display: 'grid', gridTemplateColumns: '220px 1fr', width: `${EXPORT_WIDTH}px` }],
-    ['.tm-executive .tm-exec-body', { display: 'grid', gridTemplateColumns: '1fr 200px' }],
-    ['.tm-stanford .tm-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
-    ['.tm-slate', { display: 'grid', gridTemplateColumns: '1fr 200px' }],
-    ['.tm-metro .tm-metro-body', { display: 'grid', gridTemplateColumns: '1fr 180px' }],
-    ['.tm-apex .tm-apex-body', { display: 'grid', gridTemplateColumns: '1fr 1fr' }],
-    ['.tm-verdant', { display: 'grid', gridTemplateColumns: '210px 1fr' }],
-    ['.tm-jade', { display: 'grid', gridTemplateColumns: '200px 1fr' }],
-    ['.tm-harbor', { display: 'grid', gridTemplateColumns: '1fr 190px' }],
-    ['.tm-lattice .tm-lattice-grid', { display: 'grid', gridTemplateColumns: '1fr 190px' }],
-    ['.tm-echo .tm-echo-cols', { display: 'grid', gridTemplateColumns: '1fr 1fr' }]
-  ];
-  gridFixes.forEach(([sel, styles]) => {
-    root.querySelectorAll(sel).forEach(el => Object.assign(el.style, styles));
-  });
+  root.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
   root.querySelectorAll('[class*="tm-"]').forEach(el => {
     el.style.boxSizing = 'border-box';
-    el.style.maxWidth = '100%';
   });
 }
 
@@ -1622,6 +1612,18 @@ function init() {
   updateCreditsDisplay();
   setupEvents();
   setupMobileScrollGuard();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(updatePreviewScale, 100);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(updatePreviewScale, 100);
+    });
+  }
 
   document.addEventListener('click', (e) => {
     const wrap = document.getElementById('export-menu-wrap');
