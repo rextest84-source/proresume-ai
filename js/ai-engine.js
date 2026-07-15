@@ -317,9 +317,41 @@ const AIEngine = (() => {
   }
 
   function yearsFromExperience(experience = []) {
-    const filled = experience.filter(e => e.dates || e.role || e.company);
-    if (!filled.length) return pick(['3+', '5+', '7+', '4+']);
-    return pick(['3+', '5+', '7+', '10+', '4+', '6+']);
+    const MONTHS = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+
+    function parseDatePart(part) {
+      if (!part?.trim()) return null;
+      const normalized = part.trim().toLowerCase();
+      if (/present|current|now/i.test(normalized)) return new Date();
+      const yearMatch = normalized.match(/\b(19|20)\d{2}\b/);
+      if (!yearMatch) return null;
+      const year = parseInt(yearMatch[0], 10);
+      const monthMatch = normalized.match(/\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i);
+      const monthKey = monthMatch ? monthMatch[0].slice(0, 3).toLowerCase() : null;
+      const month = monthKey && MONTHS[monthKey] !== undefined ? MONTHS[monthKey] : 0;
+      return new Date(year, month, 1);
+    }
+
+    let totalMonths = 0;
+    for (const exp of experience) {
+      if (!exp?.dates) continue;
+      const parts = exp.dates.split(/\s*[–—-]\s*/);
+      const start = parseDatePart(parts[0]);
+      const end = parseDatePart(parts[1] || 'present');
+      if (!start || !end) continue;
+      const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+      if (months > 0) totalMonths += months;
+    }
+
+    if (!totalMonths) {
+      const filled = experience.filter(e => e.dates || e.role || e.company);
+      if (!filled.length) return '3+';
+      return `${Math.min(8, filled.length * 2 + 1)}+`;
+    }
+
+    const years = Math.max(1, Math.round(totalMonths / 12));
+    if (years >= 10) return '10+';
+    return `${years}+`;
   }
 
   const WEAK_PHRASES = [
@@ -397,26 +429,43 @@ const AIEngine = (() => {
     const seen = new Set();
     const unique = [];
     for (const s of sentences) {
-      const key = s.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(s.endsWith('.') || s.endsWith('!') || s.endsWith('?') ? s : s + '.');
-      }
+      const key = s.toLowerCase()
+        .replace(/\d+\+?/g, '#')
+        .replace(/[^a-z0-9\s#]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      unique.push(s.endsWith('.') || s.endsWith('!') || s.endsWith('?') ? s : s + '.');
     }
     return unique.join(' ');
+  }
+
+  function isBoilerplateSentence(sentence) {
+    const s = sentence.toLowerCase();
+    return /(?:results-driven|accomplished|strategic|dedicated|proven|dynamic|experienced|versatile|detail-oriented|highly motivated|known for combining|skilled at partnering|recognized for clear|committed to quality|core competencies|technical proficiencies|key strengths|proficient in|offering\s+\d|track record|bringing\s+\d|\d+\+?\s*years?)/.test(s);
+  }
+
+  function extractUserCore(stripped) {
+    if (!stripped?.trim()) return '';
+    const sentences = stripped.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 20);
+    const user = sentences.filter(s => !isBoilerplateSentence(s));
+    return user.slice(0, 2).join(' ').trim();
   }
 
   function stripEnhancedBoilerplate(text) {
     if (!text?.trim()) return '';
     let cleaned = cleanLine(text);
     const patterns = [
-      /(?:Results-driven|Accomplished|Strategic|Dedicated|Proven|Dynamic|Experienced|Versatile|Detail-oriented|Highly motivated)\s+[^.]{8,120}\./gi,
+      /(?:Results-driven|Accomplished|Strategic|Dedicated|Proven|Dynamic|Experienced|Versatile|Detail-oriented|Highly motivated)\s+[^.]{8,160}\./gi,
+      /[^.]{0,80}(?:offering|with a|bringing)\s+\d+\+?\s*years?\s+[^.]+\./gi,
       /Known for combining analytical thinking[^.]+\./gi,
       /Skilled at partnering with stakeholders[^.]+\./gi,
       /Recognized for clear communication[^.]+\./gi,
       /Committed to quality, accountability[^.]+\./gi,
-      /(?:Core competencies|Technical proficiencies|Key strengths|Proficient in)\s+(?:include\s+)?[^.]+\./gi,
-      /\d+\+?\s*years?\s+of\s+(?:progressive\s+)?experience[^.]+\./gi
+      /(?:Core competencies|Technical proficiencies|Key strengths|Proficient in)\s+(?:include\s+)?:?\s*[^.]+\./gi,
+      /\d+\+?\s*years?\s+of\s+(?:progressive\s+)?experience[^.]+\./gi,
+      /\d+\+?\s*-?year\s+track\s+record[^.]+\./gi
     ];
     for (const re of patterns) cleaned = cleaned.replace(re, ' ');
     return dedupeSentences(cleaned.replace(/\s+/g, ' ').trim());
@@ -435,15 +484,14 @@ const AIEngine = (() => {
     const role = title || pick(['Professional', 'Specialist', 'Consultant']);
     const angle = pick(cfg.summaryAngles);
     const stripped = stripEnhancedBoilerplate(text);
-    const looksEnhanced = /(?:results-driven|key strengths|core competencies|technical proficiencies|committed to quality|known for combining)/i.test(text || '');
+    const userCore = extractUserCore(stripped);
     const skillList = skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
     const topSkills = skillList.length ? pickN(skillList, Math.min(4, skillList.length)).join(', ') : pickN(cfg.skills, 4).join(', ');
 
     const openers = [
       `${pick(['Results-driven', 'Accomplished', 'Strategic', 'Dedicated', 'Proven', 'Dynamic'])} ${role} with ${yrs} years of experience in ${angle}.`,
-      `${role} offering ${yrs} years of progressive experience specializing in ${angle}.`,
-      `Highly motivated ${role} with a ${yrs}-year track record of success in ${angle}.`,
-      `${pick(['Experienced', 'Versatile', 'Detail-oriented'])} ${role} bringing ${yrs} years of expertise in ${angle}.`
+      `${role} with ${yrs} years of progressive experience specializing in ${angle}.`,
+      `Highly motivated ${role} with a ${yrs.replace('+', '')}-year track record of success in ${angle}.`
     ];
 
     const bridges = [
@@ -454,20 +502,14 @@ const AIEngine = (() => {
     ];
 
     const closers = [
+      `Key strengths include ${topSkills}.`,
       `Core competencies include ${topSkills}.`,
-      `Technical proficiencies: ${topSkills}.`,
-      `Key strengths: ${topSkills}.`,
-      `Proficient in ${topSkills}, with a focus on outcomes that align with business priorities.`
+      `Technical proficiencies: ${topSkills}.`
     ];
 
     const parts = [pick(openers)];
-    if (!looksEnhanced && stripped?.trim()) {
-      const sentences = stripped.split(/(?<=[.!?])\s+/).filter(s => s.length > 25);
-      const core = (sentences.length ? sentences.slice(0, 2) : [stripped]).join(' ');
-      parts.push(core.endsWith('.') ? core : core + '.');
-    }
-    parts.push(pick(bridges));
-    parts.push(pick(closers));
+    if (userCore) parts.push(userCore.endsWith('.') ? userCore : `${userCore}.`);
+    parts.push(pick(bridges), pick(closers));
 
     return trimToWordCount(dedupeSentences(parts.join(' ').replace(/\s+/g, ' ').trim()));
   }

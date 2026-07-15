@@ -11,6 +11,43 @@
   overflow: visible;
 }
 
+/* Contact info — prevent browser auto-link styling in templates */
+#resume-preview .tm-contact,
+#resume-preview .tm-contact-item,
+#resume-preview .tm-contact span,
+#resume-preview .tm-contact div,
+#resume-preview .tm-sidebar .tm-contact-item,
+#resume-preview .tm-themed-contact,
+.page-preview .tm-contact,
+.page-preview .tm-contact-item,
+.page-preview .tm-contact span,
+.page-preview .tm-contact div,
+.page-preview .tm-themed-contact,
+.resume-document .tm-contact,
+.resume-document .tm-contact-item,
+.resume-document .tm-contact span,
+.resume-document .tm-contact div,
+.resume-document .tm-themed-contact,
+.resume-export-clone .tm-contact,
+.resume-export-clone .tm-contact-item {
+  color: inherit;
+  text-decoration: none;
+  -webkit-text-fill-color: inherit;
+}
+
+#resume-preview a[href^="tel:"],
+#resume-preview a[href^="mailto:"],
+.page-preview a[href^="tel:"],
+.page-preview a[href^="mailto:"],
+.resume-document a[href^="tel:"],
+.resume-document a[href^="mailto:"],
+.resume-export-clone a[href^="tel:"],
+.resume-export-clone a[href^="mailto:"] {
+  color: inherit !important;
+  text-decoration: none !important;
+  pointer-events: none;
+}
+
 /* ─── MODERN (sidebar) ─── */
 .tm-modern {
   display: grid;
@@ -335,7 +372,7 @@
 .tm-entry-meta { font-size: 8.5pt; color: #64748b; margin: 2px 0 6px; }
 .tm-bullets { margin: 6px 0 0; padding-left: 16px; color: #475569; font-size: 9pt; }
 .tm-bullets li { margin-bottom: 3px; }
-.tm-summary { font-size: 9.5pt; color: #475569; line-height: 1.65; margin: 0; }
+.tm-summary { font-size: 9.5pt; color: #475569; line-height: 1.65; margin: 0; white-space: normal; word-wrap: break-word; overflow-wrap: anywhere; }
 .tm-skills { display: flex; flex-wrap: wrap; gap: 6px; }
 .tm-skill-pill { display: inline-block; background: #f0fdf4; color: #166534; padding: 3px 8px; border-radius: 4px; font-size: 8pt; margin: 2px 3px 2px 0; }
 

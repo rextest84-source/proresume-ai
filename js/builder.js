@@ -22,7 +22,7 @@ const TEMPLATE_TIERS = {
   ...(window.TEMPLATE_EXTENSIONS?.tiers || {})
 };
 
-const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($39/mo)' };
+const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($20/mo)' };
 
 const CREDIT_COSTS = {
   enhance_summary: 2, enhance_exp: 2, export_pdf: 3, export_png: 2, export_jpeg: 2,

@@ -79,6 +79,23 @@
   text-decoration: none;
 }
 
+.resume-document .tm-contact,
+.resume-document .tm-contact-item,
+.resume-document .tm-contact span,
+.resume-document .tm-contact div,
+.resume-document .tm-themed-contact {
+  color: inherit !important;
+  text-decoration: none !important;
+  -webkit-text-fill-color: inherit;
+}
+
+.resume-document a[href^="tel:"],
+.resume-document a[href^="mailto:"] {
+  color: inherit !important;
+  text-decoration: none !important;
+  pointer-events: none;
+}
+
 .resume-document .tm-entry-top {
   display: block !important;
 }
