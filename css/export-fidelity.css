@@ -129,7 +129,7 @@
   word-break: break-word !important;
   overflow-wrap: break-word !important;
   text-align: center !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   max-width: 100% !important;
   min-height: 1.35em !important;
 }
@@ -149,7 +149,7 @@
 .page-preview .tm-skills-amber-list .tm-skill,
 .page-preview .tm-skills-intl .tm-skill,
 .page-preview [class*="tm-skills-"][class$="-list"] .tm-skill,
-.page-preview [class*="tm-skills-"][class$="-side"]:not(.tm-skills-modern-side) .tm-skill,
+.page-preview [class*="tm-skills-"][class$="-side"] .tm-skill,
 .resume-export-clone .tm-skills-exec-side .tm-skill,
 .resume-export-clone .tm-skills-stanford-list .tm-skill,
 .resume-export-clone .tm-skills-metro-side .tm-skill,
@@ -164,7 +164,7 @@
 .resume-export-clone .tm-skills-amber-list .tm-skill,
 .resume-export-clone .tm-skills-intl .tm-skill,
 .resume-export-clone [class*="tm-skills-"][class$="-list"] .tm-skill,
-.resume-export-clone [class*="tm-skills-"][class$="-side"]:not(.tm-skills-modern-side) .tm-skill,
+.resume-export-clone [class*="tm-skills-"][class$="-side"] .tm-skill,
 .resume-document .tm-skills-exec-side .tm-skill,
 .resume-document .tm-skills-stanford-list .tm-skill,
 .resume-document .tm-skills-metro-side .tm-skill,
@@ -179,14 +179,14 @@
 .resume-document .tm-skills-amber-list .tm-skill,
 .resume-document .tm-skills-intl .tm-skill,
 .resume-document [class*="tm-skills-"][class$="-list"] .tm-skill,
-.resume-document [class*="tm-skills-"][class$="-side"]:not(.tm-skills-modern-side) .tm-skill {
+.resume-document [class*="tm-skills-"][class$="-side"] .tm-skill {
   display: block !important;
   width: 100% !important;
   box-sizing: border-box !important;
   white-space: normal !important;
   word-break: break-word !important;
   overflow-wrap: break-word !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   text-align: left !important;
   max-width: 100% !important;
   justify-content: flex-start !important;
@@ -293,6 +293,105 @@
   overflow-wrap: break-word !important;
   word-break: break-word !important;
   hyphens: auto !important;
+}
+
+/* ─── Text arrangement (all 64 templates) ─── */
+:is(.page-preview, .resume-export-clone, .resume-document) [class*="tm-"] > *,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-body > *,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-exec-body > *,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-metro-body > *,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-apex-body > *,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-echo-cols > *,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-swiss-grid > *,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-lattice-grid > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-sidebar,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-main,
+:is(.page-preview, .resume-export-clone, .resume-document) [class*="-side"],
+:is(.page-preview, .resume-export-clone, .resume-document) [class*="-main"],
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-swiss-meta,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-lattice-meta,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-metro-right,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-metro-left {
+  min-width: 0 !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-contact,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-themed-contact {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px 12px !important;
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-contact-item,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-contact span,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-contact div,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-themed-contact span {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-summary,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-bullets,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-bullets li,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-entry-meta,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-side-label,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-side-title {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-entry-top > div:first-child {
+  flex: 1 1 180px !important;
+  min-width: 0 !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-entry-dates {
+  white-space: normal !important;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  text-align: right !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-stanford .tm-header,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-executive .tm-exec-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-section-title {
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-creative .tm-section-title,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-nova .tm-section-title,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-streamline .tm-section-title,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-azure .tm-section-title,
+:is(.page-preview, .resume-export-clone, .resume-document) .tm-stellar .tm-section-title {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
 /* Preview scaler — dimensions set in JS */

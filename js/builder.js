@@ -301,11 +301,12 @@ function renderSkillsContent(templateId, placement = 'main') {
   }
 }
 
-function renderSkillsSection(templateId, title) {
+function renderSkillsSection(templateId, title, { fullWidth = false } = {}) {
   const content = renderSkillsContent(templateId, 'main');
   if (!content) return '';
   const sectionTitle = title || SKILL_SECTION_TITLES[templateId] || 'Skills';
-  return `<div class="tm-section tm-skills-section"><div class="tm-section-title">${sectionTitle}</div>${content}</div>`;
+  const spanClass = fullWidth || templateId === 'apex' ? ` tm-${templateId}-full` : '';
+  return `<div class="tm-section tm-skills-section${spanClass}"><div class="tm-section-title">${sectionTitle}</div>${content}</div>`;
 }
 
 function renderSkillsSidebar(templateId, label = 'Skills') {
