@@ -19,6 +19,9 @@
     *, *::before, *::after { box-sizing: border-box; }
     input, select, textarea, button { max-width: 100%; }
     #export-menu { min-width: 148px; }
+    /* Prevent iOS Safari zoom-on-focus (causes page jump while typing) */
+    #editor-panel input, #editor-panel textarea, #editor-panel select { font-size: 16px; }
+    #editor-panel { overflow-anchor: none; -webkit-overflow-scrolling: touch; }
   </style>
 </head>
 <body class="bg-zinc-950 text-white overflow-x-hidden min-h-screen">

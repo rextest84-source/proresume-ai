@@ -55,7 +55,7 @@ async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhanceme
   try {
     await fn();
     showToast(TESTING_UNLOCK ? '✦ Generated!' : `✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
-    if (window.innerWidth < 768) switchTab('preview');
+    schedulePreviewUpdate();
   } catch (e) {
     if (!TESTING_UNLOCK && e.message !== 'empty') setCredits(getCredits() + creditCost);
     if (e.message === 'empty') showToast(e.hint || 'Add some text first', 'warning');
@@ -690,7 +690,7 @@ function normalizeTemplate(tpl) {
   return tpl;
 }
 
-function renderPreview() {
+function renderPreview(resetScroll = false) {
   const preview = document.getElementById('resume-preview');
   if (!preview) return;
 
@@ -714,11 +714,19 @@ function renderPreview() {
   const scoreEl = document.getElementById('ats-score');
   if (scoreEl) scoreEl.textContent = calculateAtsScore() + '%';
 
-  requestAnimationFrame(() => {
-    const frame = document.getElementById('preview-frame');
-    if (frame) frame.scrollTop = 0;
-    if (window.innerWidth < 768) window.scrollTo(0, 0);
-  });
+  if (resetScroll) {
+    requestAnimationFrame(() => {
+      const frame = document.getElementById('preview-frame');
+      if (frame) frame.scrollTop = 0;
+    });
+  }
+}
+
+let previewUpdateTimer = null;
+
+function schedulePreviewUpdate() {
+  clearTimeout(previewUpdateTimer);
+  previewUpdateTimer = setTimeout(() => renderPreview(false), 250);
 }
 
 // ─── Form UI ───
@@ -730,7 +738,7 @@ function bindInput(id, field) {
   el.addEventListener('input', () => {
     resumeData[field] = el.value;
     saveData();
-    renderPreview();
+    schedulePreviewUpdate();
   });
 }
 
@@ -785,7 +793,7 @@ function selectTemplate(template) {
     btn.classList.toggle('ring-2', active);
     btn.classList.toggle('ring-emerald-400', active);
   });
-  renderPreview();
+  renderPreview(true);
 }
 
 function showUpgradeModal(feature) {
@@ -837,8 +845,7 @@ function switchTab(tab) {
     btn.classList.toggle('text-zinc-400', !active);
   });
   if (tab === 'preview') {
-    renderPreview();
-    requestAnimationFrame(() => window.scrollTo(0, 0));
+    renderPreview(true);
   }
 }
 
@@ -856,10 +863,6 @@ function getExportBaseName() {
 function isMobileIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-}
-
-function isMobileDevice() {
-  return isMobileIOS() || window.innerWidth < 768 || /Android/i.test(navigator.userAgent);
 }
 
 function clearPendingExport() {
@@ -956,34 +959,44 @@ async function deliverExport(blob, filename, format) {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
+function getExportBackgroundColor(clone) {
+  const themed = clone.querySelector('[class*="tm-"]');
+  if (!themed) return '#ffffff';
+  const bg = window.getComputedStyle(themed).backgroundColor;
+  return bg && bg !== 'rgba(0, 0, 0, 0)' ? bg : '#ffffff';
+}
+
 function prepareExportClone(source) {
   const wrapper = document.createElement('div');
   wrapper.id = 'resume-export-wrapper';
   wrapper.setAttribute('aria-hidden', 'true');
-  wrapper.style.cssText = `position:fixed;left:-12000px;top:0;width:${EXPORT_WIDTH}px;background:#fff;z-index:-1;opacity:1;pointer-events:none;overflow:visible;`;
+  wrapper.style.cssText = `position:fixed;left:-12000px;top:0;width:${EXPORT_WIDTH}px;z-index:-1;opacity:1;pointer-events:none;overflow:visible;background:transparent;`;
 
   const clone = source.cloneNode(true);
   clone.id = 'resume-export-clone';
   clone.classList.add('resume-export-clone');
-  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-height:auto;height:auto;background:#fff;color:#1e293b;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
+  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-height:auto;height:auto;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
+
+  const inner = clone.querySelector('[class*="tm-"]');
+  if (inner) {
+    inner.style.width = '100%';
+    inner.style.maxWidth = '100%';
+    inner.style.boxSizing = 'border-box';
+  }
+  clone.querySelectorAll('.tm-themed, [class*="tm-"]').forEach(el => {
+    el.style.setProperty('width', '100%', 'important');
+    el.style.setProperty('max-width', '100%', 'important');
+    el.style.setProperty('box-sizing', 'border-box', 'important');
+  });
 
   clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
-  clone.querySelectorAll('.tm-name').forEach(el => {
-    const style = window.getComputedStyle(el);
-    if (style.webkitTextFillColor === 'rgba(0, 0, 0, 0)' || style.webkitTextFillColor === 'transparent') {
-      el.style.setProperty('-webkit-text-fill-color', '#0f172a');
-      el.style.background = 'none';
-      el.style.webkitBackgroundClip = 'unset';
-      el.style.color = '#0f172a';
-    }
-  });
 
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
   void clone.offsetHeight;
   const contentHeight = Math.max(clone.scrollHeight, clone.offsetHeight, 1);
   clone.style.height = `${contentHeight}px`;
-  return { wrapper, clone, contentHeight };
+  return { wrapper, clone, contentHeight, bgColor: getExportBackgroundColor(clone) };
 }
 
 function blobFromCanvas(canvas, type, quality) {
@@ -992,31 +1005,31 @@ function blobFromCanvas(canvas, type, quality) {
   });
 }
 
-async function captureResumeCanvas(clone) {
+async function captureResumeCanvas(clone, bgColor) {
   if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
   return html2canvas(clone, {
     scale: EXPORT_SCALE,
     useCORS: true,
     allowTaint: true,
-    backgroundColor: '#ffffff',
+    backgroundColor: bgColor === 'rgba(0, 0, 0, 0)' ? null : bgColor,
     scrollX: 0,
     scrollY: 0,
     logging: false
   });
 }
 
-function sliceCanvas(canvas, offsetY, sliceHeight) {
+function sliceCanvas(canvas, offsetY, sliceHeight, fillColor = '#ffffff') {
   const slice = document.createElement('canvas');
   slice.width = canvas.width;
   slice.height = sliceHeight;
   const ctx = slice.getContext('2d');
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = fillColor;
   ctx.fillRect(0, 0, slice.width, slice.height);
   ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
   return slice;
 }
 
-async function saveCanvasAsPdf(canvas, filename) {
+async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff') {
   if (!window.jspdf?.jsPDF) throw new Error('PDF library not loaded. Please refresh the page.');
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter', compress: true });
@@ -1028,7 +1041,7 @@ async function saveCanvasAsPdf(canvas, filename) {
   while (offsetY < canvas.height) {
     if (pageIndex > 0) pdf.addPage();
     const sliceHeight = Math.min(pageSliceHeight, canvas.height - offsetY);
-    const slice = sliceCanvas(canvas, offsetY, sliceHeight);
+    const slice = sliceCanvas(canvas, offsetY, sliceHeight, fillColor);
     const displayHeight = (sliceHeight / canvas.width) * pageWidth;
     pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageWidth, displayHeight);
     offsetY += sliceHeight;
@@ -1070,18 +1083,18 @@ async function exportResume(format = 'pdf') {
     return;
   }
 
-  const { wrapper, clone } = prepareExportClone(source);
+  const { wrapper, clone, bgColor } = prepareExportClone(source);
   try {
     if (document.fonts?.ready) await document.fonts.ready;
     await new Promise(r => setTimeout(r, 500));
 
-    const canvas = await captureResumeCanvas(clone);
+    const canvas = await captureResumeCanvas(clone, bgColor);
     const baseName = getExportBaseName();
     const ext = EXPORT_EXT_MAP[format] || 'pdf';
     const filename = `${baseName}_resume.${ext}`;
 
     if (format === 'pdf') {
-      await saveCanvasAsPdf(canvas, filename);
+      await saveCanvasAsPdf(canvas, filename, bgColor);
     } else if (format === 'png') {
       const blob = await blobFromCanvas(canvas, 'image/png');
       await deliverExport(blob, filename, 'png');
@@ -1278,12 +1291,12 @@ function setupEvents() {
     if (exp !== undefined && field) {
       resumeData.experience[+exp][field] = e.target.value;
       saveData();
-      renderPreview();
+      schedulePreviewUpdate();
     }
     if (edu !== undefined && field) {
       resumeData.education[+edu][field] = e.target.value;
       saveData();
-      renderPreview();
+      schedulePreviewUpdate();
     }
   });
 }
