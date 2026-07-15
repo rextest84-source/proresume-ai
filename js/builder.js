@@ -1375,7 +1375,7 @@ async function exportEditableResume(format, tpl, bodyHtml, baseName) {
     const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
     await deliverExport(blob, filename, 'doc');
   } else if (format === 'rtf') {
-    const rtf = window.EXPORT_EDITABLE.buildRtfDocument();
+    const rtf = window.EXPORT_EDITABLE.buildRtfDocument(tpl, bodyHtml);
     const blob = new Blob([rtf], { type: 'application/rtf' });
     await deliverExport(blob, filename, 'rtf');
   }
