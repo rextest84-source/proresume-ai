@@ -44,7 +44,7 @@
     }
     *, *::before, *::after { box-sizing: border-box; }
     input, select, textarea, button { max-width: 100%; }
-    #export-menu { min-width: 148px; }
+    #export-menu { min-width: 180px; max-height: 70vh; overflow-y: auto; }
 
     #app-shell {
       display: flex;
@@ -84,6 +84,7 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0.5rem;
+      -webkit-overflow-scrolling: touch;
     }
     @media (min-width: 420px) {
       #template-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -171,10 +172,15 @@
           <button data-action="toggle-export-menu" class="px-2.5 sm:px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1">
             <i class="fa-solid fa-download"></i><span class="hidden sm:inline">Download</span> <i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i>
           </button>
-          <div id="export-menu" class="hidden absolute right-0 top-full mt-1.5 bg-zinc-800 border border-white/10 rounded-xl shadow-2xl z-50 py-1 overflow-hidden">
+          <div id="export-menu" class="hidden absolute right-0 top-full mt-1.5 bg-zinc-800 border border-white/10 rounded-xl shadow-2xl z-50 py-1 min-w-[200px] max-h-[70vh] overflow-y-auto">
+            <p class="px-4 pt-2 pb-1 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Print formats</p>
             <button data-action="export-resume" data-format="pdf" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-400 w-4"></i> PDF</button>
             <button data-action="export-resume" data-format="png" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-image text-blue-400 w-4"></i> PNG</button>
             <button data-action="export-resume" data-format="jpeg" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-file-image text-amber-400 w-4"></i> JPEG</button>
+            <p class="px-4 pt-2 pb-1 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider border-t border-white/5 mt-1">Editable formats</p>
+            <button data-action="export-resume" data-format="doc" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-file-word text-blue-500 w-4"></i> Word (.doc)</button>
+            <button data-action="export-resume" data-format="html" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-code text-emerald-400 w-4"></i> HTML</button>
+            <button data-action="export-resume" data-format="rtf" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-file-lines text-zinc-400 w-4"></i> RTF</button>
           </div>
         </div>
         <a href="/pricing.html" class="header-pricing px-2.5 sm:px-4 py-1.5 border border-white/20 text-zinc-300 hover:bg-white/5 rounded-lg text-xs sm:text-sm font-semibold transition shrink-0">Pricing</a>
@@ -379,6 +385,7 @@
 
   <script src="/js/ai-engine.js"></script>
   <script src="/js/template-extensions.js"></script>
+  <script src="/js/export-editable.js"></script>
   <script src="/js/builder.js"></script>
 </body>
 </html>

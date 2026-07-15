@@ -30,7 +30,8 @@ const TEMPLATE_TIERS = {
 const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($39/mo)' };
 
 const CREDIT_COSTS = {
-  enhance_summary: 2, enhance_exp: 2, export_pdf: 3, export_png: 2, export_jpeg: 2, regenerate: 1,
+  enhance_summary: 2, enhance_exp: 2, export_pdf: 3, export_png: 2, export_jpeg: 2,
+  export_doc: 3, export_html: 2, export_rtf: 2, regenerate: 1,
   build_resume: 5, suggest_skills: 1,
   job_match: 5, cover_letter: 4, ats_scan: 2, linkedin: 3
 };
@@ -1043,12 +1044,20 @@ function showExportSaveModal(blob, filename, format) {
   if (link) {
     link.href = url;
     link.download = filename;
-    link.textContent = format === 'pdf' ? 'Open PDF preview' : `Open ${format.toUpperCase()} preview`;
+    link.textContent = format === 'pdf' ? 'Open PDF preview'
+      : ['doc', 'html', 'rtf'].includes(format) ? `Open ${format === 'doc' ? 'Word' : format.toUpperCase()} file`
+      : `Open ${(format || '').toUpperCase()} preview`;
   }
   if (icon) {
-    icon.className = format === 'pdf'
-      ? 'fa-solid fa-file-pdf text-2xl text-red-400'
-      : 'fa-solid fa-image text-2xl text-blue-400';
+    const icons = {
+      pdf: 'fa-solid fa-file-pdf text-2xl text-red-400',
+      png: 'fa-solid fa-image text-2xl text-blue-400',
+      jpeg: 'fa-solid fa-file-image text-2xl text-amber-400',
+      doc: 'fa-solid fa-file-word text-2xl text-blue-500',
+      html: 'fa-solid fa-code text-2xl text-emerald-400',
+      rtf: 'fa-solid fa-file-lines text-2xl text-zinc-300'
+    };
+    icon.className = icons[format] || 'fa-solid fa-file text-2xl text-emerald-400';
   }
   if (printBtn) printBtn.classList.toggle('hidden', format !== 'pdf');
   if (iosSteps) iosSteps.classList.toggle('hidden', !isMobileIOS());
@@ -1117,48 +1126,70 @@ async function deliverExport(blob, filename, format) {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-function getExportBackgroundColor(clone) {
+function getExportBackgroundColor(clone, doc = document) {
   const themed = clone.querySelector('[class*="tm-"]');
   if (!themed) return '#ffffff';
-  const bg = window.getComputedStyle(themed).backgroundColor;
+  const win = doc.defaultView || window;
+  const bg = win.getComputedStyle(themed).backgroundColor;
   return bg && bg !== 'rgba(0, 0, 0, 0)' ? bg : '#ffffff';
 }
 
-function prepareExportClone() {
+async function prepareExportFrame() {
   const tpl = normalizeTemplate(resumeData.template);
   const renderer = TEMPLATE_RENDERERS[tpl];
   if (!renderer) throw new Error('Template not found');
 
   document.documentElement.classList.add('export-capture');
 
-  const wrapper = document.createElement('div');
-  wrapper.id = 'resume-export-wrapper';
-  wrapper.setAttribute('aria-hidden', 'true');
-  wrapper.style.cssText = [
-    'position:fixed',
-    'left:0',
-    'top:0',
-    `width:${EXPORT_WIDTH}px`,
-    'z-index:-1',
-    'opacity:0',
-    'pointer-events:none',
-    'overflow:visible'
+  const cssText = window.EXPORT_EDITABLE
+    ? await window.EXPORT_EDITABLE.fetchExportCss()
+    : '';
+
+  let iframe = document.getElementById('resume-export-iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'resume-export-iframe';
+    iframe.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(iframe);
+  }
+
+  iframe.style.cssText = [
+    'position:fixed', 'left:0', 'top:0', 'width:816px', 'border:0',
+    'opacity:0', 'pointer-events:none', 'z-index:-1', 'overflow:hidden'
   ].join(';');
 
-  const clone = document.createElement('div');
-  clone.id = 'resume-export-clone';
-  clone.className = `resume-preview resume-export-clone template-${tpl}`;
-  clone.style.cssText = `width:${EXPORT_WIDTH}px;max-width:${EXPORT_WIDTH}px;min-width:${EXPORT_WIDTH}px;box-shadow:none;margin:0;padding:0;transform:none;position:relative;overflow:visible;`;
-  clone.innerHTML = renderer();
-  clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
+  const bodyHtml = renderer();
+  const doc = iframe.contentDocument;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>${cssText}</style>
+  </head><body style="margin:0;padding:0;width:816px;background:#fff;">
+    <div id="resume-export-clone" class="resume-preview resume-export-clone template-${tpl}">${bodyHtml}</div>
+  </body></html>`);
+  doc.close();
 
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
+  if (doc.fonts?.ready) await doc.fonts.ready;
+  await new Promise(r => setTimeout(r, 450));
+
+  const clone = doc.getElementById('resume-export-clone');
+  clone.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
+  applyExportCaptureFixes(clone);
+
   void clone.offsetHeight;
   const contentHeight = Math.max(Math.ceil(clone.scrollHeight), Math.ceil(clone.offsetHeight), 1);
-  clone.style.height = `${contentHeight}px`;
-  wrapper.style.height = `${contentHeight}px`;
-  return { wrapper, clone, contentHeight, bgColor: getExportBackgroundColor(clone) };
+  iframe.style.height = `${contentHeight}px`;
+
+  const bgColor = getExportBackgroundColor(clone, doc);
+  return { iframe, clone, contentHeight, bgColor, tpl, bodyHtml, doc };
+}
+
+function cleanupExportFrame(iframe) {
+  document.documentElement.classList.remove('export-capture');
+  if (iframe) {
+    iframe.style.height = '0';
+    iframe.style.width = '0';
+  }
 }
 
 function applyExportCaptureFixes(root) {
@@ -1166,11 +1197,17 @@ function applyExportCaptureFixes(root) {
     el.style.display = 'inline-flex';
     el.style.alignItems = 'center';
     el.style.justifyContent = 'center';
-    el.style.lineHeight = '1.25';
+    el.style.lineHeight = '1.3';
     el.style.verticalAlign = 'middle';
     el.style.boxSizing = 'border-box';
-    el.style.overflow = 'visible';
-    el.style.whiteSpace = 'nowrap';
+    el.style.overflow = 'hidden';
+    el.style.whiteSpace = 'normal';
+    el.style.wordBreak = 'break-word';
+    el.style.overflowWrap = 'break-word';
+    el.style.textAlign = 'center';
+    el.style.maxWidth = '100%';
+    el.style.minHeight = '1.35em';
+    el.style.padding = '4px 8px';
   });
   root.querySelectorAll('.tm-skills, .tm-skills-wrap').forEach(el => {
     el.style.display = 'flex';
@@ -1194,6 +1231,10 @@ function applyExportCaptureFixes(root) {
   gridFixes.forEach(([sel, styles]) => {
     root.querySelectorAll(sel).forEach(el => Object.assign(el.style, styles));
   });
+  root.querySelectorAll('[class*="tm-"]').forEach(el => {
+    el.style.boxSizing = 'border-box';
+    el.style.maxWidth = '100%';
+  });
 }
 
 function blobFromCanvas(canvas, type, quality) {
@@ -1213,7 +1254,7 @@ function sliceCanvas(canvas, offsetY, sliceHeight, fillColor = '#ffffff') {
   return slice;
 }
 
-async function captureResumeCanvas(clone, bgColor, contentHeight) {
+async function captureResumeCanvas(clone, bgColor, contentHeight, doc = document) {
   if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
   applyExportCaptureFixes(clone);
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
@@ -1230,6 +1271,7 @@ async function captureResumeCanvas(clone, bgColor, contentHeight) {
     scrollX: 0,
     scrollY: 0,
     logging: false,
+    foreignObjectRendering: false,
     onclone: (_doc, clonedEl) => applyExportCaptureFixes(clonedEl)
   });
 }
@@ -1260,9 +1302,33 @@ async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff') {
   await deliverExport(pdfBlob, filename, 'pdf');
 }
 
-const EXPORT_CREDIT_MAP = { pdf: 'export_pdf', png: 'export_png', jpeg: 'export_jpeg' };
-const EXPORT_EXT_MAP = { pdf: 'pdf', png: 'png', jpeg: 'jpg' };
-const EXPORT_LABEL_MAP = { pdf: 'PDF', png: 'PNG', jpeg: 'JPEG' };
+const EXPORT_CREDIT_MAP = {
+  pdf: 'export_pdf', png: 'export_png', jpeg: 'export_jpeg',
+  doc: 'export_doc', html: 'export_html', rtf: 'export_rtf'
+};
+const EXPORT_EXT_MAP = { pdf: 'pdf', png: 'png', jpeg: 'jpg', doc: 'doc', html: 'html', rtf: 'rtf' };
+const EXPORT_LABEL_MAP = { pdf: 'PDF', png: 'PNG', jpeg: 'JPEG', doc: 'Word', html: 'HTML', rtf: 'RTF' };
+const EDITABLE_FORMATS = new Set(['doc', 'html', 'rtf']);
+
+async function exportEditableResume(format, tpl, bodyHtml, baseName) {
+  if (!window.EXPORT_EDITABLE) throw new Error('Editable export module not loaded.');
+  const ext = EXPORT_EXT_MAP[format];
+  const filename = `${baseName}_resume.${ext}`;
+
+  if (format === 'html') {
+    const html = await window.EXPORT_EDITABLE.buildEditableHtml(tpl, bodyHtml);
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    await deliverExport(blob, filename, 'html');
+  } else if (format === 'doc') {
+    const html = await window.EXPORT_EDITABLE.buildWordDocument(tpl, bodyHtml);
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    await deliverExport(blob, filename, 'doc');
+  } else if (format === 'rtf') {
+    const rtf = window.EXPORT_EDITABLE.buildRtfDocument();
+    const blob = new Blob([rtf], { type: 'application/rtf' });
+    await deliverExport(blob, filename, 'rtf');
+  }
+}
 
 async function exportResume(format = 'pdf') {
   const creditKey = EXPORT_CREDIT_MAP[format] || 'export_pdf';
@@ -1290,24 +1356,33 @@ async function exportResume(format = 'pdf') {
     return;
   }
 
-  const { wrapper, clone, contentHeight, bgColor } = prepareExportClone();
+  let iframe = null;
   try {
-    if (document.fonts?.ready) await document.fonts.ready;
-    await new Promise(r => setTimeout(r, 500));
-
-    const canvas = await captureResumeCanvas(clone, bgColor, contentHeight);
     const baseName = getExportBaseName();
     const ext = EXPORT_EXT_MAP[format] || 'pdf';
     const filename = `${baseName}_resume.${ext}`;
+    const tpl = normalizeTemplate(resumeData.template);
+    const renderer = TEMPLATE_RENDERERS[tpl];
 
-    if (format === 'pdf') {
-      await saveCanvasAsPdf(canvas, filename, bgColor);
-    } else if (format === 'png') {
-      const blob = await blobFromCanvas(canvas, 'image/png');
-      await deliverExport(blob, filename, 'png');
-    } else if (format === 'jpeg') {
-      const blob = await blobFromCanvas(canvas, 'image/jpeg', 0.92);
-      await deliverExport(blob, filename, 'jpeg');
+    if (EDITABLE_FORMATS.has(format)) {
+      const bodyHtml = renderer();
+      await exportEditableResume(format, tpl, bodyHtml, baseName);
+    } else {
+      const frame = await prepareExportFrame();
+      iframe = frame.iframe;
+      const { clone, contentHeight, bgColor, doc } = frame;
+      if (document.fonts?.ready) await document.fonts.ready;
+      const canvas = await captureResumeCanvas(clone, bgColor, contentHeight, doc);
+
+      if (format === 'pdf') {
+        await saveCanvasAsPdf(canvas, filename, bgColor);
+      } else if (format === 'png') {
+        const blob = await blobFromCanvas(canvas, 'image/png');
+        await deliverExport(blob, filename, 'png');
+      } else if (format === 'jpeg') {
+        const blob = await blobFromCanvas(canvas, 'image/jpeg', 0.92);
+        await deliverExport(blob, filename, 'jpeg');
+      }
     }
 
     const creditMsg = TESTING_UNLOCK ? '' : ` (−${creditCost} credits)`;
@@ -1321,8 +1396,7 @@ async function exportResume(format = 'pdf') {
     if (!TESTING_UNLOCK) setCredits(getCredits() + creditCost);
     showToast(`Export failed — ${err.message || 'please try again'}`, 'warning');
   } finally {
-    document.documentElement.classList.remove('export-capture');
-    wrapper.remove();
+    cleanupExportFrame(iframe);
     if (menuBtn) {
       menuBtn.disabled = false;
       menuBtn.innerHTML = originalBtn;
