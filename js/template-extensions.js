@@ -210,35 +210,93 @@
     EXTENDED_RENDERERS[t.id] = () => render(t.id);
   });
 
-  // Per-template page orientation (US Letter @ 96dpi)
-  const LAYOUT_ORIENTATION = {
-    header: 'landscape',
-    swiss: 'landscape',
-    dual: 'landscape',
-    'sidebar-left': 'portrait',
-    'sidebar-right': 'portrait',
-    minimal: 'portrait',
-    accent: 'portrait',
-    dark: 'portrait',
-    luxury: 'portrait'
-  };
-
-  const BASE_ORIENTATION = {
-    metro: 'landscape',
+  // Per-template page orientation (US Letter @ 96dpi).
+  // Single source of truth — preview, thumbnails, PNG/PDF, and editable exports all read this map.
+  const TEMPLATE_ORIENTATION = {
+    // Landscape — wide header bands (full-width header + body)
     horizon: 'landscape',
+    fusion: 'landscape',
+    monarch: 'landscape',
+    forest: 'landscape',
+    radiant: 'landscape',
+    refined: 'landscape',
+    nova: 'landscape',
+    streamline: 'landscape',
+    cobalt: 'landscape',
+    crimson: 'landscape',
+    copper: 'landscape',
+    azure: 'landscape',
+    haven: 'landscape',
+    sunset: 'landscape',
+    zenith: 'landscape',
+    canopy: 'landscape',
+    regal: 'landscape',
+    sovereign: 'landscape',
+
+    // Landscape — swiss grid header (name + meta columns)
     swiss: 'landscape',
+    lattice: 'landscape',
+
+    // Landscape — dual-column body under banner
     apex: 'landscape',
-    academic: 'landscape'
+    echo: 'landscape',
+
+    // Landscape — metro grid (header + two-column body)
+    metro: 'landscape',
+
+    // Landscape — academic horizontal header bar
+    academic: 'landscape',
+
+    // Portrait — sidebar layouts
+    modern: 'portrait',
+    slate: 'portrait',
+    executive: 'portrait',
+    stanford: 'portrait',
+    verdant: 'portrait',
+    jade: 'portrait',
+    harbor: 'portrait',
+
+    // Portrait — single-column / minimal / accent / dark / luxury
+    classic: 'portrait',
+    minimal: 'portrait',
+    serif: 'portrait',
+    corporate: 'portrait',
+    elegant: 'portrait',
+    compact: 'portrait',
+    canvas: 'portrait',
+    creative: 'portrait',
+    tech: 'portrait',
+    harvard: 'portrait',
+    bold: 'portrait',
+    pioneer: 'portrait',
+    vivid: 'portrait',
+    onyx: 'portrait',
+    luxury: 'portrait',
+    international: 'portrait',
+    amber: 'portrait',
+    nordic: 'portrait',
+    arctic: 'portrait',
+    sapphire: 'portrait',
+    platinum: 'portrait',
+    granite: 'portrait',
+    mahogany: 'portrait',
+    obsidian: 'portrait',
+    velvet: 'portrait',
+    cipher: 'portrait',
+    forge: 'portrait',
+    pulse: 'portrait',
+    ember: 'portrait',
+    stellar: 'portrait',
+    prism: 'portrait',
+    atlas: 'portrait',
+    prestige: 'portrait'
   };
 
   const PAGE_SIZE_PORTRAIT = { orientation: 'portrait', width: 816, height: 1056 };
   const PAGE_SIZE_LANDSCAPE = { orientation: 'landscape', width: 1056, height: 816 };
 
   function getOrientation(id) {
-    if (BASE_ORIENTATION[id]) return BASE_ORIENTATION[id];
-    const ext = EXTENDED_CATALOG.find(t => t.id === id);
-    if (ext?.layout && LAYOUT_ORIENTATION[ext.layout]) return LAYOUT_ORIENTATION[ext.layout];
-    return 'portrait';
+    return TEMPLATE_ORIENTATION[id] || 'portrait';
   }
 
   function getPageSize(id) {
@@ -260,6 +318,7 @@
     getOrientation,
     getPageSize,
     orientations: ORIENTATIONS,
+    templateOrientations: TEMPLATE_ORIENTATION,
     PAGE_SIZE_PORTRAIT,
     PAGE_SIZE_LANDSCAPE
   };
