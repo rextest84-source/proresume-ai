@@ -222,6 +222,7 @@
     refined: 'landscape',
     nova: 'landscape',
     streamline: 'landscape',
+    creative: 'landscape',
     cobalt: 'landscape',
     crimson: 'landscape',
     copper: 'landscape',
@@ -244,8 +245,8 @@
     // Landscape — metro grid (header + two-column body)
     metro: 'landscape',
 
-    // Landscape — academic horizontal header bar
-    academic: 'landscape',
+    // Portrait — horizontal header bar, single-column CV body
+    academic: 'portrait',
 
     // Portrait — sidebar layouts
     modern: 'portrait',
@@ -264,7 +265,6 @@
     elegant: 'portrait',
     compact: 'portrait',
     canvas: 'portrait',
-    creative: 'portrait',
     tech: 'portrait',
     harvard: 'portrait',
     bold: 'portrait',
