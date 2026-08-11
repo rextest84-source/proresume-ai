@@ -2,22 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Sign In — ProResume AI</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/css/site.css" rel="stylesheet">
   <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen flex flex-col">
-  <nav class="border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center">
-      <a href="/" class="flex items-center gap-2 font-bold"><span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-sm">PR</span> ProResume AI</a>
-    </div>
-  </nav>
+  <div data-site-nav="minimal"></div>
 
-  <main class="flex-1 flex items-center justify-center px-6 py-12">
+  <main class="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
     <div class="w-full max-w-md">
       <h1 class="text-3xl font-bold mb-2">Welcome back</h1>
       <p class="text-zinc-400 mb-8">Sign in to save your resumes in the cloud.</p>
@@ -43,6 +40,7 @@
 
   <script src="/js/config.js"></script>
   <script src="/js/api-client.js"></script>
+  <script src="/js/nav.js"></script>
   <script>
     const params = new URLSearchParams(location.search);
     const next = params.get('next') || '/builder.html';
