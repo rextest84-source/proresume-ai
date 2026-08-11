@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (type === 'subscription') await ProResumeAPI.checkoutSubscription(plan);
       else await ProResumeAPI.checkoutCredits(pack);
     } catch (err) {
-      alert(err.message || 'Checkout unavailable. Try again or email support@proresumeai.com.');
+      alert(err.message || 'Checkout unavailable. Use the contact form for help.');
       btn.disabled = false;
       btn.textContent = label;
     }
