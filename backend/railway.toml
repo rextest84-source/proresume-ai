@@ -1,0 +1,17 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "node src/index.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+# Attach a PostgreSQL plugin in the Railway dashboard (recommended).
+# Resume JSON is stored in Postgres — durable without an app volume.
+#
+# Optional: mount a volume for future file uploads (PDF import/export cache):
+#   Variable DATA_DIR=/data
+#   Volume mount path: /data

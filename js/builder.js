@@ -6,10 +6,12 @@ const EXPORT_COUNT_KEY = 'proresume_exports';
 const FREE_EXPORT_LIMIT = 1;
 const STARTING_CREDITS = 20;
 
-// ─── UNLIMITED MODE ───
-// All AI features, exports, and templates are free with no credit limits.
-// Set to false before production launch to restore tier/credit gates.
-const UNLIMITED_AI = true;
+// Set to false for production — credits enforced via Railway API when logged in.
+const UNLIMITED_AI = false;
+
+let cloudResumeId = localStorage.getItem('proresume_resume_id');
+let cloudSaveTimer = null;
+let cloudUser = null;
 
 const TEMPLATE_TIERS = {
   modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
@@ -43,7 +45,7 @@ function enhanceDescriptionAI(text, role) {
 
 async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhancement', regenerate = true) {
   if (!btn || btn.classList.contains('ai-loading')) return;
-  if (!useCredits(creditCost, featureName)) return;
+  if (!(await useCredits(creditCost, featureName))) return;
   if (regenerate) AIEngine.regenerateSeed();
   const original = btn.innerHTML;
   btn.classList.add('ai-loading');
@@ -88,11 +90,99 @@ function loadData() {
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
   updateSaveIndicator();
+  scheduleCloudSave();
+}
+
+async function refreshCloudUser() {
+  if (!window.ProResumeAPI?.isLoggedIn()) {
+    cloudUser = null;
+    return null;
+  }
+  try {
+    cloudUser = await ProResumeAPI.me();
+    localStorage.setItem(CREDITS_KEY, String(cloudUser.credits));
+    updateCreditsDisplay();
+    updateAuthHeader();
+    return cloudUser;
+  } catch {
+    cloudUser = null;
+    return null;
+  }
+}
+
+async function loadFromCloud() {
+  if (!window.ProResumeAPI?.isLoggedIn()) return false;
+  try {
+    const { resumes } = await ProResumeAPI.listResumes();
+    if (!resumes?.length) return false;
+    const target = resumes.find(r => r.id === cloudResumeId)
+      || resumes.find(r => r.is_default)
+      || resumes[0];
+    cloudResumeId = target.id;
+    localStorage.setItem('proresume_resume_id', cloudResumeId);
+    const { resume } = await ProResumeAPI.getResume(cloudResumeId);
+    resumeData = { ...structuredClone(defaultData), ...resume.data };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+    return true;
+  } catch (e) {
+    console.warn('Cloud load failed:', e);
+    return false;
+  }
+}
+
+function scheduleCloudSave() {
+  if (!window.ProResumeAPI?.isLoggedIn() || !cloudResumeId) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(async () => {
+    try {
+      const title = resumeData.name?.trim() || resumeData.title?.trim() || 'My Resume';
+      await ProResumeAPI.saveResume(cloudResumeId, resumeData, title);
+      const el = document.getElementById('save-indicator');
+      if (el) {
+        el.textContent = 'Saved to cloud';
+        el.classList.add('text-emerald-400');
+      }
+    } catch (e) {
+      console.warn('Cloud save failed:', e);
+    }
+  }, 1200);
+}
+
+async function mergeLocalToCloud() {
+  if (!window.ProResumeAPI?.isLoggedIn() || !cloudResumeId) return;
+  try {
+    const { resume } = await ProResumeAPI.getResume(cloudResumeId);
+    const cloud = resume.data || {};
+    const cloudEmpty = !cloud.name && !cloud.summary && !(cloud.experience || []).some(e => e.company || e.description);
+    const localHasContent = resumeData.name || resumeData.summary || resumeData.experience?.some(e => e.company || e.description);
+    if (cloudEmpty && localHasContent) {
+      await ProResumeAPI.saveResume(cloudResumeId, resumeData);
+    }
+  } catch (e) {
+    console.warn('Merge local to cloud failed:', e);
+  }
+}
+function updateAuthHeader() {
+  const link = document.getElementById('auth-nav-link');
+  const badge = document.getElementById('unlimited-badge');
+  if (link) {
+    if (window.ProResumeAPI?.isLoggedIn()) {
+      link.href = '/account.html';
+      link.textContent = 'Account';
+      link.classList.remove('hidden');
+    } else {
+      link.href = '/login.html?next=/builder.html';
+      link.textContent = 'Sign in';
+      link.classList.remove('hidden');
+    }
+  }
+  if (badge) badge.classList.toggle('hidden', !UNLIMITED_AI);
 }
 
 // ─── Credits System ───
 
 function getCredits() {
+  if (cloudUser) return cloudUser.credits;
   const stored = localStorage.getItem(CREDITS_KEY);
   if (stored === null) {
     localStorage.setItem(CREDITS_KEY, String(STARTING_CREDITS));
@@ -103,11 +193,34 @@ function getCredits() {
 
 function setCredits(n) {
   localStorage.setItem(CREDITS_KEY, String(Math.max(0, n)));
+  if (cloudUser) cloudUser.credits = Math.max(0, n);
   updateCreditsDisplay();
 }
 
-function useCredits(amount, featureName) {
+async function useCredits(amount, featureName) {
   if (UNLIMITED_AI) return true;
+
+  if (window.ProResumeAPI?.isLoggedIn()) {
+    try {
+      const result = await ProResumeAPI.useCredits(amount, featureName);
+      if (result.unlimited) return true;
+      if (cloudUser) cloudUser.credits = result.credits;
+      else {
+        const u = ProResumeAPI.getStoredUser();
+        if (u) { u.credits = result.credits; localStorage.setItem('proresume_user', JSON.stringify(u)); cloudUser = u; }
+      }
+      setCredits(result.credits);
+      return true;
+    } catch (e) {
+      if (e.status === 402) {
+        showUpgradeModal(`Need ${amount} credits for ${featureName}. You have ${e.data?.credits ?? 0}.`);
+        return false;
+      }
+      showToast('Could not verify credits — check your connection', 'warning');
+      return false;
+    }
+  }
+
   const current = getCredits();
   if (current < amount) {
     showUpgradeModal(`Need ${amount} credits for ${featureName}. You have ${current}.`);
@@ -1387,7 +1500,7 @@ async function exportResume(format = 'pdf') {
   const creditCost = CREDIT_COSTS[creditKey] || 3;
   const label = EXPORT_LABEL_MAP[format] || 'File';
 
-  if (!useCredits(creditCost, `${label} export`)) return;
+  if (!(await useCredits(creditCost, `${label} export`))) return;
 
   const menuBtn = document.querySelector('[data-action="toggle-export-menu"]');
   const originalBtn = menuBtn?.innerHTML;
@@ -1659,7 +1772,15 @@ function renderTemplatePicker() {
   }).join('');
 }
 
-function init() {
+async function init() {
+  updateAuthHeader();
+  if (window.ProResumeAPI?.isLoggedIn()) {
+    await refreshCloudUser();
+    const loaded = await loadFromCloud();
+    if (loaded) syncFormFields();
+    await mergeLocalToCloud();
+  }
+
   renderTemplatePicker();
   resumeData.template = normalizeTemplate(resumeData.template);
 

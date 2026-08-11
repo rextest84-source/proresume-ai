@@ -59,7 +59,7 @@
           <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>3 resumes</li>
           <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>Email support</li>
         </ul>
-        <a href="/contact.html?plan=starter" class="block py-3 text-center bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-sm transition">Get Starter</a>
+        <button type="button" data-checkout-plan="starter" class="block w-full py-3 text-center bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-sm transition">Get Starter</button>
       </div>
 
       <div class="bg-gradient-to-b from-emerald-600 to-emerald-700 border border-emerald-400 rounded-2xl p-6 flex flex-col relative">
@@ -75,7 +75,7 @@
           <li><i class="fa-solid fa-check mr-2"></i>Cover letter generator</li>
           <li><i class="fa-solid fa-check mr-2"></i>Priority support</li>
         </ul>
-        <a href="/contact.html?plan=pro" class="block py-3 text-center bg-white text-emerald-700 hover:bg-zinc-100 rounded-xl font-semibold text-sm transition">Get Pro</a>
+        <button type="button" data-checkout-plan="pro" class="block w-full py-3 text-center bg-white text-emerald-700 hover:bg-zinc-100 rounded-xl font-semibold text-sm transition">Get Pro</button>
       </div>
 
       <div class="bg-zinc-900 border border-purple-500/30 rounded-2xl p-6 flex flex-col">
@@ -90,7 +90,7 @@
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Team sharing (5 seats)</li>
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>ATS deep scan reports</li>
         </ul>
-        <a href="/contact.html?plan=business" class="block py-3 text-center bg-purple-600 hover:bg-purple-500 rounded-xl font-semibold text-sm transition">Get Business</a>
+        <button type="button" data-checkout-plan="business" class="block w-full py-3 text-center bg-purple-600 hover:bg-purple-500 rounded-xl font-semibold text-sm transition">Get Business</button>
       </div>
 
       <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 flex flex-col">
@@ -127,7 +127,7 @@
             <li>• Experience enhance (2 credits)</li>
             <li>• PDF export (3 credits)</li>
           </ul>
-          <a href="/contact.html?credits=25" class="block py-3 border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 rounded-xl font-semibold transition">Buy 25 Credits</a>
+          <button type="button" data-checkout-credits="pack_25" class="block w-full py-3 border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 rounded-xl font-semibold transition">Buy 25 Credits</button>
         </div>
         <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl p-8 text-center relative">
           <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-4 py-1 rounded-full">Best Value</span>
@@ -142,7 +142,7 @@
             <li>• Cover letter (4 credits)</li>
             <li>• ATS deep scan (2 credits)</li>
           </ul>
-          <a href="/contact.html?credits=100" class="block py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-semibold transition">Buy 100 Credits</a>
+          <button type="button" data-checkout-credits="pack_100" class="block w-full py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-semibold transition">Buy 100 Credits</button>
         </div>
         <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 text-center">
           <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -156,7 +156,7 @@
             <li>• All AI features included</li>
             <li>• Never expires</li>
           </ul>
-          <a href="/contact.html?credits=500" class="block py-3 border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 rounded-xl font-semibold transition">Buy 500 Credits</a>
+          <button type="button" data-checkout-credits="pack_500" class="block w-full py-3 border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 rounded-xl font-semibold transition">Buy 500 Credits</button>
         </div>
       </div>
     </section>
@@ -190,5 +190,8 @@
       <p>© 2026 ProResume AI, Inc. · Payments via Stripe · <a href="/terms-of-service.html" class="hover:text-white">Terms</a> · <a href="/privacy-policy.html" class="hover:text-white">Privacy</a></p>
     </div>
   </footer>
+  <script src="/js/config.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/pricing-checkout.js"></script>
 </body>
 </html>
