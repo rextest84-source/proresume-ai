@@ -1,0 +1,55 @@
+/* ProResume AI — shared responsive layout */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Safe areas for iOS notch/home indicator */
+@supports (padding: env(safe-area-inset-top)) {
+  #site-nav {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+#site-nav .nav-inner {
+  min-height: 3.5rem;
+}
+
+@media (min-width: 640px) {
+  #site-nav .nav-inner {
+    min-height: 4rem;
+  }
+}
+
+#nav-mobile-panel {
+  max-height: calc(100dvh - 3.5rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#nav-mobile-panel.open {
+  display: block;
+}
+
+.nav-menu-btn.open .nav-icon-menu {
+  display: none;
+}
+
+.nav-menu-btn.open .nav-icon-close {
+  display: block;
+}
+
+.nav-icon-close {
+  display: none;
+}
+
+body.nav-menu-open {
+  overflow: hidden;
+  touch-action: none;
+}
