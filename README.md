@@ -2,26 +2,54 @@
 
 AI-powered professional resume builder.
 
-## Deploy with Netlify
+## Architecture
 
-This is a static site — no build step required. Connect the repo to Netlify and deploy in a few clicks.
+| Layer | Host | Purpose |
+|-------|------|---------|
+| **Frontend** | Netlify | Static site — builder, marketing, auth pages |
+| **Backend API** | Railway | Auth, cloud resume storage, Stripe billing |
+| **Database** | Railway PostgreSQL | Persistent user & resume data |
 
-### One-time setup
+## Deploy frontend (Netlify)
 
-1. Sign in at [app.netlify.com](https://app.netlify.com)
-2. Click **Add new site → Import an existing project**
-3. Choose **GitHub** and select this repository (`rextest84-source/proresume-ai`)
-4. Netlify will auto-detect settings from `netlify.toml`:
-   - **Build command:** *(leave empty)*
-   - **Publish directory:** `.`
-5. Click **Deploy site**
+1. Connect repo at [app.netlify.com](https://app.netlify.com)
+2. Build command: *(empty)* · Publish directory: `.`
+3. After deploying the Railway API, set your API URL in `js/config.js`:
 
-Every push to `main` will trigger an automatic redeploy.
+```js
+window.PRORESUME_CONFIG = {
+  apiUrl: 'https://YOUR-SERVICE.up.railway.app'
+};
+```
 
-### Local preview
+## Deploy backend (Railway)
 
-Open `index.html` in a browser, or run:
+See **[backend/README.md](backend/README.md)** for step-by-step setup:
 
+1. New Railway project → deploy from GitHub, root directory `backend`
+2. Add **PostgreSQL** plugin (resume data persists here — no app volume required)
+3. Set env vars: `JWT_SECRET`, `FRONTEND_URL`, `CORS_ORIGINS`, Stripe keys
+4. Configure Stripe webhook → `/api/stripe/webhook`
+
+> **Volumes:** PostgreSQL handles durable storage for resumes. Only add a Railway **volume** if you later store uploaded files on disk (`DATA_DIR=/data`).
+
+## Local preview
+
+**Frontend:**
 ```bash
 npx serve .
 ```
+
+**Backend:**
+```bash
+cd backend && cp .env.example .env && npm install && npm run dev
+```
+
+Requires PostgreSQL — see `backend/.env.example`.
+
+## Auth & cloud save flow
+
+1. User creates account at `/signup.html`
+2. Resume auto-saves to PostgreSQL every ~1.2s while editing (when signed in)
+3. Credits are enforced server-side for logged-in users
+4. Upgrades via Stripe Checkout on `/pricing.html`

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — ProResume AI</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen flex flex-col">
+  <nav class="border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center">
+      <a href="/" class="flex items-center gap-2 font-bold"><span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-sm">PR</span> ProResume AI</a>
+    </div>
+  </nav>
+
+  <main class="flex-1 flex items-center justify-center px-6 py-12">
+    <div class="w-full max-w-md">
+      <h1 class="text-3xl font-bold mb-2">Welcome back</h1>
+      <p class="text-zinc-400 mb-8">Sign in to save your resumes in the cloud.</p>
+
+      <form id="login-form" class="bg-zinc-900 border border-white/10 rounded-2xl p-8 space-y-5">
+        <div>
+          <label class="block text-sm font-medium mb-2" for="email">Email</label>
+          <input id="email" type="email" required autocomplete="email" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 focus:border-emerald-500/50 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" for="password">Password</label>
+          <input id="password" type="password" required autocomplete="current-password" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 focus:border-emerald-500/50 focus:outline-none">
+        </div>
+        <p id="error" class="text-red-400 text-sm hidden"></p>
+        <button type="submit" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold transition">Sign In</button>
+      </form>
+
+      <p class="text-center text-zinc-500 text-sm mt-6">
+        No account? <a href="/signup.html" class="text-emerald-400 hover:underline">Create one free</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const next = params.get('next') || '/builder.html';
+    if (ProResumeAPI.isLoggedIn()) location.href = next;
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const err = document.getElementById('error');
+      err.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      try {
+        await ProResumeAPI.login(
+          document.getElementById('email').value,
+          document.getElementById('password').value
+        );
+        location.href = next;
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>
