@@ -12,6 +12,26 @@ function getStripe() {
   return new Stripe(key, { apiVersion: '2024-12-18.acacia' });
 }
 
+/** Public — lets frontend show helpful messages when Stripe isn't configured yet */
+router.get('/status', (_req, res) => {
+  const plans = {};
+  for (const [key, cfg] of Object.entries(SUBSCRIPTION_PLANS)) {
+    plans[key] = !!process.env[cfg.priceEnv];
+  }
+  const creditPacks = {};
+  for (const [key, cfg] of Object.entries(CREDIT_PACKS)) {
+    creditPacks[key] = !!process.env[cfg.priceEnv];
+  }
+  res.json({
+    configured: !!process.env.STRIPE_SECRET_KEY,
+    webhook: !!process.env.STRIPE_WEBHOOK_SECRET,
+    plans,
+    creditPacks,
+    ready: !!process.env.STRIPE_SECRET_KEY &&
+      Object.values(plans).some(Boolean)
+  });
+});
+
 async function getOrCreateCustomer(stripe, user) {
   if (user.stripe_customer_id) {
     return user.stripe_customer_id;
