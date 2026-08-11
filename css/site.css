@@ -48,3 +48,8 @@ body {
 .nav-icon-close {
   display: none;
 }
+
+body.nav-menu-open {
+  overflow: hidden;
+  touch-action: none;
+}
