@@ -8,20 +8,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/css/site.css" rel="stylesheet">
   <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
-  <nav class="border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 font-bold"><span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-sm">PR</span> ProResume AI</a>
-      <div class="flex gap-4 text-sm">
-        <a href="/builder.html" class="text-zinc-300 hover:text-white">Resume Builder</a>
-        <a href="/pricing.html" class="text-zinc-300 hover:text-white">Pricing</a>
-      </div>
-    </div>
-  </nav>
+  <div data-site-nav="default"></div>
 
-  <main class="max-w-3xl mx-auto px-6 py-12">
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
     <div id="auth-gate" class="hidden text-center py-20">
       <p class="text-zinc-400 mb-6">Sign in to manage your account and saved resumes.</p>
       <a href="/login.html?next=/account.html" class="inline-block px-6 py-3 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold">Sign In</a>
@@ -68,6 +61,7 @@
 
   <script src="/js/config.js"></script>
   <script src="/js/api-client.js"></script>
+  <script src="/js/nav.js"></script>
   <script>
     async function loadAccount() {
       if (!ProResumeAPI.isLoggedIn()) {

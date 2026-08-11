@@ -2,7 +2,7 @@
 <html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>ProResume AI — AI-Powered Resume Builder for Job Seekers</title>
   <meta name="description" content="ProResume AI is a subscription-based resume builder that helps job seekers create ATS-optimized, professional resumes with AI-powered writing assistance, premium templates, and PDF export.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -11,36 +11,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="/css/site.css" rel="stylesheet">
   <style>
-    html, body { font-family: 'Inter', system-ui, sans-serif; overflow-x: hidden; width: 100%; }
+    html, body { font-family: 'Inter', system-ui, sans-serif; }
   </style>
 </head>
 <body class="bg-zinc-950 text-white overflow-x-hidden">
 
-  <!-- Navigation -->
-  <nav class="fixed top-0 inset-x-0 z-50 bg-zinc-950/80 backdrop-blur-lg border-b border-white/10">
-    <div class="w-full max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 font-bold text-lg">
-        <span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-sm">PR</span>
-        ProResume AI
-      </a>
-      <div class="hidden md:flex items-center gap-8 text-sm text-zinc-300">
-        <a href="/builder.html" class="hover:text-white transition">Resume Builder</a>
-        <a href="/pricing.html" class="hover:text-white transition">Pricing</a>
-        <a href="#features" class="hover:text-white transition">Features</a>
-        <a href="#how-it-works" class="hover:text-white transition">How It Works</a>
-        <a href="#pricing" class="hover:text-white transition">Pricing</a>
-        <a href="#faq" class="hover:text-white transition">FAQ</a>
-        <a href="/about.html" class="hover:text-white transition">About</a>
-        <a href="/contact.html" class="hover:text-white transition">Contact</a>
-      </div>
-        <a href="/login.html" class="hover:text-white transition">Sign In</a>
-        <a href="/builder.html" class="hidden sm:inline-flex px-5 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold text-sm transition">Try It Free</a>
-    </div>
-  </nav>
+  <div data-site-nav="home"></div>
 
-  <!-- Hero -->
-  <header class="min-h-screen flex items-center bg-gradient-to-br from-zinc-900 via-zinc-950 to-black pt-16">
+  <header class="min-h-screen flex items-center bg-gradient-to-br from-zinc-900 via-zinc-950 to-black">
     <div class="w-full max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
       <div class="w-full">
         <p class="text-emerald-400 font-semibold text-sm uppercase tracking-wider mb-4">Free to try — no credit card required</p>
@@ -367,13 +347,13 @@
         </div>
       </div>
       <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-zinc-500">
-        <p>© 2026 ProResume AI. All rights reserved.</p>
+        <p>© 2026 Aeloria Career Services. ProResume AI is a service of Aeloria Career Services.</p>
         <p>United States</p>
       </div>
     </div>
   </footer>
   <script src="/js/config.js"></script>
   <script src="/js/api-client.js"></script>
-  <script src="/js/site-auth.js"></script>
+  <script src="/js/nav.js"></script>
 </body>
 </html>

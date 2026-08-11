@@ -8,21 +8,14 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>html,body{font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;width:100%}</style>
+  <link href="/css/site.css" rel="stylesheet">
+  <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
 </head>
 <body class="bg-zinc-950 text-white overflow-x-hidden">
 
-  <nav class="bg-zinc-950 border-b border-white/10">
-    <div class="w-full max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 font-bold text-lg">
-        <span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-sm">PR</span>
-        ProResume AI
-      </a>
-      <a href="/" class="text-sm text-zinc-300 hover:text-white transition">← Back to Home</a>
-    </div>
-  </nav>
+  <div data-site-nav="default"></div>
 
-  <main class="w-full max-w-3xl mx-auto px-6 py-16">
+  <main class="w-full max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
     <h1 class="text-4xl font-bold mb-2">Refund Policy</h1>
     <p class="text-zinc-500 mb-12">Last updated: July 13, 2026</p>
 
@@ -103,5 +96,8 @@
       <p>© 2026 Aeloria Career Services · ProResume AI · <a href="/terms-of-service.html" class="hover:text-white transition">Terms</a> · <a href="/privacy-policy.html" class="hover:text-white transition">Privacy</a></p>
     </div>
   </footer>
+  <script src="/js/config.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/nav.js"></script>
 </body>
 </html>
