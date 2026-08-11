@@ -73,13 +73,25 @@ Stripe Dashboard → **Developers → Webhooks → Add endpoint**
 
 When Stripe asks about your business, point them to:
 
-- **Website:** your Netlify URL
+- **Website:** https://ai-proresume.netlify.app
 - **Product:** SaaS resume builder with subscriptions ($8–$20/mo)
 - **Policies:** `/terms-of-service.html`, `/privacy-policy.html`, `/refund-policy.html`
 - **Support:** support@proresumeai.com
 - **Checkout:** live on `/pricing.html` (test mode is fine for review)
 
-Business name on Stripe should match the site: **ProResume AI, Inc.**
+### Legal business name vs product name
+
+**ProResume AI** is the **product/brand** on the site. Your **Stripe legal entity** must be your **real registered business name** (LLC, sole prop, etc.).
+
+That is normal. Stripe allows:
+- **Legal name:** your actual company (what's on your tax/bank docs)
+- **DBA / statement descriptor:** can show "ProResume" or similar on card statements
+
+**What must match:** the **legal entity name on Stripe** should appear on your site's **Terms, Privacy, and footer** — not necessarily the product name "ProResume AI."
+
+If your legal name is different, update the site footer and legal pages (search for `ProResume AI, Inc.`) to your real business name. Keep "ProResume AI" as the product name in headings and marketing.
+
+Tell us your legal business name and we can update all legal pages in one pass.
 
 ---
 
