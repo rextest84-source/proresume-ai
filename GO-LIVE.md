@@ -25,9 +25,16 @@ Everything you need in one place. Most of this is **already built** — a few st
 Push to `main` triggers Netlify. The site now points at your Railway API automatically.
 
 **Quick test:**
-1. Open your Netlify site → `/signup.html`
+1. Open **https://ai-proresume.netlify.app/signup.html**
 2. Create account → `/builder.html` → type your name → refresh
 3. Still there? **Cloud save works.**
+
+**Railway variable (recommended):**
+```
+FRONTEND_URL=https://ai-proresume.netlify.app
+CORS_ORIGINS=https://ai-proresume.netlify.app
+```
+(CORS also auto-allows any `*.netlify.app` site.)
 
 ### Step 2 — Stripe products (one-time, ~10 min)
 
