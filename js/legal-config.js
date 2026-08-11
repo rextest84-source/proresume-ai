@@ -5,7 +5,7 @@
  */
 window.LEGAL_CONFIG = {
   /** Registered DBA or trade name (what customers see) */
-  businessName: 'ProResume AI',
+  businessName: 'Aeloria Career Services',
   productName: 'ProResume AI',
   country: 'United States',
   contactUrl: '/contact.html',

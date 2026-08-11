@@ -76,7 +76,7 @@ When Stripe asks about your business, point them to:
 - **Website:** https://ai-proresume.netlify.app
 - **Product:** SaaS resume builder with subscriptions ($8–$20/mo)
 - **Policies:** `/terms-of-service.html`, `/privacy-policy.html`, `/refund-policy.html`
-- **Support:** support@proresumeai.com
+- **Support:** https://ai-proresume.netlify.app/contact.html (contact form — no domain email required)
 - **Checkout:** live on `/pricing.html` (test mode is fine for review)
 
 ### Legal business name vs product name
@@ -87,11 +87,11 @@ That is normal. Stripe allows:
 - **Legal name:** your actual company (what's on your tax/bank docs)
 - **DBA / statement descriptor:** can show "ProResume" or similar on card statements
 
-**What must match:** the **legal entity name on Stripe** should appear on your site's **Terms, Privacy, and footer** — not necessarily the product name "ProResume AI."
+**What must match:** the name on your site's **Terms, Privacy, and footer** should be your **registered DBA** (business trade name) — **not your personal legal name**.
 
-If your legal name is different, update the site footer and legal pages (search for `ProResume AI, Inc.`) to your real business name. Keep "ProResume AI" as the product name in headings and marketing.
+Example: your DBA **Aeloria Career Services** appears on Terms, Privacy, and footer. Product brand **ProResume AI** stays on the app and marketing. No LLC suffix unless you registered as an LLC.
 
-Tell us your legal business name and we can update all legal pages in one pass.
+**No domain yet?** Use the Netlify contact form for support. Stripe accepts that for verification.
 
 ---
 
