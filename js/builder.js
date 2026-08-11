@@ -169,14 +169,25 @@ function updateAuthHeader() {
     if (window.ProResumeAPI?.isLoggedIn()) {
       link.href = '/account.html';
       link.textContent = 'Account';
-      link.classList.remove('hidden');
     } else {
       link.href = '/login.html?next=/builder.html';
-      link.textContent = 'Sign in';
-      link.classList.remove('hidden');
+      link.textContent = 'Sign in to save';
     }
   }
   if (badge) badge.classList.toggle('hidden', !UNLIMITED_AI);
+}
+
+function showCloudSaveBanner() {
+  if (window.ProResumeAPI?.isLoggedIn()) return;
+  let bar = document.getElementById('cloud-save-banner');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'cloud-save-banner';
+    bar.className = 'mx-4 sm:mx-6 mb-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-200/90 flex flex-wrap items-center justify-between gap-2';
+    bar.innerHTML = '<span><i class="fa-solid fa-cloud mr-1"></i> Resume saved locally only. <a href="/signup.html" class="text-emerald-400 font-semibold hover:underline">Create free account</a> to save in the cloud.</span>';
+    const editor = document.getElementById('editor-panel');
+    editor?.prepend(bar);
+  }
 }
 
 // ─── Credits System ───
@@ -1774,6 +1785,7 @@ function renderTemplatePicker() {
 
 async function init() {
   updateAuthHeader();
+  showCloudSaveBanner();
   if (window.ProResumeAPI?.isLoggedIn()) {
     await refreshCloudUser();
     const loaded = await loadFromCloud();
