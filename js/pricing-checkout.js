@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const status = await res.json();
     if (!status.ready && stripeBanner) {
       stripeBanner.classList.remove('hidden');
-      stripeBanner.textContent = 'Payments: Stripe setup in progress — free plan & builder work now. Paid plans activate once Stripe is connected.';
+      stripeBanner.textContent = 'Paid plans are being activated. The free builder works now — contact support@aeloriacareer.com for billing help.';
     }
   } catch {
     /* API unreachable — builder may still work locally */
