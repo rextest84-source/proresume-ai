@@ -63,6 +63,28 @@
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
   <script>
+    let pollTimer = null;
+
+    function renderUser(user, resumes) {
+      document.getElementById('user-email').textContent = user.email;
+      document.getElementById('user-plan').textContent = user.plan;
+      document.getElementById('user-credits').textContent = user.credits;
+      document.getElementById('resume-count').textContent = resumes.length;
+      document.getElementById('resume-list').innerHTML = resumes.map(r => `
+        <li class="flex justify-between items-center py-2 border-b border-white/5">
+          <span>${r.preview_name || r.title || 'Untitled'}${r.is_default ? ' <span class="text-emerald-400 text-xs">(default)</span>' : ''}</span>
+          <span class="text-zinc-500 text-xs">${new Date(r.updated_at).toLocaleDateString()}</span>
+        </li>
+      `).join('') || '<li class="text-zinc-500">No resumes yet</li>';
+    }
+
+    async function fetchAccount() {
+      const user = await ProResumeAPI.me();
+      const { resumes } = await ProResumeAPI.listResumes();
+      renderUser(user, resumes);
+      return user;
+    }
+
     async function loadAccount() {
       if (!ProResumeAPI.isLoggedIn()) {
         document.getElementById('auth-gate').classList.remove('hidden');
@@ -70,30 +92,43 @@
       }
 
       document.getElementById('account-panel').classList.remove('hidden');
-      if (new URLSearchParams(location.search).get('checkout') === 'success') {
+      const params = new URLSearchParams(location.search);
+      const checkoutSuccess = params.get('checkout') === 'success';
+      const expectedPlan = params.get('plan');
+
+      if (checkoutSuccess) {
         document.getElementById('checkout-banner').classList.remove('hidden');
       }
 
       try {
-        const user = await ProResumeAPI.me();
-        document.getElementById('user-email').textContent = user.email;
-        document.getElementById('user-plan').textContent = user.plan;
-        document.getElementById('user-credits').textContent = user.credits;
+        let user = await fetchAccount();
 
-        const { resumes } = await ProResumeAPI.listResumes();
-        document.getElementById('resume-count').textContent = resumes.length;
-        document.getElementById('resume-list').innerHTML = resumes.map(r => `
-          <li class="flex justify-between items-center py-2 border-b border-white/5">
-            <span>${r.preview_name || r.title || 'Untitled'}${r.is_default ? ' <span class="text-emerald-400 text-xs">(default)</span>' : ''}</span>
-            <span class="text-zinc-500 text-xs">${new Date(r.updated_at).toLocaleDateString()}</span>
-          </li>
-        `).join('') || '<li class="text-zinc-500">No resumes yet</li>';
+        if (checkoutSuccess) {
+          let attempts = 0;
+          pollTimer = setInterval(async () => {
+            attempts += 1;
+            try {
+              user = await fetchAccount();
+              const planUpdated = expectedPlan ? user.plan === expectedPlan : user.plan !== 'free';
+              if (planUpdated || attempts >= 20) {
+                clearInterval(pollTimer);
+                if (planUpdated) {
+                  document.getElementById('checkout-banner').textContent =
+                    `Payment successful! Your ${user.plan} plan is active with ${user.credits} credits.`;
+                }
+              }
+            } catch {
+              if (attempts >= 20) clearInterval(pollTimer);
+            }
+          }, 2000);
+        }
       } catch (e) {
         document.getElementById('user-email').textContent = 'Could not load account — try signing in again.';
       }
     }
 
     document.getElementById('logout-btn')?.addEventListener('click', () => {
+      if (pollTimer) clearInterval(pollTimer);
       ProResumeAPI.logout();
       location.href = '/';
     });

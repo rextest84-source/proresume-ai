@@ -34,6 +34,8 @@ function isAllowedOrigin(origin) {
   if (allowedOrigins.includes(origin)) return true;
   // Auto-allow Netlify preview + production URLs (reduces CORS setup friction)
   if (/^https:\/\/([a-z0-9-]+\.)*netlify\.app$/i.test(origin)) return true;
+  // Auto-allow custom domain (aeloriacareer.com and subdomains)
+  if (/^https:\/\/([a-z0-9-]+\.)*aeloriacareer\.com$/i.test(origin)) return true;
   if (origin === 'http://localhost:8080' || origin === 'http://127.0.0.1:8080') return true;
   return false;
 }
@@ -115,7 +117,7 @@ async function start() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`ProResume API listening on port ${PORT}`);
-    console.log(`CORS: configured origins + *.netlify.app`);
+    console.log(`CORS: configured origins + *.netlify.app + *.aeloriacareer.com`);
   });
 
   runMigrations().catch(err => {

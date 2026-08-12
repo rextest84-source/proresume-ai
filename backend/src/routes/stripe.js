@@ -12,6 +12,24 @@ function getStripe() {
   return new Stripe(key, { apiVersion: '2024-12-18.acacia' });
 }
 
+function planFromSession(session) {
+  return session.metadata?.planType || session.metadata?.plan || 'starter';
+}
+
+function planFromSubscription(sub) {
+  return sub.metadata?.plan ||
+    sub.items?.data?.[0]?.price?.metadata?.plan ||
+    'starter';
+}
+
+async function recordCreditTransaction(userId, amount, reason, balanceAfter) {
+  await query(
+    `INSERT INTO credit_transactions (user_id, amount, reason, balance_after)
+     VALUES ($1, $2, $3, $4)`,
+    [userId, amount, reason, balanceAfter]
+  );
+}
+
 /** Public — lets frontend show helpful messages when Stripe isn't configured yet */
 router.get('/status', (_req, res) => {
   const plans = {};
@@ -22,13 +40,21 @@ router.get('/status', (_req, res) => {
   for (const [key, cfg] of Object.entries(CREDIT_PACKS)) {
     creditPacks[key] = !!process.env[cfg.priceEnv];
   }
+
+  const hasKey = !!process.env.STRIPE_SECRET_KEY;
+  const hasWebhook = !!process.env.STRIPE_WEBHOOK_SECRET;
+  const subscriptionPlansReady = Object.values(plans).every(Boolean);
+  const creditPacksReady = Object.values(creditPacks).every(Boolean);
+
   res.json({
-    configured: !!process.env.STRIPE_SECRET_KEY,
-    webhook: !!process.env.STRIPE_WEBHOOK_SECRET,
+    configured: hasKey,
+    webhook: hasWebhook,
     plans,
     creditPacks,
-    ready: !!process.env.STRIPE_SECRET_KEY &&
-      Object.values(plans).some(Boolean)
+    subscriptionPlansReady,
+    creditPacksReady,
+    ready: hasKey && hasWebhook && subscriptionPlansReady && creditPacksReady,
+    frontendUrl: process.env.FRONTEND_URL || null
   });
 });
 
@@ -50,11 +76,11 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
   try {
     const stripe = getStripe();
     if (!stripe) {
-      return res.status(503).json({ error: 'Payments not configured yet. Contact support.' });
+      return res.status(503).json({ error: 'Payments not configured yet. Email support@aeloriacareer.com for help.' });
     }
 
     const { type, plan, pack } = req.body;
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:8080').replace(/\/$/, '');
     const customerId = await getOrCreateCustomer(stripe, req.user);
 
     let sessionConfig;
@@ -62,13 +88,14 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     if (type === 'subscription' && plan && SUBSCRIPTION_PLANS[plan]) {
       const priceId = process.env[SUBSCRIPTION_PLANS[plan].priceEnv];
       if (!priceId) {
-        return res.status(503).json({ error: `Subscription plan "${plan}" is not configured yet.` });
+        return res.status(503).json({ error: `The ${plan} plan is not available yet. Try again soon or contact support@aeloriacareer.com.` });
       }
       sessionConfig = {
         mode: 'subscription',
         customer: customerId,
+        client_reference_id: req.userId,
         line_items: [{ price: priceId, quantity: 1 }],
-        success_url: `${frontendUrl}/account.html?checkout=success`,
+        success_url: `${frontendUrl}/account.html?checkout=success&plan=${plan}`,
         cancel_url: `${frontendUrl}/pricing.html?checkout=cancelled`,
         metadata: { userId: req.userId, planType: plan },
         subscription_data: { metadata: { userId: req.userId, plan } }
@@ -76,11 +103,12 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     } else if (type === 'credits' && pack && CREDIT_PACKS[pack]) {
       const priceId = process.env[CREDIT_PACKS[pack].priceEnv];
       if (!priceId) {
-        return res.status(503).json({ error: `Credit pack "${pack}" is not configured yet.` });
+        return res.status(503).json({ error: 'This credit pack is not available yet. Contact support@aeloriacareer.com.' });
       }
       sessionConfig = {
         mode: 'payment',
         customer: customerId,
+        client_reference_id: req.userId,
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${frontendUrl}/account.html?checkout=success&pack=${pack}`,
         cancel_url: `${frontendUrl}/pricing.html?checkout=cancelled`,
@@ -94,7 +122,7 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     res.json({ url: session.url, sessionId: session.id });
   } catch (err) {
     console.error('checkout:', err);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+    res.status(500).json({ error: 'Failed to create checkout session. Try again or contact support@aeloriacareer.com.' });
   }
 });
 
@@ -103,9 +131,9 @@ router.post('/create-portal-session', requireAuth, loadUser, async (req, res) =>
   try {
     const stripe = getStripe();
     if (!stripe || !req.user.stripe_customer_id) {
-      return res.status(400).json({ error: 'No billing account found' });
+      return res.status(400).json({ error: 'No billing account found. Subscribe from the pricing page first.' });
     }
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:8080').replace(/\/$/, '');
     const session = await stripe.billingPortal.sessions.create({
       customer: req.user.stripe_customer_id,
       return_url: `${frontendUrl}/account.html`
@@ -113,9 +141,32 @@ router.post('/create-portal-session', requireAuth, loadUser, async (req, res) =>
     res.json({ url: session.url });
   } catch (err) {
     console.error('portal:', err);
-    res.status(500).json({ error: 'Failed to open billing portal' });
+    res.status(500).json({ error: 'Billing portal unavailable. Contact support@aeloriacareer.com.' });
   }
 });
+
+async function activateSubscription(userId, plan, subscriptionId) {
+  const limits = getPlanLimits(plan);
+  const { rows } = await query(
+    `UPDATE users SET plan = $1, credits = credits + $2,
+     stripe_subscription_id = $3, subscription_status = 'active', updated_at = NOW()
+     WHERE id = $4 RETURNING credits`,
+    [plan, limits.monthlyCredits, subscriptionId, userId]
+  );
+  if (rows[0]) {
+    await recordCreditTransaction(userId, limits.monthlyCredits, `subscription_${plan}`, rows[0].credits);
+  }
+}
+
+async function addCreditPack(userId, credits) {
+  const { rows } = await query(
+    'UPDATE users SET credits = credits + $1, updated_at = NOW() WHERE id = $2 RETURNING credits',
+    [credits, userId]
+  );
+  if (rows[0]) {
+    await recordCreditTransaction(userId, credits, 'credit_pack_purchase', rows[0].credits);
+  }
+}
 
 /** Webhook — mount with raw body in index.js */
 export async function handleStripeWebhook(req, res) {
@@ -138,42 +189,32 @@ export async function handleStripeWebhook(req, res) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const userId = session.metadata?.userId;
+        const userId = session.metadata?.userId || session.client_reference_id;
         if (!userId) break;
 
-        if (session.mode === 'subscription') {
-          const plan = session.metadata?.planType || 'starter';
-          const limits = getPlanLimits(plan);
-          await query(
-            `UPDATE users SET plan = $1, credits = credits + $2,
-             stripe_subscription_id = $3, subscription_status = 'active', updated_at = NOW()
-             WHERE id = $4`,
-            [plan, limits.monthlyCredits, session.subscription, userId]
-          );
+        if (session.mode === 'subscription' && session.subscription) {
+          const plan = planFromSession(session);
+          await activateSubscription(userId, plan, session.subscription);
         } else if (session.metadata?.credits) {
           const credits = parseInt(session.metadata.credits, 10);
-          const { rows } = await query(
-            'UPDATE users SET credits = credits + $1, updated_at = NOW() WHERE id = $2 RETURNING credits',
-            [credits, userId]
-          );
-          if (rows[0]) {
-            await query(
-              `INSERT INTO credit_transactions (user_id, amount, reason, balance_after)
-               VALUES ($1, $2, 'credit_pack_purchase', $3)`,
-              [userId, credits, rows[0].credits]
-            );
-          }
+          if (credits > 0) await addCreditPack(userId, credits);
         }
         break;
       }
       case 'customer.subscription.updated': {
         const sub = event.data.object;
         const userId = sub.metadata?.userId;
-        const plan = sub.metadata?.plan || 'starter';
+        const plan = planFromSubscription(sub);
         if (userId && sub.status === 'active') {
           await query(
-            `UPDATE users SET plan = $1, subscription_status = 'active', updated_at = NOW() WHERE id = $2`,
-            [plan, userId]
+            `UPDATE users SET plan = $1, subscription_status = 'active',
+             stripe_subscription_id = $2, updated_at = NOW() WHERE id = $3`,
+            [plan, sub.id, userId]
+          );
+        } else if (userId && ['canceled', 'unpaid', 'past_due'].includes(sub.status)) {
+          await query(
+            `UPDATE users SET subscription_status = $1, updated_at = NOW() WHERE id = $2`,
+            [sub.status, userId]
           );
         }
         break;
@@ -186,6 +227,13 @@ export async function handleStripeWebhook(req, res) {
             `UPDATE users SET plan = 'free', subscription_status = 'cancelled',
              stripe_subscription_id = NULL, updated_at = NOW() WHERE id = $1`,
             [userId]
+          );
+        } else {
+          await query(
+            `UPDATE users SET plan = 'free', subscription_status = 'cancelled',
+             stripe_subscription_id = NULL, updated_at = NOW()
+             WHERE stripe_subscription_id = $1`,
+            [sub.id]
           );
         }
         break;
@@ -201,10 +249,18 @@ export async function handleStripeWebhook(req, res) {
         if (rows[0]) {
           const limits = getPlanLimits(rows[0].plan);
           if (limits.monthlyCredits < 999999) {
-            await query(
-              'UPDATE users SET credits = credits + $1, updated_at = NOW() WHERE id = $2',
+            const { rows: updated } = await query(
+              'UPDATE users SET credits = credits + $1, updated_at = NOW() WHERE id = $2 RETURNING credits',
               [limits.monthlyCredits, rows[0].id]
             );
+            if (updated[0]) {
+              await recordCreditTransaction(
+                rows[0].id,
+                limits.monthlyCredits,
+                'subscription_renewal',
+                updated[0].credits
+              );
+            }
           }
         }
         break;
