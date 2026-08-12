@@ -8,6 +8,8 @@ window.LEGAL_CONFIG = {
   businessName: 'Aeloria Career Services',
   productName: 'ProResume AI',
   country: 'United States',
+  websiteUrl: 'https://aeloriacareer.com',
+  supportEmail: 'support@aeloriacareer.com',
   contactUrl: '/contact.html',
   contactLabel: 'Contact form'
 };
