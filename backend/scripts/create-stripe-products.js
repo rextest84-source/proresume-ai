@@ -5,7 +5,7 @@
  *   cd backend
  *   STRIPE_SECRET_KEY=sk_test_... node scripts/create-stripe-products.js
  *
- * Copy the printed env vars into Railway Variables.
+ * Copy the printed env vars into Railway Variables, then add the webhook.
  */
 import Stripe from 'stripe';
 
@@ -17,6 +17,9 @@ if (!key) {
 
 const stripe = new Stripe(key);
 
+const FRONTEND = 'https://proresume.aeloriacareer.com';
+const API = 'https://proresume-ai-production.up.railway.app';
+
 const PRODUCTS = [
   { env: 'STRIPE_PRICE_STARTER', name: 'ProResume AI Starter', amount: 800, interval: 'month', plan: 'starter' },
   { env: 'STRIPE_PRICE_PRO', name: 'ProResume AI Pro', amount: 1500, interval: 'month', plan: 'pro' },
@@ -27,6 +30,8 @@ const PRODUCTS = [
 ];
 
 console.log('\nCreating Stripe products & prices...\n');
+
+const envLines = [`STRIPE_SECRET_KEY=${key}`];
 
 for (const p of PRODUCTS) {
   const product = await stripe.products.create({
@@ -48,20 +53,40 @@ for (const p of PRODUCTS) {
   }
 
   const price = await stripe.prices.create(priceParams);
+  envLines.push(`${p.env}=${price.id}`);
   console.log(`${p.env}=${price.id}  (${p.name})`);
 }
 
 console.log(`
-Done! Add these to Railway → Variables:
+══════════════════════════════════════════════════════════════
+Add these to Railway → Variables (then redeploy):
 
-  STRIPE_SECRET_KEY=${key.startsWith('sk_') ? '(already set)' : key}
+${envLines.join('\n')}
 
-Plus each price ID above.
+FRONTEND_URL=${FRONTEND}
+CORS_ORIGINS=${FRONTEND},https://aeloriacareer.com,https://ai-proresume.netlify.app
 
-Webhook (Stripe Dashboard → Developers → Webhooks):
-  URL: https://proresume-ai-production.up.railway.app/api/stripe/webhook
-  Events: checkout.session.completed, customer.subscription.updated,
-          customer.subscription.deleted, invoice.paid
+After adding prices, create the webhook:
+  Stripe Dashboard → Developers → Webhooks → Add endpoint
+  URL: ${API}/api/stripe/webhook
+  Events:
+    - checkout.session.completed
+    - customer.subscription.updated
+    - customer.subscription.deleted
+    - invoice.paid
 
-Test card: 4242 4242 4242 4242
+Copy the signing secret → Railway variable:
+  STRIPE_WEBHOOK_SECRET=whsec_...
+
+Enable billing portal (for "Manage Billing" on account page):
+  Stripe Dashboard → Settings → Billing → Customer portal → Activate
+
+Verify setup:
+  ${API}/api/stripe/status  → ready: true
+
+Test checkout:
+  1. Sign in at ${FRONTEND}/login.html
+  2. ${FRONTEND}/pricing.html → Get Pro
+  3. Card: 4242 4242 4242 4242 · any future expiry · any CVC
+  4. Account page should show plan + credits within ~30 seconds
 `);
