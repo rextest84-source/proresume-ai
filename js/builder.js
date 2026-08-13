@@ -43,17 +43,17 @@ function enhanceDescriptionAI(text, role) {
   return AIEngine.enhanceDescription(text, role, resumeData.skills);
 }
 
-async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhancement', regenerate = true) {
+async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'smart suggestions', regenerate = true) {
   if (!btn || btn.classList.contains('ai-loading')) return;
   if (!(await useCredits(creditCost, featureName))) return;
   if (regenerate) AIEngine.regenerateSeed();
   const original = btn.innerHTML;
   btn.classList.add('ai-loading');
-  btn.innerHTML = '<i class="fa-solid fa-spinner"></i> Generating...';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Working...';
   await new Promise(r => setTimeout(r, 350 + Math.random() * 450));
   try {
     await fn();
-    showToast(UNLIMITED_AI ? '✦ Generated!' : `✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
+    showToast(UNLIMITED_AI ? '✦ Suggestions ready!' : `✦ Suggestions ready! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
     schedulePreviewUpdate();
   } catch (e) {
     if (!UNLIMITED_AI && e.message !== 'empty') setCredits(getCredits() + creditCost);
@@ -271,7 +271,7 @@ function bulletsToHtml(bullets) {
   return `<ul class="tm-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
 }
 
-// ─── ATS Score ───
+// ─── Completeness score (checklist-based, not live ATS) ───
 
 function calculateAtsScore() {
   return AIEngine.analyzeATS(resumeData).score;
@@ -829,10 +829,10 @@ function promptJobDescription() {
       modal.innerHTML = `
         <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-lg w-full">
           <h3 class="text-lg font-bold mb-2">Paste Job Description</h3>
-          <p class="text-zinc-400 text-sm mb-3">AI will tailor your resume keywords and bullets to match this role.</p>
+          <p class="text-zinc-400 text-sm mb-3">Smart suggestions will align keywords and bullet emphasis to this role. You review and edit every change.</p>
           <textarea id="job-desc-input" rows="8" placeholder="Paste the full job posting here..." class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white resize-none mb-4"></textarea>
           <div class="flex gap-2">
-            <button type="button" id="job-match-submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-sm font-semibold">Match Resume</button>
+            <button type="button" id="job-match-submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-sm font-semibold">Get suggestions</button>
             <button type="button" id="job-match-cancel" class="px-5 py-2.5 border border-white/10 rounded-xl text-sm text-zinc-400">Cancel</button>
           </div>
         </div>`;
@@ -854,13 +854,13 @@ function promptJobDescription() {
 
 function showATSReport() {
   const { score, tips } = AIEngine.analyzeATS(resumeData);
-  const report = `ATS Compatibility Score: ${score}%\n\nRecommendations:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nKeep formatting simple, use standard section headings, and mirror keywords from the job description.`;
-  showTextModal('ATS Deep Scan Report', report);
+  const report = `Completeness score: ${score}%\n\nSuggestions:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nThis is guidance based on your content — not a guarantee of ATS results. Keep formatting simple, use standard section headings, and mirror keywords from the job description.`;
+  showTextModal('Resume Checklist', report);
 }
 
 function showCoverLetter() {
   const letter = AIEngine.generateCoverLetter(resumeData);
-  showTextModal('Generated Cover Letter', letter, false);
+  showTextModal('Cover Letter Draft', letter, false);
 }
 
 function showLinkedInTips() {
@@ -872,7 +872,7 @@ function showLinkedInTips() {
     `Experience bullets: Use the same quantified achievements from your resume for consistency.`,
     `Keyword boost for ${roleId} roles: ${AIEngine.extractKeywords(resumeData.skills + ' ' + resumeData.title).slice(0, 8).join(', ')}`
   ].join('\n\n');
-  showTextModal('LinkedIn Profile Optimization', tips);
+  showTextModal('LinkedIn Profile Tips', tips);
 }
 
 function renderThemed(id, variant = 'default') {
@@ -1123,7 +1123,7 @@ function renderExperienceFields() {
       <input type="text" data-exp="${i}" data-field="dates" placeholder="Dates (e.g. Jan 2020 – Present)" value="${escapeHtml(exp.dates)}" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
       <textarea data-exp="${i}" data-field="description" placeholder="Key achievements (one per line)..." rows="4" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white resize-none">${escapeHtml(exp.description)}</textarea>
       <button type="button" data-action="enhance-exp" data-index="${i}" class="ai-btn flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-semibold transition">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> Enhance with AI
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest improvements
       </button>
     </div>
   `).join('');
@@ -1247,6 +1247,7 @@ function showExportSaveModal(blob, filename, format) {
   const modal = document.getElementById('export-save-modal');
   const link = document.getElementById('export-save-link');
   const icon = document.getElementById('export-save-icon');
+  const iconWrap = document.getElementById('export-save-icon-wrap');
   const printBtn = document.getElementById('export-print-btn');
   const iosSteps = document.getElementById('export-ios-steps');
 
@@ -1260,14 +1261,25 @@ function showExportSaveModal(blob, filename, format) {
   }
   if (icon) {
     const icons = {
-      pdf: 'fa-solid fa-file-pdf text-2xl text-red-400',
-      png: 'fa-solid fa-image text-2xl text-blue-400',
-      jpeg: 'fa-solid fa-file-image text-2xl text-amber-400',
-      doc: 'fa-solid fa-file-word text-2xl text-blue-500',
-      html: 'fa-solid fa-code text-2xl text-emerald-400',
-      rtf: 'fa-solid fa-file-lines text-2xl text-zinc-300'
+      pdf: 'fa-solid fa-file-pdf',
+      png: 'fa-solid fa-image',
+      jpeg: 'fa-solid fa-file-image',
+      doc: 'fa-solid fa-file-word',
+      html: 'fa-solid fa-code',
+      rtf: 'fa-solid fa-file-lines'
     };
-    icon.className = icons[format] || 'fa-solid fa-file text-2xl text-emerald-400';
+    icon.className = icons[format] || 'fa-solid fa-file';
+  }
+  if (iconWrap) {
+    const variants = {
+      pdf: 'icon-red',
+      png: 'icon-blue',
+      jpeg: 'icon-amber',
+      doc: 'icon-blue',
+      html: '',
+      rtf: ''
+    };
+    iconWrap.className = `icon-wrap icon-wrap-export mx-auto ${variants[format] || ''}`.trim();
   }
   if (printBtn) printBtn.classList.toggle('hidden', format !== 'pdf');
   if (iosSteps) iosSteps.classList.toggle('hidden', !isMobileIOS());
@@ -1712,8 +1724,8 @@ function setupEvents() {
           resumeData.experience = matched.experience;
           saveData();
           syncFormFields();
-          showToast(`Resume tailored — ${matched.matchScore}% keyword match`, 'success');
-        }, CREDIT_COSTS.job_match, 'job description matching');
+          showToast(`Suggestions applied — ${matched.matchScore}% keyword overlap`, 'success');
+        }, CREDIT_COSTS.job_match, 'keyword alignment');
         break;
 
       case 'cover-letter':
@@ -1722,15 +1734,15 @@ function setupEvents() {
             throw Object.assign(new Error('need_title'), { hint: 'Add your name and title first' });
           }
           showCoverLetter();
-        }, CREDIT_COSTS.cover_letter, 'cover letter generator', true);
+        }, CREDIT_COSTS.cover_letter, 'cover letter draft', true);
         break;
 
       case 'ats-scan':
-        await runAIEnhance(btn, () => showATSReport(), CREDIT_COSTS.ats_scan, 'ATS deep scan', false);
+        await runAIEnhance(btn, () => showATSReport(), CREDIT_COSTS.ats_scan, 'resume checklist', false);
         break;
 
       case 'linkedin':
-        await runAIEnhance(btn, () => showLinkedInTips(), CREDIT_COSTS.linkedin, 'LinkedIn optimizer', true);
+        await runAIEnhance(btn, () => showLinkedInTips(), CREDIT_COSTS.linkedin, 'LinkedIn profile tips', true);
         break;
 
       case 'copy-modal-text':

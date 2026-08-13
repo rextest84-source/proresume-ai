@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>ProResume AI — AI-Powered Resume Builder for Job Seekers</title>
-  <meta name="description" content="ProResume AI is a subscription-based resume builder that helps job seekers create ATS-optimized, professional resumes with AI-powered writing assistance, premium templates, and PDF export.">
+  <title>ProResume AI — AI-Assisted Resume Builder for Job Seekers</title>
+  <meta name="description" content="ProResume AI is a subscription-based resume builder with AI-assisted writing suggestions, ATS-friendly templates, and PDF export.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="/css/site.css" rel="stylesheet">
+  <link href="/css/icons.css" rel="stylesheet">
   <style>
     html, body { font-family: 'Inter', system-ui, sans-serif; }
   </style>
@@ -25,10 +26,10 @@
       <div class="w-full">
         <p class="text-emerald-400 font-semibold text-sm uppercase tracking-wider mb-4">Free to try — no credit card required</p>
         <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6">
-          Build a <span class="text-emerald-400">professional resume</span> with AI
+          Build a <span class="text-emerald-400">professional resume</span> with AI assist
         </h1>
         <p class="text-lg sm:text-xl text-zinc-400 mb-8 max-w-lg">
-          ProResume AI is a SaaS resume builder that helps you create ATS-friendly, recruiter-ready resumes in minutes — with AI writing assistance, premium templates, and instant PDF export.
+          ProResume AI helps you create ATS-friendly, recruiter-ready resumes in minutes — with smart writing suggestions, premium templates, and instant PDF export.
         </p>
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           <a href="/builder.html" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-lg transition text-center">Try the Resume Builder</a>
@@ -44,10 +45,10 @@
         <div class="bg-zinc-800 rounded-3xl shadow-2xl border border-white/10 p-6 md:p-8">
           <div class="flex items-center justify-between mb-6">
             <div>
+              <span class="preview-badge mb-2">Sample preview</span>
               <p class="text-xs text-zinc-500 uppercase tracking-wider">Resume Preview</p>
               <p class="font-semibold text-lg">Sarah Mitchell</p>
             </div>
-            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-medium">ATS Score: 94%</span>
           </div>
           <div class="space-y-4 text-sm">
             <div>
@@ -70,7 +71,7 @@
             </div>
           </div>
         </div>
-        <div class="absolute -bottom-4 -left-4 bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">AI Enhanced ✦</div>
+        <div class="absolute -bottom-4 -left-4 hero-assist-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Smart suggestions</div>
       </div>
     </div>
   </header>
@@ -104,32 +105,32 @@
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-wand-magic-sparkles text-4xl text-emerald-400 mb-6"></i>
-          <h3 class="text-xl font-semibold mb-3">AI-Powered Writing</h3>
-          <p class="text-zinc-400">Our AI analyzes your experience and generates achievement-focused bullet points tailored to your target role and industry.</p>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h3 class="text-xl font-semibold mb-3">AI-Assisted Writing</h3>
+          <p class="text-zinc-400">Get smart suggestions to improve summaries, bullet points, and skills based on your experience and target role.</p>
         </div>
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-file-lines text-4xl text-emerald-400 mb-6"></i>
-          <h3 class="text-xl font-semibold mb-3">ATS Optimized</h3>
-          <p class="text-zinc-400">Every template is tested against major Applicant Tracking Systems to ensure your resume is parsed correctly and ranked higher.</p>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></div>
+          <h3 class="text-xl font-semibold mb-3">ATS-Friendly Layouts</h3>
+          <p class="text-zinc-400">Templates use clean formatting and standard sections designed to parse well in applicant tracking systems.</p>
         </div>
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-palette text-4xl text-emerald-400 mb-6"></i>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-palette"></i></div>
           <h3 class="text-xl font-semibold mb-3">Professional Templates</h3>
-          <p class="text-zinc-400">Choose from 20+ recruiter-approved designs across industries — from tech and finance to healthcare and creative fields.</p>
+          <p class="text-zinc-400">Choose from recruiter-approved designs across industries — from tech and finance to healthcare and creative fields.</p>
         </div>
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-file-pdf text-4xl text-emerald-400 mb-6"></i>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></div>
           <h3 class="text-xl font-semibold mb-3">PDF Export</h3>
           <p class="text-zinc-400">Download print-ready, high-resolution PDF resumes instantly. Pro subscribers get unlimited exports.</p>
         </div>
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-bullseye text-4xl text-emerald-400 mb-6"></i>
-          <h3 class="text-xl font-semibold mb-3">Job Description Matching</h3>
-          <p class="text-zinc-400">Paste any job posting and our AI rewrites your resume to highlight the most relevant skills and keywords.</p>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-bullseye"></i></div>
+          <h3 class="text-xl font-semibold mb-3">Keyword Alignment</h3>
+          <p class="text-zinc-400">Paste a job posting to get suggestions that highlight relevant skills and keywords — assistive matching, not a full rewrite.</p>
         </div>
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-shield-halved text-4xl text-emerald-400 mb-6"></i>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></div>
           <h3 class="text-xl font-semibold mb-3">Secure & Private</h3>
           <p class="text-zinc-400">Your data is encrypted in transit and at rest. We never sell your personal information. <a href="/privacy-policy.html" class="text-emerald-400 hover:underline">Privacy Policy</a></p>
         </div>
@@ -146,17 +147,17 @@
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
         <div class="text-center">
-          <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center text-xl font-bold mx-auto mb-6">1</div>
+          <div class="icon-wrap icon-wrap-step" aria-hidden="true"><i class="fa-solid fa-pen-to-square"></i></div>
           <h3 class="text-xl font-semibold mb-3">Enter your details</h3>
           <p class="text-zinc-400">Add your work history, education, and skills in our <a href="/builder.html" class="text-emerald-400 hover:underline">free resume builder</a>.</p>
         </div>
         <div class="text-center">
-          <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center text-xl font-bold mx-auto mb-6">2</div>
-          <h3 class="text-xl font-semibold mb-3">Let AI optimize</h3>
-          <p class="text-zinc-400">Our AI rewrites your content for impact, ATS compatibility, and keyword matching.</p>
+          <div class="icon-wrap icon-wrap-step" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h3 class="text-xl font-semibold mb-3">Get AI suggestions</h3>
+          <p class="text-zinc-400">Use smart suggestions to refine your content for clarity, ATS-friendly structure, and keyword alignment.</p>
         </div>
         <div class="text-center">
-          <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center text-xl font-bold mx-auto mb-6">3</div>
+          <div class="icon-wrap icon-wrap-step" aria-hidden="true"><i class="fa-solid fa-file-export"></i></div>
           <h3 class="text-xl font-semibold mb-3">Download & apply</h3>
           <p class="text-zinc-400">Choose a template, preview your resume, and export as a professional PDF.</p>
         </div>
@@ -171,17 +172,17 @@
       <p class="text-zinc-400 text-center mb-16 max-w-2xl mx-auto">A straightforward tool built to help you create a resume that works — without the fluff.</p>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-rocket text-4xl text-emerald-400 mb-6"></i>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-rocket"></i></div>
           <h3 class="text-xl font-semibold mb-3">Try before you pay</h3>
-          <p class="text-zinc-400">Use the full resume builder for free. Only upgrade when you need advanced AI, more templates, or unlimited exports.</p>
+          <p class="text-zinc-400">Use the full resume builder for free. Only upgrade when you need more AI suggestions, templates, or exports.</p>
         </div>
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-file-shield text-4xl text-emerald-400 mb-6"></i>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-file-shield"></i></div>
           <h3 class="text-xl font-semibold mb-3">ATS-friendly by design</h3>
-          <p class="text-zinc-400">Templates are structured for Applicant Tracking Systems — clean formatting, standard sections, and keyword-friendly layouts.</p>
+          <p class="text-zinc-400">Templates are structured for applicant tracking systems — clean formatting, standard sections, and keyword-friendly layouts.</p>
         </div>
         <div class="bg-zinc-800 p-8 rounded-3xl border border-white/5">
-          <i class="fa-solid fa-hand-holding-dollar text-4xl text-emerald-400 mb-6"></i>
+          <div class="icon-wrap icon-wrap-lg" aria-hidden="true"><i class="fa-solid fa-hand-holding-dollar"></i></div>
           <h3 class="text-xl font-semibold mb-3">Honest pricing</h3>
         <p class="text-zinc-400">$8–$20/month plans plus one-time credit packs. No hidden fees. <a href="/refund-policy.html" class="text-emerald-400 hover:underline">Refund Policy</a></p>
         </div>
@@ -204,7 +205,7 @@
           <p class="text-zinc-500 text-sm mb-8">20 AI credits included</p>
           <ul class="space-y-3 mb-10 text-zinc-400 text-sm">
             <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>12 templates</li>
-            <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>AI enhance (2 credits each)</li>
+            <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Smart suggestions (2 credits each)</li>
             <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>PDF export (3 credits)</li>
           </ul>
           <a href="/builder.html" class="block w-full py-4 text-center border border-white/30 hover:bg-white/5 rounded-2xl font-semibold transition">Start Free</a>
@@ -230,7 +231,7 @@
           <ul class="space-y-3 mb-10 text-sm">
             <li><i class="fa-solid fa-check mr-2"></i>56 premium templates</li>
             <li><i class="fa-solid fa-check mr-2"></i>Unlimited PDF exports</li>
-            <li><i class="fa-solid fa-check mr-2"></i>Job matching & cover letters</li>
+            <li><i class="fa-solid fa-check mr-2"></i>Keyword alignment & cover letters</li>
           </ul>
           <a href="/pricing.html?plan=pro" class="block w-full py-4 text-center bg-white text-emerald-600 hover:bg-zinc-100 rounded-2xl font-semibold transition">Get Pro</a>
         </div>
@@ -243,13 +244,13 @@
           <p class="text-zinc-500 text-sm mb-6">Unlimited credits · 5 team seats</p>
           <ul class="space-y-3 mb-8 text-zinc-400 text-sm">
             <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>All 64 templates</li>
-            <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>LinkedIn optimizer</li>
-            <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>ATS deep scan reports</li>
+            <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>LinkedIn profile tips</li>
+            <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Resume checklist reports</li>
           </ul>
           <a href="/pricing.html?plan=business" class="block w-full py-4 text-center bg-purple-600 hover:bg-purple-500 rounded-2xl font-semibold transition">Get Business</a>
         </div>
         <div class="bg-zinc-900 border border-amber-500/30 rounded-3xl p-8">
-          <h3 class="text-2xl font-semibold mb-2"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i> Credit Packs</h3>
+          <h3 class="text-2xl font-semibold mb-2 flex items-center justify-center gap-2"><span class="icon-wrap icon-wrap-sm icon-amber icon-wrap-inline" aria-hidden="true"><i class="fa-solid fa-bolt"></i></span> Credit Packs</h3>
           <p class="text-zinc-400 text-sm mb-6">One-time purchase · never expire</p>
           <ul class="space-y-3 mb-8 text-zinc-400 text-sm">
             <li><i class="fa-solid fa-check text-amber-400 mr-2"></i>25 credits — $4.99</li>
@@ -270,15 +271,15 @@
       <div class="space-y-6">
         <details class="bg-zinc-800 rounded-2xl border border-white/5 group">
           <summary class="p-6 cursor-pointer font-semibold flex justify-between items-center">What is ProResume AI?<i class="fa-solid fa-chevron-down text-zinc-500 group-open:rotate-180 transition-transform"></i></summary>
-          <p class="px-6 pb-6 text-zinc-400">ProResume AI is a cloud-based software service (SaaS) that helps job seekers create professional, ATS-optimized resumes using AI-powered writing tools, premium templates, and PDF export functionality.</p>
+          <p class="px-6 pb-6 text-zinc-400">ProResume AI is a cloud-based resume builder with AI-assisted writing suggestions, ATS-friendly templates, and PDF export.</p>
         </details>
         <details class="bg-zinc-800 rounded-2xl border border-white/5 group">
           <summary class="p-6 cursor-pointer font-semibold flex justify-between items-center">What are AI credits?<i class="fa-solid fa-chevron-down text-zinc-500 group-open:rotate-180 transition-transform"></i></summary>
-          <p class="px-6 pb-6 text-zinc-400">AI credits power premium features like AI writing enhancement (2 credits), PDF export (3 credits), job matching (5 credits), and more. New accounts get 20 free credits. Subscriptions include monthly allowances, or buy one-time credit packs from <a href="/pricing.html" class="text-emerald-400 hover:underline">our pricing page</a>.</p>
+          <p class="px-6 pb-6 text-zinc-400">Credits power smart suggestions (2 credits), PDF export (3 credits), keyword alignment (5 credits), and more. New accounts get 20 free credits. Subscriptions include monthly allowances, or buy one-time credit packs from <a href="/pricing.html" class="text-emerald-400 hover:underline">our pricing page</a>.</p>
         </details>
         <details class="bg-zinc-800 rounded-2xl border border-white/5 group">
           <summary class="p-6 cursor-pointer font-semibold flex justify-between items-center">What do I get with a Pro subscription?<i class="fa-solid fa-chevron-down text-zinc-500 group-open:rotate-180 transition-transform"></i></summary>
-          <p class="px-6 pb-6 text-zinc-400">Pro subscribers ($15/month) receive 200 AI credits monthly, 56 premium templates, unlimited PDF exports, job description matching, cover letter generator, and priority support.</p>
+          <p class="px-6 pb-6 text-zinc-400">Pro subscribers ($15/month) receive 200 credits monthly, 56 premium templates, unlimited PDF exports, keyword alignment suggestions, cover letter drafts, and priority support.</p>
         </details>
         <details class="bg-zinc-800 rounded-2xl border border-white/5 group">
           <summary class="p-6 cursor-pointer font-semibold flex justify-between items-center">How do I cancel my subscription?<i class="fa-solid fa-chevron-down text-zinc-500 group-open:rotate-180 transition-transform"></i></summary>
@@ -318,7 +319,7 @@
             <img src="/assets/logo-mark.svg" alt="" width="32" height="32" class="w-8 h-8 shrink-0 rounded-lg shadow-sm shadow-emerald-900/40" aria-hidden="true">
             ProResume AI
           </a>
-          <p class="text-zinc-500 text-sm leading-relaxed">AI-powered resume builder helping job seekers create professional, ATS-optimized resumes.</p>
+          <p class="text-zinc-500 text-sm leading-relaxed">AI-assisted resume builder helping job seekers create professional, ATS-friendly resumes.</p>
         </div>
         <div>
           <h4 class="font-semibold mb-4">Product</h4>
