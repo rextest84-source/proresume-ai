@@ -25,6 +25,8 @@
     ).join('');
   }
 
+  const LOGO_IMG = '<img src="/assets/logo-mark.svg" alt="" width="32" height="32" class="w-8 h-8 shrink-0 rounded-lg shadow-sm shadow-emerald-900/40" aria-hidden="true">';
+
   function renderNav(variant) {
     const links = variant === 'home' ? HOME_LINKS : variant === 'minimal' ? [] : DEFAULT_LINKS;
     const hasMenu = links.length > 0;
@@ -34,7 +36,7 @@
 <nav id="site-nav" class="fixed top-0 inset-x-0 z-50 bg-zinc-950/95 backdrop-blur-lg border-b border-white/10">
   <div class="nav-inner w-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
     <a href="/" class="flex items-center gap-2 font-bold text-base sm:text-lg shrink-0 min-w-0 max-w-[55%] sm:max-w-none">
-      <span class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-xs shrink-0">PR</span>
+      ${LOGO_IMG}
       <span class="truncate">ProResume AI</span>
     </a>
 
