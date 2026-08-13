@@ -331,11 +331,9 @@
   <div id="upgrade-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70" style="padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));">
     <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 max-w-lg w-full my-4">
       <div class="text-center mb-6">
-        <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-          <i class="fa-solid fa-bolt text-amber-400"></i>
-        </div>
+        <div class="icon-wrap icon-wrap-md icon-amber mx-auto mb-3" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
         <h3 class="text-xl font-bold mb-1">Upgrade or Buy Credits</h3>
-        <p class="text-zinc-400 text-sm"><span id="upgrade-feature">This feature</span> requires a paid plan or more AI credits.</p>
+        <p class="text-zinc-400 text-sm"><span id="upgrade-feature">This feature</span> requires a paid plan or more credits.</p>
         <p class="text-amber-400 text-sm mt-2 font-medium">You have <span id="modal-credits">20</span> credits remaining</p>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
@@ -365,8 +363,8 @@
     <div class="min-h-full flex items-center justify-center py-4">
     <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-2xl max-h-[90dvh] overflow-y-auto">
       <div class="text-center mb-5">
-        <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-          <i class="fa-solid fa-file-pdf text-2xl text-red-400" id="export-save-icon"></i>
+        <div class="icon-wrap icon-wrap-export icon-red mx-auto" id="export-save-icon-wrap" aria-hidden="true">
+          <i class="fa-solid fa-file-pdf" id="export-save-icon"></i>
         </div>
         <h3 class="text-xl font-bold mb-1">Your resume is ready</h3>
         <p class="text-zinc-400 text-sm"><span id="export-save-filename">resume.pdf</span></p>

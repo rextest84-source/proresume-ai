@@ -119,6 +119,37 @@
   border-radius: 0.45rem;
 }
 
+.icon-wrap-inline {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-bottom: 0;
+}
+
+.icon-wrap-export {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1.15rem;
+  margin: 0 auto 0.75rem;
+}
+
+.icon-wrap-export i {
+  font-size: 1.45rem;
+}
+
+.icon-red {
+  background: linear-gradient(145deg, rgba(69, 10, 10, 0.95) 0%, rgba(185, 28, 28, 0.45) 55%, rgba(248, 113, 113, 0.2) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(239, 68, 68, 0.1);
+}
+
+.icon-red i {
+  background: linear-gradient(180deg, #fef2f2 0%, #fca5a5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 .builder-tool-btn {
   display: flex;
   flex-direction: column;

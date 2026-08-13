@@ -43,17 +43,17 @@ function enhanceDescriptionAI(text, role) {
   return AIEngine.enhanceDescription(text, role, resumeData.skills);
 }
 
-async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'AI enhancement', regenerate = true) {
+async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'smart suggestions', regenerate = true) {
   if (!btn || btn.classList.contains('ai-loading')) return;
   if (!(await useCredits(creditCost, featureName))) return;
   if (regenerate) AIEngine.regenerateSeed();
   const original = btn.innerHTML;
   btn.classList.add('ai-loading');
-  btn.innerHTML = '<i class="fa-solid fa-spinner"></i> Generating...';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Working...';
   await new Promise(r => setTimeout(r, 350 + Math.random() * 450));
   try {
     await fn();
-    showToast(UNLIMITED_AI ? '✦ Generated!' : `✦ Generated! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
+    showToast(UNLIMITED_AI ? '✦ Suggestions ready!' : `✦ Suggestions ready! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
     schedulePreviewUpdate();
   } catch (e) {
     if (!UNLIMITED_AI && e.message !== 'empty') setCredits(getCredits() + creditCost);
@@ -271,7 +271,7 @@ function bulletsToHtml(bullets) {
   return `<ul class="tm-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
 }
 
-// ─── ATS Score ───
+// ─── Completeness score (checklist-based, not live ATS) ───
 
 function calculateAtsScore() {
   return AIEngine.analyzeATS(resumeData).score;
@@ -854,13 +854,13 @@ function promptJobDescription() {
 
 function showATSReport() {
   const { score, tips } = AIEngine.analyzeATS(resumeData);
-  const report = `Resume Checklist Score: ${score}%\n\nSuggestions:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nThis is guidance based on your content — not a guarantee of ATS results. Keep formatting simple, use standard section headings, and mirror keywords from the job description.`;
-  showTextModal('Resume Checklist Report', report);
+  const report = `Completeness score: ${score}%\n\nSuggestions:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nThis is guidance based on your content — not a guarantee of ATS results. Keep formatting simple, use standard section headings, and mirror keywords from the job description.`;
+  showTextModal('Resume Checklist', report);
 }
 
 function showCoverLetter() {
   const letter = AIEngine.generateCoverLetter(resumeData);
-  showTextModal('Generated Cover Letter', letter, false);
+  showTextModal('Cover Letter Draft', letter, false);
 }
 
 function showLinkedInTips() {
@@ -872,7 +872,7 @@ function showLinkedInTips() {
     `Experience bullets: Use the same quantified achievements from your resume for consistency.`,
     `Keyword boost for ${roleId} roles: ${AIEngine.extractKeywords(resumeData.skills + ' ' + resumeData.title).slice(0, 8).join(', ')}`
   ].join('\n\n');
-  showTextModal('LinkedIn Profile Optimization', tips);
+  showTextModal('LinkedIn Profile Tips', tips);
 }
 
 function renderThemed(id, variant = 'default') {
@@ -1247,6 +1247,7 @@ function showExportSaveModal(blob, filename, format) {
   const modal = document.getElementById('export-save-modal');
   const link = document.getElementById('export-save-link');
   const icon = document.getElementById('export-save-icon');
+  const iconWrap = document.getElementById('export-save-icon-wrap');
   const printBtn = document.getElementById('export-print-btn');
   const iosSteps = document.getElementById('export-ios-steps');
 
@@ -1260,14 +1261,25 @@ function showExportSaveModal(blob, filename, format) {
   }
   if (icon) {
     const icons = {
-      pdf: 'fa-solid fa-file-pdf text-2xl text-red-400',
-      png: 'fa-solid fa-image text-2xl text-blue-400',
-      jpeg: 'fa-solid fa-file-image text-2xl text-amber-400',
-      doc: 'fa-solid fa-file-word text-2xl text-blue-500',
-      html: 'fa-solid fa-code text-2xl text-emerald-400',
-      rtf: 'fa-solid fa-file-lines text-2xl text-zinc-300'
+      pdf: 'fa-solid fa-file-pdf',
+      png: 'fa-solid fa-image',
+      jpeg: 'fa-solid fa-file-image',
+      doc: 'fa-solid fa-file-word',
+      html: 'fa-solid fa-code',
+      rtf: 'fa-solid fa-file-lines'
     };
-    icon.className = icons[format] || 'fa-solid fa-file text-2xl text-emerald-400';
+    icon.className = icons[format] || 'fa-solid fa-file';
+  }
+  if (iconWrap) {
+    const variants = {
+      pdf: 'icon-red',
+      png: 'icon-blue',
+      jpeg: 'icon-amber',
+      doc: 'icon-blue',
+      html: '',
+      rtf: ''
+    };
+    iconWrap.className = `icon-wrap icon-wrap-export mx-auto ${variants[format] || ''}`.trim();
   }
   if (printBtn) printBtn.classList.toggle('hidden', format !== 'pdf');
   if (iosSteps) iosSteps.classList.toggle('hidden', !isMobileIOS());
@@ -1730,7 +1742,7 @@ function setupEvents() {
         break;
 
       case 'linkedin':
-        await runAIEnhance(btn, () => showLinkedInTips(), CREDIT_COSTS.linkedin, 'LinkedIn optimizer', true);
+        await runAIEnhance(btn, () => showLinkedInTips(), CREDIT_COSTS.linkedin, 'LinkedIn profile tips', true);
         break;
 
       case 'copy-modal-text':
