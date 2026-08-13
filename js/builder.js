@@ -829,10 +829,10 @@ function promptJobDescription() {
       modal.innerHTML = `
         <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-lg w-full">
           <h3 class="text-lg font-bold mb-2">Paste Job Description</h3>
-          <p class="text-zinc-400 text-sm mb-3">AI will tailor your resume keywords and bullets to match this role.</p>
+          <p class="text-zinc-400 text-sm mb-3">Smart suggestions will align keywords and bullet emphasis to this role. You review and edit every change.</p>
           <textarea id="job-desc-input" rows="8" placeholder="Paste the full job posting here..." class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white resize-none mb-4"></textarea>
           <div class="flex gap-2">
-            <button type="button" id="job-match-submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-sm font-semibold">Match Resume</button>
+            <button type="button" id="job-match-submit" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-sm font-semibold">Get suggestions</button>
             <button type="button" id="job-match-cancel" class="px-5 py-2.5 border border-white/10 rounded-xl text-sm text-zinc-400">Cancel</button>
           </div>
         </div>`;
@@ -854,8 +854,8 @@ function promptJobDescription() {
 
 function showATSReport() {
   const { score, tips } = AIEngine.analyzeATS(resumeData);
-  const report = `ATS Compatibility Score: ${score}%\n\nRecommendations:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nKeep formatting simple, use standard section headings, and mirror keywords from the job description.`;
-  showTextModal('ATS Deep Scan Report', report);
+  const report = `Resume Checklist Score: ${score}%\n\nSuggestions:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nThis is guidance based on your content — not a guarantee of ATS results. Keep formatting simple, use standard section headings, and mirror keywords from the job description.`;
+  showTextModal('Resume Checklist Report', report);
 }
 
 function showCoverLetter() {
@@ -1123,7 +1123,7 @@ function renderExperienceFields() {
       <input type="text" data-exp="${i}" data-field="dates" placeholder="Dates (e.g. Jan 2020 – Present)" value="${escapeHtml(exp.dates)}" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
       <textarea data-exp="${i}" data-field="description" placeholder="Key achievements (one per line)..." rows="4" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white resize-none">${escapeHtml(exp.description)}</textarea>
       <button type="button" data-action="enhance-exp" data-index="${i}" class="ai-btn flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-semibold transition">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> Enhance with AI
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest improvements
       </button>
     </div>
   `).join('');
@@ -1712,8 +1712,8 @@ function setupEvents() {
           resumeData.experience = matched.experience;
           saveData();
           syncFormFields();
-          showToast(`Resume tailored — ${matched.matchScore}% keyword match`, 'success');
-        }, CREDIT_COSTS.job_match, 'job description matching');
+          showToast(`Suggestions applied — ${matched.matchScore}% keyword overlap`, 'success');
+        }, CREDIT_COSTS.job_match, 'keyword alignment');
         break;
 
       case 'cover-letter':
@@ -1722,11 +1722,11 @@ function setupEvents() {
             throw Object.assign(new Error('need_title'), { hint: 'Add your name and title first' });
           }
           showCoverLetter();
-        }, CREDIT_COSTS.cover_letter, 'cover letter generator', true);
+        }, CREDIT_COSTS.cover_letter, 'cover letter draft', true);
         break;
 
       case 'ats-scan':
-        await runAIEnhance(btn, () => showATSReport(), CREDIT_COSTS.ats_scan, 'ATS deep scan', false);
+        await runAIEnhance(btn, () => showATSReport(), CREDIT_COSTS.ats_scan, 'resume checklist', false);
         break;
 
       case 'linkedin':

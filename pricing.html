@@ -10,6 +10,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="/css/site.css" rel="stylesheet">
+  <link href="/css/icons.css" rel="stylesheet">
   <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
 </head>
 <body class="bg-zinc-950 text-white overflow-x-hidden">
@@ -35,7 +36,7 @@
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>12 templates</li>
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>1 PDF export</li>
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>1 resume</li>
-          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Basic ATS score</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Resume checklist score</li>
         </ul>
         <a href="/builder.html" class="block py-3 text-center border border-white/20 rounded-xl font-semibold text-sm hover:bg-white/5 transition">Start Free</a>
       </div>
@@ -63,8 +64,8 @@
           <li><i class="fa-solid fa-check mr-2"></i>200 AI credits/mo</li>
           <li><i class="fa-solid fa-check mr-2"></i>56 premium templates</li>
           <li><i class="fa-solid fa-check mr-2"></i>Unlimited PDF exports</li>
-          <li><i class="fa-solid fa-check mr-2"></i>Job description matching</li>
-          <li><i class="fa-solid fa-check mr-2"></i>Cover letter generator</li>
+          <li><i class="fa-solid fa-check mr-2"></i>Keyword alignment suggestions</li>
+          <li><i class="fa-solid fa-check mr-2"></i>Cover letter drafts</li>
           <li><i class="fa-solid fa-check mr-2"></i>Priority support</li>
         </ul>
         <button type="button" data-checkout-plan="pro" class="block w-full py-3 text-center bg-white text-emerald-700 hover:bg-zinc-100 rounded-xl font-semibold text-sm transition">Get Pro</button>
@@ -80,7 +81,7 @@
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Unlimited exports</li>
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>LinkedIn optimizer</li>
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Team sharing (5 seats)</li>
-          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>ATS deep scan reports</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Resume checklist reports</li>
         </ul>
         <button type="button" data-checkout-plan="business" class="block w-full py-3 text-center bg-purple-600 hover:bg-purple-500 rounded-xl font-semibold text-sm transition">Get Business</button>
       </div>
@@ -108,9 +109,7 @@
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 text-center">
-          <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa-solid fa-bolt text-amber-400"></i>
-          </div>
+          <div class="icon-wrap icon-wrap-md icon-amber mx-auto" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
           <h3 class="text-xl font-bold mb-1">25 Credits</h3>
           <p class="text-3xl font-bold text-amber-400 mb-2">$4.99</p>
           <p class="text-zinc-500 text-sm mb-6">~12 AI enhancements</p>
@@ -123,23 +122,19 @@
         </div>
         <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl p-8 text-center relative">
           <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-4 py-1 rounded-full">Best Value</span>
-          <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa-solid fa-bolt text-amber-400 text-xl"></i>
-          </div>
+          <div class="icon-wrap icon-wrap-md icon-amber mx-auto" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
           <h3 class="text-xl font-bold mb-1">100 Credits</h3>
           <p class="text-3xl font-bold text-amber-400 mb-2">$14.99</p>
           <p class="text-zinc-500 text-sm mb-6">~50 AI enhancements</p>
           <ul class="text-sm text-zinc-400 space-y-2 mb-6 text-left">
             <li>• Job matching (5 credits)</li>
             <li>• Cover letter (4 credits)</li>
-            <li>• ATS deep scan (2 credits)</li>
+            <li>• Resume checklist (2 credits)</li>
           </ul>
           <button type="button" data-checkout-credits="pack_100" class="block w-full py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-semibold transition">Buy 100 Credits</button>
         </div>
         <div class="bg-zinc-900 border border-white/10 rounded-2xl p-8 text-center">
-          <div class="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa-solid fa-bolt text-amber-400 text-2xl"></i>
-          </div>
+          <div class="icon-wrap icon-wrap-md icon-amber mx-auto" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
           <h3 class="text-xl font-bold mb-1">500 Credits</h3>
           <p class="text-3xl font-bold text-amber-400 mb-2">$19.99</p>
           <p class="text-zinc-500 text-sm mb-6">Power users & agencies</p>
@@ -166,9 +161,9 @@
             <tr><td class="p-4">AI Experience Enhancement</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
             <tr><td class="p-4">PDF Export</td><td class="p-4 text-right text-amber-400 font-semibold">3</td></tr>
             <tr><td class="p-4">PNG / JPEG Export</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
-            <tr><td class="p-4">Job Description Matching</td><td class="p-4 text-right text-amber-400 font-semibold">5</td></tr>
+            <tr><td class="p-4">Keyword Alignment</td><td class="p-4 text-right text-amber-400 font-semibold">5</td></tr>
             <tr><td class="p-4">Cover Letter Generator</td><td class="p-4 text-right text-amber-400 font-semibold">4</td></tr>
-            <tr><td class="p-4">ATS Deep Scan Report</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
+            <tr><td class="p-4">Resume Checklist Report</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
             <tr><td class="p-4">LinkedIn Profile Optimizer</td><td class="p-4 text-right text-amber-400 font-semibold">3</td></tr>
           </tbody>
         </table>
