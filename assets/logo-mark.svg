@@ -1,24 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="ProResume AI">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-hidden="true">
   <defs>
-    <linearGradient id="bg" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+    <linearGradient id="logo-bg" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
       <stop stop-color="#042F2E"/>
       <stop offset="0.55" stop-color="#0F766E"/>
       <stop offset="1" stop-color="#34D399"/>
     </linearGradient>
-    <linearGradient id="shine" x1="8" y1="6" x2="22" y2="18" gradientUnits="userSpaceOnUse">
+    <linearGradient id="logo-shine" x1="8" y1="6" x2="22" y2="18" gradientUnits="userSpaceOnUse">
       <stop stop-color="#FFFFFF" stop-opacity="0.28"/>
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+    <filter id="logo-glow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="0.6" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+  <rect width="32" height="32" rx="8" fill="url(#logo-bg)"/>
   <rect x="1" y="1" width="30" height="30" rx="7" stroke="#FFFFFF" stroke-opacity="0.12"/>
-  <path d="M8 7h16v18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 8 25V7z" fill="url(#shine)"/>
+  <path d="M8 7h16v18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 8 25V7z" fill="url(#logo-shine)"/>
   <path d="M10 9.5h12v1.6H10V9.5zm0 4h12v1.2H10v-1.2zm0 3.4h8.2v1.2H10v-1.2z" fill="#FFFFFF" fill-opacity="0.95"/>
-  <circle cx="21.5" cy="10.5" r="1.1" fill="#A7F3D0" filter="url(#glow)"/>
-  <path d="M23.8 7.6l.55 1.15 1.25.18-.9.88.21 1.24-1.11-.58-1.11.58.21-1.24-.9-.88 1.25-.18.55-1.15z" fill="#ECFDF5" filter="url(#glow)"/>
+  <circle cx="21.5" cy="10.5" r="1.1" fill="#A7F3D0" filter="url(#logo-glow)"/>
+  <path d="M23.8 7.6l.55 1.15 1.25.18-.9.88.21 1.24-1.11-.58-1.11.58.21-1.24-.9-.88 1.25-.18.55-1.15z" fill="#ECFDF5" filter="url(#logo-glow)"/>
   <path d="M11.2 22.1h.9m1.8 0h.9m1.8 0h.9" stroke="#6EE7B7" stroke-width="1.1" stroke-linecap="round"/>
 </svg>
