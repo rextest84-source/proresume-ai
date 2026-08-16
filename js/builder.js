@@ -12,6 +12,7 @@ const UNLIMITED_AI = false;
 let cloudResumeId = localStorage.getItem('proresume_resume_id');
 let cloudSaveTimer = null;
 let cloudUser = null;
+let liveGrokEnabled = false;
 
 const TEMPLATE_TIERS = {
   modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
@@ -33,7 +34,44 @@ const CREDIT_COSTS = {
   job_match: 5, cover_letter: 4, ats_scan: 2, linkedin: 3
 };
 
-// ─── AI (powered by ai-engine.js) ───
+// ─── AI (Grok via Railway when signed in, else ai-engine.js templates) ───
+
+function snapshotResume() {
+  return {
+    name: resumeData.name,
+    title: resumeData.title,
+    email: resumeData.email,
+    summary: resumeData.summary,
+    skills: resumeData.skills,
+    experience: resumeData.experience,
+    education: resumeData.education
+  };
+}
+
+function syncCreditsFromServer(credits) {
+  if (credits === undefined || credits === null) return;
+  if (cloudUser) cloudUser.credits = credits;
+  const stored = ProResumeAPI?.getStoredUser?.();
+  if (stored) {
+    stored.credits = credits;
+    localStorage.setItem('proresume_user', JSON.stringify(stored));
+  }
+  setCredits(credits);
+}
+
+function canUseLiveGrok() {
+  return liveGrokEnabled && window.ProResumeAPI?.isLoggedIn();
+}
+
+async function refreshLiveAiStatus() {
+  if (!window.ProResumeAPI) return;
+  try {
+    const status = await ProResumeAPI.aiStatus();
+    liveGrokEnabled = !!status.configured;
+  } catch {
+    liveGrokEnabled = false;
+  }
+}
 
 function enhanceSummaryAI(text, title, skills) {
   return AIEngine.enhanceSummary(text, title, skills, resumeData.experience);
@@ -43,23 +81,35 @@ function enhanceDescriptionAI(text, role) {
   return AIEngine.enhanceDescription(text, role, resumeData.skills);
 }
 
-async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'smart suggestions', regenerate = true) {
+async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'smart suggestions', regenerate = true, liveAction = null) {
   if (!btn || btn.classList.contains('ai-loading')) return;
-  if (!(await useCredits(creditCost, featureName))) return;
-  if (regenerate) AIEngine.regenerateSeed();
+  const useLive = !!(liveAction && canUseLiveGrok());
+  if (!useLive && !(await useCredits(creditCost, featureName))) return;
+
   const original = btn.innerHTML;
   btn.classList.add('ai-loading');
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Working...';
-  await new Promise(r => setTimeout(r, 350 + Math.random() * 450));
+  if (!useLive) await new Promise(r => setTimeout(r, 350 + Math.random() * 450));
+
   try {
-    await fn();
-    showToast(UNLIMITED_AI ? '✦ Suggestions ready!' : `✦ Suggestions ready! (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
+    if (!useLive && regenerate) AIEngine.regenerateSeed();
+    await fn(useLive);
+    const liveLabel = useLive ? 'Live suggestions ready!' : 'Suggestions ready!';
+    showToast(UNLIMITED_AI ? '✦ Suggestions ready!' : `✦ ${liveLabel} (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
     schedulePreviewUpdate();
   } catch (e) {
-    if (!UNLIMITED_AI && e.message !== 'empty') setCredits(getCredits() + creditCost);
+    if (useLive) {
+      if (e.status === 402) {
+        showUpgradeModal(`Need ${creditCost} credits for ${featureName}. You have ${e.data?.credits ?? 0}.`);
+      } else if (e.message !== 'empty' && e.message !== 'need_title') {
+        showToast(e.message || 'Live AI unavailable — try again', 'warning');
+      }
+    } else if (!UNLIMITED_AI && e.message !== 'empty') {
+      setCredits(getCredits() + creditCost);
+    }
     if (e.message === 'empty') showToast(e.hint || 'Add some text first', 'warning');
-    else if (e.message === 'need_title') showToast('Add your job title first', 'warning');
-    else showToast('Generation failed' + (UNLIMITED_AI ? '' : ' — credits refunded'), 'warning');
+    else if (e.message === 'need_title') showToast(e.hint || 'Add your job title first', 'warning');
+    else if (!useLive) showToast('Generation failed' + (UNLIMITED_AI ? '' : ' — credits refunded'), 'warning');
   } finally {
     btn.classList.remove('ai-loading');
     btn.innerHTML = original;
@@ -1616,46 +1666,94 @@ function setupEvents() {
 
     switch (action) {
       case 'enhance-summary':
-        await runAIEnhance(btn, () => {
-          resumeData.summary = enhanceSummaryAI(resumeData.summary, resumeData.title, resumeData.skills);
+        await runAIEnhance(btn, async (live) => {
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('enhance_summary', { resume: snapshotResume() });
+            resumeData.summary = data.result.summary;
+            syncCreditsFromServer(data.credits);
+          } else {
+            resumeData.summary = enhanceSummaryAI(resumeData.summary, resumeData.title, resumeData.skills);
+          }
           document.getElementById('summary').value = resumeData.summary;
           saveData();
           renderPreview();
-        }, CREDIT_COSTS.enhance_summary, 'AI summary enhancement');
+        }, CREDIT_COSTS.enhance_summary, 'summary suggestions', true, 'enhance_summary');
         break;
 
       case 'enhance-exp':
-        await runAIEnhance(btn, () => {
+        await runAIEnhance(btn, async (live) => {
           const exp = resumeData.experience[index];
           if (!exp) throw new Error('empty');
-          exp.description = enhanceDescriptionAI(exp.description || '', exp.role || resumeData.title);
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('enhance_exp', {
+              resume: snapshotResume(),
+              experienceIndex: index
+            });
+            exp.description = data.result.description;
+            syncCreditsFromServer(data.credits);
+          } else {
+            exp.description = enhanceDescriptionAI(exp.description || '', exp.role || resumeData.title);
+          }
           saveData();
           renderExperienceFields();
           renderPreview();
-        }, CREDIT_COSTS.enhance_exp, 'AI experience enhancement');
+        }, CREDIT_COSTS.enhance_exp, 'experience suggestions', true, 'enhance_exp');
         break;
 
       case 'regenerate-summary':
-        await runAIEnhance(btn, () => {
-          resumeData.summary = enhanceSummaryAI(resumeData.summary, resumeData.title, resumeData.skills);
+        await runAIEnhance(btn, async (live) => {
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('regenerate_summary', {
+              resume: snapshotResume(),
+              regenerate: true
+            });
+            resumeData.summary = data.result.summary;
+            syncCreditsFromServer(data.credits);
+          } else {
+            resumeData.summary = enhanceSummaryAI(resumeData.summary, resumeData.title, resumeData.skills);
+          }
           document.getElementById('summary').value = resumeData.summary;
           saveData();
           renderPreview();
-        }, CREDIT_COSTS.regenerate, 'summary variation');
+        }, CREDIT_COSTS.regenerate, 'summary variation', true, 'regenerate_summary');
         break;
 
       case 'build-resume':
-        await runAIEnhance(btn, () => applyAIBuild(), CREDIT_COSTS.build_resume, 'full resume builder');
+        await runAIEnhance(btn, async (live) => {
+          if (!resumeData.title?.trim()) throw Object.assign(new Error('need_title'), { hint: 'Add your job title first' });
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('build_resume', { resume: snapshotResume() });
+            resumeData.summary = data.result.summary;
+            resumeData.skills = data.result.skills;
+            if (Array.isArray(data.result.experience) && data.result.experience.length) {
+              resumeData.experience = data.result.experience;
+            }
+            if (Array.isArray(data.result.education) && data.result.education.length) {
+              resumeData.education = data.result.education;
+            }
+            syncCreditsFromServer(data.credits);
+            saveData();
+            syncFormFields();
+          } else {
+            applyAIBuild();
+          }
+        }, CREDIT_COSTS.build_resume, 'resume draft', true, 'build_resume');
         break;
 
       case 'suggest-skills':
-        await runAIEnhance(btn, () => {
+        await runAIEnhance(btn, async (live) => {
           if (!resumeData.title?.trim()) throw Object.assign(new Error('need_title'));
-          resumeData.skills = AIEngine.suggestSkills(resumeData.title, resumeData.skills);
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('suggest_skills', { resume: snapshotResume() });
+            resumeData.skills = data.result.skills;
+            syncCreditsFromServer(data.credits);
+          } else {
+            resumeData.skills = AIEngine.suggestSkills(resumeData.title, resumeData.skills);
+          }
           document.getElementById('skills').value = resumeData.skills;
           saveData();
           renderPreview();
-        }, CREDIT_COSTS.suggest_skills, 'skill suggestions', true);
+        }, CREDIT_COSTS.suggest_skills, 'skill suggestions', true, 'suggest_skills');
         break;
 
       case 'remove-exp':
@@ -1712,29 +1810,49 @@ function setupEvents() {
       case 'hide-upgrade': hideUpgradeModal(); break;
       case 'show-pricing': window.location.href = '/pricing.html'; break;
       case 'match-job':
-        await runAIEnhance(btn, async () => {
+        await runAIEnhance(btn, async (live) => {
           const jobText = await promptJobDescription();
           if (!jobText?.trim()) {
-            if (!UNLIMITED_AI) setCredits(getCredits() + CREDIT_COSTS.job_match);
+            if (!live && !UNLIMITED_AI) setCredits(getCredits() + CREDIT_COSTS.job_match);
             throw Object.assign(new Error('empty'), { hint: 'Cancelled' });
           }
-          const matched = AIEngine.matchJobDescription(resumeData, jobText);
-          resumeData.summary = matched.summary;
-          resumeData.skills = matched.skills;
-          resumeData.experience = matched.experience;
-          saveData();
-          syncFormFields();
-          showToast(`Suggestions applied — ${matched.matchScore}% keyword overlap`, 'success');
-        }, CREDIT_COSTS.job_match, 'keyword alignment');
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('job_match', {
+              resume: snapshotResume(),
+              jobText
+            });
+            resumeData.summary = data.result.summary;
+            resumeData.skills = data.result.skills;
+            resumeData.experience = data.result.experience;
+            syncCreditsFromServer(data.credits);
+            saveData();
+            syncFormFields();
+            showToast(`Suggestions applied — ${data.result.keywordOverlap}% keyword overlap`, 'success');
+          } else {
+            const matched = AIEngine.matchJobDescription(resumeData, jobText);
+            resumeData.summary = matched.summary;
+            resumeData.skills = matched.skills;
+            resumeData.experience = matched.experience;
+            saveData();
+            syncFormFields();
+            showToast(`Suggestions applied — ${matched.matchScore}% keyword overlap`, 'success');
+          }
+        }, CREDIT_COSTS.job_match, 'keyword alignment', false, 'job_match');
         break;
 
       case 'cover-letter':
-        await runAIEnhance(btn, () => {
+        await runAIEnhance(btn, async (live) => {
           if (!resumeData.name?.trim() || !resumeData.title?.trim()) {
             throw Object.assign(new Error('need_title'), { hint: 'Add your name and title first' });
           }
-          showCoverLetter();
-        }, CREDIT_COSTS.cover_letter, 'cover letter draft', true);
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('cover_letter', { resume: snapshotResume() });
+            syncCreditsFromServer(data.credits);
+            showTextModal('Cover Letter Draft', data.result.text, false);
+          } else {
+            showCoverLetter();
+          }
+        }, CREDIT_COSTS.cover_letter, 'cover letter draft', true, 'cover_letter');
         break;
 
       case 'ats-scan':
@@ -1742,7 +1860,15 @@ function setupEvents() {
         break;
 
       case 'linkedin':
-        await runAIEnhance(btn, () => showLinkedInTips(), CREDIT_COSTS.linkedin, 'LinkedIn profile tips', true);
+        await runAIEnhance(btn, async (live) => {
+          if (live) {
+            const data = await ProResumeAPI.aiGenerate('linkedin_tips', { resume: snapshotResume() });
+            syncCreditsFromServer(data.credits);
+            showTextModal('LinkedIn Profile Tips', data.result.text);
+          } else {
+            showLinkedInTips();
+          }
+        }, CREDIT_COSTS.linkedin, 'LinkedIn profile tips', true, 'linkedin_tips');
         break;
 
       case 'copy-modal-text':
@@ -1798,6 +1924,7 @@ function renderTemplatePicker() {
 async function init() {
   updateAuthHeader();
   showCloudSaveBanner();
+  await refreshLiveAiStatus();
   if (window.ProResumeAPI?.isLoggedIn()) {
     await refreshCloudUser();
     const loaded = await loadFromCloud();
