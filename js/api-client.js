@@ -148,6 +148,17 @@ const ProResumeAPI = (() => {
       const data = await request('/api/stripe/create-portal-session', { method: 'POST' });
       if (data.url) window.location.href = data.url;
       return data;
+    },
+
+    async aiStatus() {
+      return request('/api/ai/status');
+    },
+
+    async aiGenerate(action, payload = {}) {
+      return request('/api/ai/generate', {
+        method: 'POST',
+        body: JSON.stringify({ action, ...payload })
+      });
     }
   };
 })();

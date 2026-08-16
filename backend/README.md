@@ -43,6 +43,8 @@ Set these on the **API service**:
 | `STRIPE_PRICE_CREDITS_25` | Optional | One-time credit pack price IDs |
 | `STRIPE_PRICE_CREDITS_100` | Optional | |
 | `STRIPE_PRICE_CREDITS_500` | Optional | |
+| `XAI_API_KEY` | For live AI | xAI API key from [console.x.ai](https://console.x.ai) |
+| `XAI_MODEL` | Optional | Default `grok-4.20-0309-non-reasoning` (cheaper text model) |
 | `DATA_DIR` | Optional | e.g. `/data` if you mount a Railway volume |
 
 ### 4. Stripe webhook
@@ -102,3 +104,5 @@ npx serve .. -p 8080
 | POST | `/api/resumes` | Yes | Create resume |
 | POST | `/api/stripe/create-checkout-session` | Yes | Start Stripe checkout |
 | POST | `/api/stripe/create-portal-session` | Yes | Manage subscription |
+| GET | `/api/ai/status` | No | Live Grok availability |
+| POST | `/api/ai/generate` | Yes | Grok-powered suggestions (deducts credits) |

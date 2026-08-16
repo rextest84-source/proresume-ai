@@ -10,6 +10,8 @@ import { getPool, query } from './db.js';
 import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resumes.js';
 import stripeRoutes, { handleStripeWebhook } from './routes/stripe.js';
+import aiRoutes from './routes/ai.js';
+import { isGrokConfigured, getGrokModel } from './services/grok.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -78,6 +80,7 @@ app.get('/health/ready', async (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/stripe', stripeRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
@@ -118,6 +121,11 @@ async function start() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`ProResume API listening on port ${PORT}`);
     console.log(`CORS: configured origins + *.netlify.app + *.aeloriacareer.com`);
+    if (isGrokConfigured()) {
+      console.log(`Grok AI: enabled (${getGrokModel()})`);
+    } else {
+      console.log('Grok AI: not configured (set XAI_API_KEY for live suggestions)');
+    }
   });
 
   runMigrations().catch(err => {
