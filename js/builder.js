@@ -27,6 +27,30 @@ const TEMPLATE_TIERS = {
 
 const TIER_LABELS = { free: 'Free', starter: 'Starter ($8/mo)', pro: 'Pro ($15/mo)', business: 'Business ($20/mo)' };
 
+const PLAN_TEMPLATE_RANK = { free: 0, starter: 1, pro: 2, business: 3 };
+
+function getUserPlan() {
+  if (cloudUser?.plan) return cloudUser.plan;
+  const stored = window.ProResumeAPI?.getStoredUser?.();
+  return stored?.plan || 'free';
+}
+
+function getTemplateTier(templateId) {
+  return TEMPLATE_TIERS[templateId] || 'free';
+}
+
+function canAccessTemplate(templateId) {
+  if (UNLIMITED_AI) return true;
+  const userRank = PLAN_TEMPLATE_RANK[getUserPlan()] ?? 0;
+  const templateRank = PLAN_TEMPLATE_RANK[getTemplateTier(templateId)] ?? 0;
+  return userRank >= templateRank;
+}
+
+function countAccessibleTemplates() {
+  const catalog = window.TEMPLATE_EXTENSIONS?.catalog || [];
+  return catalog.filter(t => canAccessTemplate(t.id)).length;
+}
+
 const CREDIT_COSTS = {
   enhance_summary: 2, enhance_exp: 2, export_pdf: 3, export_png: 2, export_jpeg: 2,
   export_doc: 3, export_html: 2, export_rtf: 2, regenerate: 1,
@@ -146,6 +170,7 @@ function saveData() {
 async function refreshCloudUser() {
   if (!window.ProResumeAPI?.isLoggedIn()) {
     cloudUser = null;
+    refreshTemplateAccess();
     return null;
   }
   try {
@@ -153,9 +178,11 @@ async function refreshCloudUser() {
     localStorage.setItem(CREDITS_KEY, String(cloudUser.credits));
     updateCreditsDisplay();
     updateAuthHeader();
+    refreshTemplateAccess();
     return cloudUser;
   } catch {
     cloudUser = null;
+    refreshTemplateAccess();
     return null;
   }
 }
@@ -626,7 +653,7 @@ const TEMPLATE_RENDERERS = {
         <header class="tm-horizon-top">
           <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
           <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
-          <div class="tm-contact">${getContactItems().map(c => `<span>${escapeHtml(c.value)}</span>`).join('')}</div>
+          <div class="tm-contact">${getContactItems().map(c => `<span>${escapeHtml(c.value)}</span>`).join('<span class="tm-contact-sep"> · </span>')}</div>
         </header>
         <div class="tm-horizon-body">
           ${resumeData.summary ? `<div class="tm-section"><div class="tm-section-title">Summary</div><p class="tm-summary">${escapeHtml(resumeData.summary)}</p></div>` : ''}
@@ -952,10 +979,6 @@ function renderThemed(id, variant = 'default') {
 
 function normalizeTemplate(tpl) {
   if (!tpl || !TEMPLATE_RENDERERS[tpl]) return 'modern';
-  if (!UNLIMITED_AI) {
-    const tier = TEMPLATE_TIERS[tpl];
-    if (tier && tier !== 'free') return 'modern';
-  }
   return tpl;
 }
 
@@ -1054,11 +1077,6 @@ function renderPreview(resetScroll = false) {
   if (!preview) return;
 
   const tpl = normalizeTemplate(resumeData.template);
-  if (tpl !== resumeData.template) {
-    resumeData.template = tpl;
-    saveData();
-  }
-
   const renderer = TEMPLATE_RENDERERS[tpl];
   preview.className = getPreviewClassName(tpl);
 
@@ -1196,21 +1214,19 @@ function renderEducationFields() {
 }
 
 function selectTemplate(template) {
-  if (!UNLIMITED_AI) {
-    const tier = TEMPLATE_TIERS[template] || 'free';
-    if (tier !== 'free') {
-      showUpgradeModal(`${TIER_LABELS[tier]} templates`);
-      return;
-    }
-  }
+  if (!TEMPLATE_RENDERERS[template]) return;
   resumeData.template = template;
   saveData();
   document.querySelectorAll('.template-btn').forEach(btn => {
     const active = btn.dataset.template === template;
     btn.classList.toggle('ring-2', active);
     btn.classList.toggle('ring-emerald-400', active);
+    btn.classList.toggle('opacity-60', !canAccessTemplate(btn.dataset.template));
   });
   renderPreview(true);
+  if (!canAccessTemplate(template)) {
+    showUpgradeModal(`${TIER_LABELS[getTemplateTier(template)]} templates`);
+  }
 }
 
 function showUpgradeModal(feature) {
@@ -1573,6 +1589,12 @@ async function exportResume(format = 'pdf') {
   const creditCost = CREDIT_COSTS[creditKey] || 3;
   const label = EXPORT_LABEL_MAP[format] || 'File';
 
+  const tpl = normalizeTemplate(resumeData.template);
+  if (!canAccessTemplate(tpl)) {
+    showUpgradeModal(`${TIER_LABELS[getTemplateTier(tpl)]} templates`);
+    return;
+  }
+
   if (!(await useCredits(creditCost, `${label} export`))) return;
 
   const menuBtn = document.querySelector('[data-action="toggle-export-menu"]');
@@ -1908,17 +1930,34 @@ function renderTemplatePicker() {
   const catalog = window.TEMPLATE_EXTENSIONS?.catalog;
   if (!grid || !catalog?.length) return;
 
-  if (label) label.textContent = `${catalog.length} professional designs, unlimited access`;
+  const accessible = countAccessibleTemplates();
+  if (label) {
+    label.textContent = accessible >= catalog.length
+      ? `${catalog.length} professional designs`
+      : `${catalog.length} designs, ${accessible} on your plan`;
+  }
 
   grid.innerHTML = catalog.map(t => {
     const orient = window.TEMPLATE_EXTENSIONS?.getOrientation?.(t.id) || 'portrait';
     const thumbClass = orient === 'landscape' ? 'tpl-thumb-landscape' : 'tpl-thumb-portrait';
+    const locked = !canAccessTemplate(t.id);
     return `
-    <button data-action="select-template" data-template="${t.id}" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative" title="${t.label}">
+    <button data-action="select-template" data-template="${t.id}" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative${locked ? ' opacity-60' : ''}" title="${t.label}${locked ? ' (upgrade to unlock)' : ''}">
+      ${locked ? '<span class="absolute top-1 right-1 text-[8px] text-zinc-400" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>' : ''}
       <div class="tpl-thumb ${thumbClass} tpl-thumb-${t.id}"></div>
       <span class="text-[9px] font-medium leading-tight">${t.label}</span>
     </button>`;
   }).join('');
+}
+
+function refreshTemplateAccess() {
+  renderTemplatePicker();
+  document.querySelectorAll('.template-btn').forEach(btn => {
+    const active = btn.dataset.template === resumeData.template;
+    btn.classList.toggle('ring-2', active);
+    btn.classList.toggle('ring-emerald-400', active);
+    btn.classList.toggle('opacity-60', !canAccessTemplate(btn.dataset.template));
+  });
 }
 
 async function init() {
@@ -1950,6 +1989,9 @@ async function init() {
   updateCreditsDisplay();
   setupEvents();
   setupMobileScrollGuard();
+  window.addEventListener('proresume:auth', () => {
+    refreshCloudUser();
+  });
 
   let resizeTimer;
   const onViewportChange = () => {
