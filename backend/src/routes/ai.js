@@ -15,7 +15,7 @@ const aiLimiter = rateLimit({
   message: { error: 'Too many AI requests. Please wait a moment.' }
 });
 
-/** Public — lets the builder know live Grok is available */
+/** Public - lets the builder know live Grok is available */
 router.get('/status', (_req, res) => {
   res.json({
     configured: isGrokConfigured(),
@@ -57,7 +57,7 @@ async function refundCredits(userId, amount, balanceAfter) {
   );
 }
 
-/** Live Grok generation — auth required, credits deducted atomically */
+/** Live Grok generation - auth required, credits deducted atomically */
 router.post('/generate', aiLimiter, requireAuth, loadUser, async (req, res) => {
   if (!isGrokConfigured()) {
     return res.status(503).json({ error: 'Live AI is not configured yet.' });

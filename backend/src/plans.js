@@ -1,4 +1,4 @@
-/** Plan limits — keep in sync with marketing/pricing pages */
+/** Plan limits - keep in sync with marketing/pricing pages */
 export const PLANS = {
   free: {
     credits: 20,

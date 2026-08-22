@@ -1,5 +1,5 @@
 /**
- * Shared responsive site navigation — one nav, no duplicate Sign In links.
+ * Shared responsive site navigation - one nav, no duplicate Sign In links.
  */
 (function () {
   const HOME_LINKS = [

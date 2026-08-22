@@ -1,7 +1,7 @@
 {
   "name": "proresume-api",
   "version": "1.0.0",
-  "description": "ProResume AI backend API — auth, resume storage, Stripe",
+  "description": "ProResume AI backend API - auth, resume storage, Stripe",
   "type": "module",
   "main": "src/index.js",
   "scripts": {

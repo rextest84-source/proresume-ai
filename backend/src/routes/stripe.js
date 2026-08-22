@@ -30,7 +30,7 @@ async function recordCreditTransaction(userId, amount, reason, balanceAfter) {
   );
 }
 
-/** Public — lets frontend show helpful messages when Stripe isn't configured yet */
+/** Public - lets frontend show helpful messages when Stripe isn't configured yet */
 router.get('/status', (_req, res) => {
   const plans = {};
   for (const [key, cfg] of Object.entries(SUBSCRIPTION_PLANS)) {
@@ -168,7 +168,7 @@ async function addCreditPack(userId, credits) {
   }
 }
 
-/** Webhook — mount with raw body in index.js */
+/** Webhook - mount with raw body in index.js */
 export async function handleStripeWebhook(req, res) {
   const stripe = getStripe();
   if (!stripe) return res.status(503).send('Stripe not configured');

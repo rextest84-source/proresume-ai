@@ -1,4 +1,4 @@
-// ProResume AI — Resume Builder v2
+// ProResume AI | Resume Builder v2
 
 const STORAGE_KEY = 'proresume_data';
 const CREDITS_KEY = 'proresume_credits';
@@ -6,7 +6,7 @@ const EXPORT_COUNT_KEY = 'proresume_exports';
 const FREE_EXPORT_LIMIT = 1;
 const STARTING_CREDITS = 20;
 
-// Set to false for production — credits enforced via Railway API when logged in.
+// Set to false for production - credits enforced via Railway API when logged in.
 const UNLIMITED_AI = false;
 
 let cloudResumeId = localStorage.getItem('proresume_resume_id');
@@ -102,14 +102,14 @@ async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'smart sugges
       if (e.status === 402) {
         showUpgradeModal(`Need ${creditCost} credits for ${featureName}. You have ${e.data?.credits ?? 0}.`);
       } else if (e.message !== 'empty' && e.message !== 'need_title') {
-        showToast(e.message || 'Live AI unavailable — try again', 'warning');
+        showToast(e.message || 'Live AI unavailable. Try again', 'warning');
       }
     } else if (!UNLIMITED_AI && e.message !== 'empty') {
       setCredits(getCredits() + creditCost);
     }
     if (e.message === 'empty') showToast(e.hint || 'Add some text first', 'warning');
     else if (e.message === 'need_title') showToast(e.hint || 'Add your job title first', 'warning');
-    else if (!useLive) showToast('Generation failed' + (UNLIMITED_AI ? '' : ' — credits refunded'), 'warning');
+    else if (!useLive) showToast('Generation failed' + (UNLIMITED_AI ? '' : '. Credits refunded'), 'warning');
   } finally {
     btn.classList.remove('ai-loading');
     btn.innerHTML = original;
@@ -277,7 +277,7 @@ async function useCredits(amount, featureName) {
         showUpgradeModal(`Need ${amount} credits for ${featureName}. You have ${e.data?.credits ?? 0}.`);
         return false;
       }
-      showToast('Could not verify credits — check your connection', 'warning');
+      showToast('Could not verify credits. Check your connection', 'warning');
       return false;
     }
   }
@@ -744,7 +744,7 @@ function renderCanvas() {
     <div class="tm-canvas">
       <h1 class="tm-name">${escapeHtml(resumeData.name || 'Your Name')}</h1>
       <p class="tm-title">${escapeHtml(resumeData.title || 'Professional Title')}</p>
-      <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' — ')}</div>
+      <div class="tm-contact">${getContactItems().map(c => escapeHtml(c.value)).join(' | ')}</div>
       ${renderStandardBody('canvas')}
     </div>`;
 }
@@ -904,7 +904,7 @@ function promptJobDescription() {
 
 function showATSReport() {
   const { score, tips } = AIEngine.analyzeATS(resumeData);
-  const report = `Completeness score: ${score}%\n\nSuggestions:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nThis is guidance based on your content — not a guarantee of ATS results. Keep formatting simple, use standard section headings, and mirror keywords from the job description.`;
+  const report = `Completeness score: ${score}%\n\nSuggestions:\n${tips.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nThis is guidance based on your content. This is not a guarantee of ATS results. Keep formatting simple, use standard section headings, and mirror keywords from the job description.`;
   showTextModal('Resume Checklist', report);
 }
 
@@ -1170,7 +1170,7 @@ function renderExperienceFields() {
       </div>
       <input type="text" data-exp="${i}" data-field="role" placeholder="Job Title" value="${escapeHtml(exp.role)}" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
       <input type="text" data-exp="${i}" data-field="company" placeholder="Company" value="${escapeHtml(exp.company)}" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
-      <input type="text" data-exp="${i}" data-field="dates" placeholder="Dates (e.g. Jan 2020 – Present)" value="${escapeHtml(exp.dates)}" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
+      <input type="text" data-exp="${i}" data-field="dates" placeholder="Dates (e.g. Jan 2020 - Present)" value="${escapeHtml(exp.dates)}" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white">
       <textarea data-exp="${i}" data-field="description" placeholder="Key achievements (one per line)..." rows="4" class="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white resize-none">${escapeHtml(exp.description)}</textarea>
       <button type="button" data-action="enhance-exp" data-index="${i}" class="ai-btn flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-semibold transition">
         <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest improvements
@@ -1355,7 +1355,7 @@ async function sharePendingExport() {
       if (!navigator.canShare || navigator.canShare(payload)) {
         await navigator.share(payload);
         hideExportSaveModal();
-        showToast('Saved — check your Files app');
+        showToast('Saved. Check your Files app');
         return;
       }
     } catch (err) {
@@ -1589,7 +1589,7 @@ async function exportResume(format = 'pdf') {
   const source = document.getElementById('resume-preview');
   if (!source) {
     if (!UNLIMITED_AI) setCredits(getCredits() + creditCost);
-    showToast('Preview not found — credits refunded', 'warning');
+    showToast('Preview not found. Credits refunded', 'warning');
     if (menuBtn) { menuBtn.disabled = false; menuBtn.innerHTML = originalBtn; }
     return;
   }
@@ -1632,7 +1632,7 @@ async function exportResume(format = 'pdf') {
   } catch (err) {
     console.error('Export failed:', err);
     if (!UNLIMITED_AI) setCredits(getCredits() + creditCost);
-    showToast(`Export failed — ${err.message || 'please try again'}`, 'warning');
+    showToast(`Export failed: ${err.message || 'please try again'}`, 'warning');
   } finally {
     cleanupExportFrame(iframe);
     if (menuBtn) {
@@ -1827,7 +1827,7 @@ function setupEvents() {
             syncCreditsFromServer(data.credits);
             saveData();
             syncFormFields();
-            showToast(`Suggestions applied — ${data.result.keywordOverlap}% keyword overlap`, 'success');
+            showToast(`Suggestions applied (${data.result.keywordOverlap}% keyword overlap)`, 'success');
           } else {
             const matched = AIEngine.matchJobDescription(resumeData, jobText);
             resumeData.summary = matched.summary;
@@ -1835,7 +1835,7 @@ function setupEvents() {
             resumeData.experience = matched.experience;
             saveData();
             syncFormFields();
-            showToast(`Suggestions applied — ${matched.matchScore}% keyword overlap`, 'success');
+            showToast(`Suggestions applied (${matched.matchScore}% keyword overlap)`, 'success');
           }
         }, CREDIT_COSTS.job_match, 'keyword alignment', false, 'job_match');
         break;
@@ -1908,7 +1908,7 @@ function renderTemplatePicker() {
   const catalog = window.TEMPLATE_EXTENSIONS?.catalog;
   if (!grid || !catalog?.length) return;
 
-  if (label) label.textContent = `${catalog.length} professional designs · unlimited access`;
+  if (label) label.textContent = `${catalog.length} professional designs, unlimited access`;
 
   grid.innerHTML = catalog.map(t => {
     const orient = window.TEMPLATE_EXTENSIONS?.getOrientation?.(t.id) || 'portrait';

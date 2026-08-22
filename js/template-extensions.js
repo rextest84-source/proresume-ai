@@ -1,4 +1,4 @@
-// ProResume AI — Templates 33–64 (32 premium designs)
+// ProResume AI | Templates 33-64 (32 premium designs)
 
 (function () {
   const contactSep = (sep) => (items) => items.map(c => escapeHtml(c.value)).join(sep);
@@ -211,9 +211,9 @@
   });
 
   // Per-template page orientation (US Letter @ 96dpi).
-  // Single source of truth — preview, thumbnails, PNG/PDF, and editable exports all read this map.
+  // Single source of truth - preview, thumbnails, PNG/PDF, and editable exports all read this map.
   const TEMPLATE_ORIENTATION = {
-    // Landscape — wide header bands (full-width header + body)
+    // Landscape - wide header bands (full-width header + body)
     horizon: 'landscape',
     fusion: 'landscape',
     monarch: 'landscape',
@@ -234,21 +234,21 @@
     regal: 'landscape',
     sovereign: 'landscape',
 
-    // Landscape — swiss grid header (name + meta columns)
+    // Landscape - swiss grid header (name + meta columns)
     swiss: 'landscape',
     lattice: 'landscape',
 
-    // Landscape — dual-column body under banner
+    // Landscape - dual-column body under banner
     apex: 'landscape',
     echo: 'landscape',
 
-    // Landscape — metro grid (header + two-column body)
+    // Landscape - metro grid (header + two-column body)
     metro: 'landscape',
 
-    // Portrait — horizontal header bar, single-column CV body
+    // Portrait - horizontal header bar, single-column CV body
     academic: 'portrait',
 
-    // Portrait — sidebar layouts
+    // Portrait - sidebar layouts
     modern: 'portrait',
     slate: 'portrait',
     executive: 'portrait',
@@ -257,7 +257,7 @@
     jade: 'portrait',
     harbor: 'portrait',
 
-    // Portrait — single-column / minimal / accent / dark / luxury
+    // Portrait - single-column / minimal / accent / dark / luxury
     classic: 'portrait',
     minimal: 'portrait',
     serif: 'portrait',

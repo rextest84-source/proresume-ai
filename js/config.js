@@ -1,5 +1,5 @@
 /**
- * ProResume AI — API configuration
+ * ProResume AI | API configuration
  */
 window.PRORESUME_CONFIG = window.PRORESUME_CONFIG || {
   apiUrl: (() => {

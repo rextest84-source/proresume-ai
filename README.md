@@ -6,7 +6,7 @@ AI-powered professional resume builder.
 
 | Layer | Host | Purpose |
 |-------|------|---------|
-| **Frontend** | Netlify | Static site — builder, marketing, auth pages |
+| **Frontend** | Netlify | Static site - builder, marketing, auth pages |
 | **Backend API** | Railway | Auth, cloud resume storage, Stripe billing |
 | **Database** | Railway PostgreSQL | Persistent user & resume data |
 
@@ -27,7 +27,7 @@ window.PRORESUME_CONFIG = {
 See **[backend/README.md](backend/README.md)** for step-by-step setup:
 
 1. New Railway project → deploy from GitHub, root directory `backend`
-2. Add **PostgreSQL** plugin (resume data persists here — no app volume required)
+2. Add **PostgreSQL** plugin (resume data persists here - no app volume required)
 3. Set env vars: `JWT_SECRET`, `FRONTEND_URL`, `CORS_ORIGINS`, Stripe keys
 4. Configure Stripe webhook → `/api/stripe/webhook`
 
@@ -45,7 +45,7 @@ npx serve .
 cd backend && cp .env.example .env && npm install && npm run dev
 ```
 
-Requires PostgreSQL — see `backend/.env.example`.
+Requires PostgreSQL - see `backend/.env.example`.
 
 ## Auth & cloud save flow
 
