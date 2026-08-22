@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (params.get('checkout') === 'cancelled' && stripeBanner) {
     stripeBanner.classList.remove('hidden');
     stripeBanner.className = 'mt-3 text-sm text-zinc-400 max-w-xl mx-auto';
-    stripeBanner.textContent = 'Checkout cancelled — no charge was made. You can try again anytime.';
+    stripeBanner.textContent = 'Checkout cancelled. No charge was made. You can try again anytime.';
   }
 
   let status = null;
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (!status.ready && stripeBanner && params.get('checkout') !== 'cancelled') {
       stripeBanner.classList.remove('hidden');
       stripeBanner.className = 'mt-3 text-sm text-zinc-500 max-w-xl mx-auto';
-      stripeBanner.textContent = 'Paid plans activate once Stripe is connected on the server. The free builder works now — support@aeloriacareer.com for billing help.';
+      stripeBanner.textContent = 'Paid plans activate once Stripe is connected on the server. The free builder works now. Email support@aeloriacareer.com for billing help.';
     }
 
     if (status.plans) {

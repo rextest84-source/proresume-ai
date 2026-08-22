@@ -1,4 +1,4 @@
-// ProResume AI — Editable export formats (HTML, Word, RTF)
+// ProResume AI | Editable export formats (HTML, Word, RTF)
 
 (function () {
   let cssCache = null;
@@ -249,7 +249,7 @@
   async function buildEditableHtml(tpl, bodyHtml) {
     const css = await fetchExportCss();
     const { docClass, content, dim } = buildDocumentShell(tpl, bodyHtml);
-    const title = escapeHtml((resumeData.name || 'Resume') + ' — Resume');
+    const title = escapeHtml((resumeData.name || 'Resume') + ' | Resume');
     const shellClass = 'resume-document';
 
     return `<!DOCTYPE html>
@@ -370,7 +370,7 @@
       const dates = entry.querySelector('.tm-entry-dates');
 
       if (role || company) {
-        const line = [textOf(role), textOf(company)].filter(Boolean).join(' — ');
+        const line = [textOf(role), textOf(company)].filter(Boolean).join(' | ');
         pushText(line, { bold: true });
       }
       if (meta) pushText(meta);

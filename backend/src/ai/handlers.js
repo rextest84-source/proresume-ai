@@ -5,7 +5,7 @@ Rules:
 - Be factual and conservative. Never invent employers, degrees, dates, or metrics the user did not provide.
 - Use clear, ATS-friendly language with strong action verbs.
 - Return ONLY the format requested (plain text or JSON). No markdown unless asked.
-- Assistive suggestions only — the user reviews everything before exporting.`;
+- Assistive suggestions only. The user reviews everything before exporting.`;
 
 function resumeContext(resume = {}) {
   return JSON.stringify({
@@ -27,10 +27,10 @@ export async function runAiAction(action, { resume, jobText, experienceIndex, re
         {
           role: 'user',
           content: `${regenerate ? 'Write a fresh variation of' : 'Improve'} this professional summary for a ${resume.title || 'professional'} role.
-Keep 3–4 sentences, 50–90 words, ATS-friendly. Do not invent employers or metrics.
+Keep 3 to 4 sentences, 50 to 90 words, ATS-friendly. Do not invent employers or metrics.
 
 Current summary:
-${resume.summary || '(empty — write a starter summary from their title and skills)'}
+${resume.summary || '(empty: write a starter summary from their title and skills)'}
 
 Skills: ${resume.skills || 'none listed'}
 Experience snapshot: ${JSON.stringify((resume.experience || []).slice(0, 2))}
@@ -49,10 +49,10 @@ Return ONLY the improved summary text.`
         {
           role: 'user',
           content: `Improve these resume bullet points for the role "${exp.role || resume.title || 'Professional'}".
-Use 3–5 bullet lines starting with strong action verbs. Only use plausible metrics if implied by the original text — do not invent numbers.
+Use 3 to 5 bullet lines starting with strong action verbs. Only use plausible metrics if implied by the original text. Do not invent numbers.
 
 Current bullets:
-${exp.description || '(empty — write 3 starter bullets for this role)'}
+${exp.description || '(empty: write 3 starter bullets for this role)'}
 
 Target role context: ${resume.title || ''}
 Skills: ${resume.skills || ''}
@@ -68,7 +68,7 @@ Return ONLY the bullet lines, one per line, no numbering.`
         { role: 'system', content: SYSTEM },
         {
           role: 'user',
-          content: `Suggest 10–14 relevant skills for a ${resume.title || 'professional'} resume.
+          content: `Suggest 10 to 14 relevant skills for a ${resume.title || 'professional'} resume.
 Merge with existing skills where appropriate. Return a comma-separated list only.
 
 Existing skills: ${resume.skills || 'none'}`
@@ -92,7 +92,7 @@ Return JSON only:
 {
   "summary": "3-4 sentence professional summary",
   "skills": "comma-separated skills",
-  "experience": [{"company": "Example Company", "role": "...", "dates": "2020 – Present", "description": "bullet\\nbullet\\nbullet"}],
+  "experience": [{"company": "Example Company", "role": "...", "dates": "2020 - Present", "description": "bullet\\nbullet\\nbullet"}],
   "education": [{"school": "University Name", "degree": "Bachelor's Degree", "year": "2020"}]
 }
 
@@ -116,7 +116,7 @@ Use placeholder company/school names clearly generic (e.g. "Previous Employer") 
         { role: 'system', content: SYSTEM },
         {
           role: 'user',
-          content: `Align this resume to the job posting with assistive edits — not a full rewrite.
+          content: `Align this resume to the job posting with assistive edits, not a full rewrite.
 Keep the user's real employers and dates. Adjust summary, skills, and bullet emphasis toward relevant keywords.
 
 Resume:

@@ -1,6 +1,6 @@
-/* ProResume AI — Editable export (Word, HTML, RTF companion styles) */
+/* ProResume AI - Editable export (Word, HTML, RTF companion styles) */
 
-/* System fonts — exports must work offline without Google Fonts */
+/* System fonts - exports must work offline without Google Fonts */
 .resume-document,
 .resume-document * {
   font-family: Inter, 'Segoe UI', Arial, Helvetica, sans-serif;
@@ -107,7 +107,7 @@
   text-align: left;
 }
 
-/* Word skill chips — keep readable inline */
+/* Word skill chips - keep readable inline */
 .resume-document .tm-skills .tm-skill {
   display: inline-block !important;
   margin: 2px 4px 2px 0;

@@ -1,4 +1,4 @@
-/* ProResume AI — Page fidelity (preview + export must match) */
+/* ProResume AI - Page fidelity (preview + export must match) */
 
 /* Portrait US Letter: 8.5" × 11" @ 96dpi */
 .page-preview.orientation-portrait,
@@ -396,7 +396,7 @@
   gap: 8px !important;
 }
 
-/* Preview scaler — dimensions set in JS */
+/* Preview scaler - dimensions set in JS */
 #preview-frame {
   width: 100%;
   overflow: hidden;

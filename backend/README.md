@@ -1,14 +1,14 @@
-# ProResume AI — Backend API
+# ProResume AI - Backend API
 
 Node.js API for user accounts, cloud resume storage, and Stripe billing. Deploy on [Railway](https://railway.app).
 
 ## What this provides
 
-- **User auth** — register, login, JWT sessions
-- **Cloud resume storage** — PostgreSQL (data survives redeploys)
-- **Server-side credits** — prevents client tampering
-- **Stripe Checkout** — subscriptions and credit packs
-- **Optional volume** — `DATA_DIR` for future file uploads
+- **User auth** - register, login, JWT sessions
+- **Cloud resume storage** - PostgreSQL (data survives redeploys)
+- **Server-side credits** - prevents client tampering
+- **Stripe Checkout** - subscriptions and credit packs
+- **Optional volume** - `DATA_DIR` for future file uploads
 
 ## Railway setup (baby steps)
 
@@ -23,7 +23,7 @@ Node.js API for user accounts, cloud resume storage, and Stripe billing. Deploy 
 1. In your Railway project → **+ New** → **Database** → **PostgreSQL**
 2. Railway injects `DATABASE_URL` into your API service automatically (link the variable reference)
 
-> **Note on volumes:** Resume data lives in **PostgreSQL**, not the app container. Postgres on Railway is persistent by default — you do **not** need a volume for saves. Add a volume later only if you store uploaded PDFs on disk (`DATA_DIR=/data`).
+> **Note on volumes:** Resume data lives in **PostgreSQL**, not the app container. Postgres on Railway is persistent by default - you do **not** need a volume for saves. Add a volume later only if you store uploaded PDFs on disk (`DATA_DIR=/data`).
 
 ### 3. Environment variables
 

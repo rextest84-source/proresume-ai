@@ -1,6 +1,6 @@
-# Go-live checklist — ProResume AI
+# Go-live checklist - ProResume AI
 
-Everything you need in one place. The code is ready — connect Stripe on Railway to activate paid plans.
+Everything you need in one place. The code is ready - connect Stripe on Railway to activate paid plans.
 
 ---
 
@@ -22,7 +22,7 @@ Everything you need in one place. The code is ready — connect Stripe on Railwa
 
 ## Connect Stripe (3 steps, ~15 min)
 
-### Step 1 — Create products & prices
+### Step 1 - Create products & prices
 
 On your computer, in the project folder:
 
@@ -33,7 +33,7 @@ STRIPE_SECRET_KEY=sk_test_YOUR_KEY node scripts/create-stripe-products.js
 
 The script prints **all Railway variables** to copy. Add them in **Railway → Variables**, then redeploy.
 
-### Step 2 — Webhook
+### Step 2 - Webhook
 
 Stripe Dashboard → **Developers → Webhooks → Add endpoint**
 
@@ -41,7 +41,7 @@ Stripe Dashboard → **Developers → Webhooks → Add endpoint**
 - **Events:** `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`
 - Copy signing secret → Railway: `STRIPE_WEBHOOK_SECRET=whsec_...`
 
-### Step 3 — Customer portal (for Manage Billing)
+### Step 3 - Customer portal (for Manage Billing)
 
 Stripe Dashboard → **Settings → Billing → Customer portal → Activate**
 

@@ -1,4 +1,4 @@
-/* ProResume AI — Premium Resume Templates */
+/* ProResume AI - Premium Resume Templates */
 
 .resume-preview {
   background: #fff;
@@ -11,7 +11,7 @@
   overflow: visible;
 }
 
-/* Contact info — prevent browser auto-link styling in templates */
+/* Contact info - prevent browser auto-link styling in templates */
 #resume-preview .tm-contact,
 #resume-preview .tm-contact-item,
 #resume-preview .tm-contact span,
@@ -343,7 +343,7 @@
 .tm-skill-apex { background: #f0fdfa; color: #0f766e; padding: 5px 14px; border-radius: 20px; border: 1px solid #99f6e4; }
 .tm-skills-apex { justify-content: center; }
 .tm-skill-canvas { color: #71717a; padding: 2px 0; letter-spacing: 0.06em; text-transform: uppercase; font-size: 7.5pt; }
-.tm-skill-canvas + .tm-skill-canvas::before { content: '—'; margin: 0 8px; color: #d4d4d8; }
+.tm-skill-canvas + .tm-skill-canvas::before { content: '|'; margin: 0 8px; color: #d4d4d8; }
 .tm-skill-pioneer { display: block; width: 100%; color: #0f172a; padding: 5px 0 5px 12px; border-left: 3px solid #dc2626; margin-bottom: 4px; font-weight: 600; }
 .tm-skill-fusion { background: linear-gradient(135deg, #ccfbf1, #ffedd5); color: #0d9488; padding: 4px 10px; border-radius: 12px; }
 .tm-skill-monarch { background: #f5f3ff; color: #6d28d9; padding: 4px 10px; border-radius: 4px; border: 1px solid #ddd6fe; }
@@ -481,7 +481,7 @@
 
 /* ─── NEW TEMPLATES (10) ─── */
 
-/* HORIZON — horizontal accent bands */
+/* HORIZON - horizontal accent bands */
 .tm-horizon { padding: 0; }
 .tm-horizon .tm-horizon-top { background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%); color: #fff; padding: 32px 40px 28px; }
 .tm-horizon .tm-name { font-size: 26pt; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.03em; }
@@ -491,7 +491,7 @@
 .tm-horizon .tm-section-title { color: #0369a1; border-bottom: 3px solid #0ea5e9; padding-bottom: 6px; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
 .tm-horizon .tm-entry { border-left: 3px solid #e0f2fe; padding-left: 14px; margin-bottom: 16px; }
 
-/* SERIF — traditional professional */
+/* SERIF - traditional professional */
 .tm-serif { padding: 38px 42px; font-family: 'Merriweather', Georgia, serif; }
 .tm-serif .tm-serif-header { border-bottom: 1px solid #1e293b; padding-bottom: 18px; margin-bottom: 22px; }
 .tm-serif .tm-name { font-size: 22pt; font-weight: 700; color: #1e293b; margin: 0 0 4px; }
@@ -500,7 +500,7 @@
 .tm-serif .tm-section-title { font-family: 'Inter', sans-serif; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #1e293b; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 10px; }
 .tm-serif .tm-bullets { font-family: 'Inter', sans-serif; }
 
-/* METRO — dual-tone urban */
+/* METRO - dual-tone urban */
 .tm-metro { padding: 0; }
 .tm-metro .tm-metro-header { display: grid; grid-template-columns: 1fr 8px auto; background: #1e3a5f; color: #fff; padding: 0; }
 .tm-metro .tm-metro-left { padding: 28px 32px; }
@@ -512,7 +512,7 @@
 .tm-metro .tm-section-title { color: #1e3a5f; font-size: 8.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid #f97316; padding-bottom: 4px; margin-bottom: 10px; }
 .tm-metro .tm-side-title { font-size: 8pt; font-weight: 700; text-transform: uppercase; color: #f97316; margin-bottom: 8px; }
 
-/* SLATE — charcoal right sidebar */
+/* SLATE - charcoal right sidebar */
 .tm-slate { display: grid; grid-template-columns: 1fr 200px; min-height: auto; }
 .tm-slate > * { min-width: 0; }
 .tm-slate .tm-slate-main { padding: 32px 34px; }
@@ -525,7 +525,7 @@
 .tm-slate .tm-section-title { font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #1e293b; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 2px solid #1e293b; }
 .tm-slate .tm-slate-side .tm-skill-pill { display: block; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; font-size: 7.5pt; margin-bottom: 4px; }
 
-/* NOVA — dark tech gradient */
+/* NOVA - dark tech gradient */
 .tm-nova { background: #0f172a; color: #e2e8f0; padding: 0; }
 .tm-nova .tm-nova-header { padding: 34px 38px 28px; background: linear-gradient(135deg, #312e81 0%, #4c1d95 50%, #0f172a 100%); }
 .tm-nova .tm-name { font-size: 26pt; font-weight: 800; color: #fff; margin: 0 0 4px; background: linear-gradient(90deg, #a78bfa, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -540,7 +540,7 @@
 .tm-nova .tm-bullets { color: #94a3b8; }
 .tm-nova .tm-skill-pill { background: rgba(167,139,250,0.2); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.3); }
 
-/* APEX — executive top banner */
+/* APEX - executive top banner */
 .tm-apex { padding: 0; }
 .tm-apex .tm-apex-banner { background: linear-gradient(90deg, #0f766e, #115e59); color: #fff; padding: 30px 40px; text-align: center; }
 .tm-apex .tm-name { font-size: 28pt; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 6px; }
@@ -550,7 +550,7 @@
 .tm-apex .tm-apex-full { grid-column: 1 / -1; }
 .tm-apex .tm-section-title { font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #0f766e; border-bottom: 1px solid #0f766e; padding-bottom: 4px; margin-bottom: 10px; }
 
-/* CANVAS — airy editorial */
+/* CANVAS - airy editorial */
 .tm-canvas { padding: 48px 52px; background: #fff; }
 .tm-canvas .tm-name { font-size: 32pt; font-weight: 300; color: #18181b; margin: 0 0 6px; letter-spacing: -0.04em; line-height: 1.1; }
 .tm-canvas .tm-title { font-size: 11pt; color: #71717a; margin: 0 0 24px; font-weight: 400; }
@@ -562,7 +562,7 @@
 .tm-canvas .tm-bullets { list-style: none; padding-left: 0; }
 .tm-canvas .tm-bullets li { padding-left: 0; margin-bottom: 6px; }
 
-/* PIONEER — bold left stripe */
+/* PIONEER - bold left stripe */
 .tm-pioneer { padding: 32px 36px 32px 44px; border-left: 8px solid #dc2626; position: relative; }
 .tm-pioneer .tm-name { font-size: 24pt; font-weight: 900; color: #0f172a; margin: 0 0 2px; letter-spacing: -0.03em; }
 .tm-pioneer .tm-title { font-size: 11pt; font-weight: 600; color: #dc2626; margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -570,7 +570,7 @@
 .tm-pioneer .tm-section-title { font-size: 9pt; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid #dc2626; }
 .tm-pioneer .tm-entry { padding-left: 12px; }
 
-/* ACADEMIC — CV / research style */
+/* ACADEMIC - CV / research style */
 .tm-academic { padding: 30px 38px; font-size: 9.5pt; }
 .tm-academic .tm-acad-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #1e40af; padding-bottom: 14px; margin-bottom: 20px; }
 .tm-academic .tm-name { font-size: 20pt; font-weight: 700; color: #1e3a8a; margin: 0 0 2px; font-family: 'Merriweather', serif; }
@@ -581,7 +581,7 @@
 .tm-academic .tm-entry-meta { font-size: 8.5pt; color: #64748b; font-style: italic; }
 .tm-academic .tm-bullets { font-size: 9pt; }
 
-/* REFINED — navy & gold luxury */
+/* REFINED - navy & gold luxury */
 .tm-refined { background: #fff; padding: 0; }
 .tm-refined .tm-refined-header { background: #1e3a5f; padding: 36px 40px; text-align: center; position: relative; }
 .tm-refined .tm-refined-header::after { content: ''; position: absolute; bottom: 0; left: 10%; right: 10%; height: 3px; background: linear-gradient(90deg, transparent, #d4af37, transparent); }

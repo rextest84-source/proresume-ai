@@ -1,4 +1,4 @@
-// ProResume AI — Advanced Resume Intelligence Engine
+// ProResume AI | Advanced Resume Intelligence Engine
 // Client-side engine producing varied, role-aware, ATS-optimized resume content.
 
 const AIEngine = (() => {
@@ -397,7 +397,7 @@ const AIEngine = (() => {
     }
 
     if (jobRole && !l.toLowerCase().includes(jobRole.toLowerCase().split(' ')[0])) {
-      // keep natural — don't force role into every bullet
+      // keep natural; don't force role into every bullet
     }
 
     return l.endsWith('.') ? l : l + '.';
@@ -550,7 +550,7 @@ const AIEngine = (() => {
     const experience = data.experience.map((exp, idx) => {
       const role = exp.role || data.title || pick(['Team Member', 'Specialist', 'Associate']);
       const company = exp.company || pick(['Previous Employer', 'Current Company', 'Organization']);
-      const dates = exp.dates || (idx === 0 ? `${2019 + idx} – Present` : `${2016 + idx} – ${2018 + idx}`);
+      const dates = exp.dates || (idx === 0 ? `${2019 + idx} - Present` : `${2016 + idx} - ${2018 + idx}`);
       let description = exp.description?.trim();
       if (!description) {
         description = generateBulletsFromRole(role, company, roleId, pick([4, 5, 3])).join('\n');
@@ -653,14 +653,14 @@ const AIEngine = (() => {
   function analyzeATS(data) {
     const tips = [];
     let score = 30;
-    if (data.name) score += 8; else tips.push('Add your full name — ATS systems parse this first.');
+    if (data.name) score += 8; else tips.push('Add your full name. ATS systems parse this first.');
     if (data.title) score += 7; else tips.push('Include a professional title targeting your desired role.');
     if (data.email) score += 5; else tips.push('Add a professional email address.');
     if (data.phone) score += 3;
-    if (data.location) score += 2; else tips.push('Add city and state — many ATS filter by location.');
+    if (data.location) score += 2; else tips.push('Add city and state. Many ATS filter by location.');
     if (data.summary?.length > 100) score += 10;
-    else tips.push('Expand your summary to 3–4 sentences with role keywords and achievements.');
-    if (data.summary?.length > 250) tips.push('Summary may be too long — aim for 50–80 words for ATS readability.');
+    else tips.push('Expand your summary to 3 to 4 sentences with role keywords and achievements.');
+    if (data.summary?.length > 250) tips.push('Summary may be too long. Aim for 50 to 80 words for ATS readability.');
 
     const expFilled = data.experience.filter(e => e.company && e.role && e.description);
     if (expFilled.length) score += 12;
@@ -675,10 +675,10 @@ const AIEngine = (() => {
     else tips.push('Add a dedicated skills section with comma-separated keywords.');
 
     if (data.education.some(e => e.school)) score += 6;
-    else tips.push('Include your education — degree, school, and graduation year.');
+    else tips.push('Include your education: degree, school, and graduation year.');
 
     const weak = bullets.filter(b => /responsible for|duties included|helped with/i.test(b));
-    if (weak.length) tips.push(`Replace weak phrases in ${weak.length} bullet(s) — start with action verbs.`);
+    if (weak.length) tips.push(`Replace weak phrases in ${weak.length} bullet(s). Start with action verbs.`);
 
     return { score: Math.min(score, 98), tips: tips.slice(0, 6) };
   }

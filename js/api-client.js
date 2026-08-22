@@ -1,5 +1,5 @@
 /**
- * ProResume AI — API client for Railway backend
+ * ProResume AI | API client for Railway backend
  */
 const ProResumeAPI = (() => {
   const TOKEN_KEY = 'proresume_token';

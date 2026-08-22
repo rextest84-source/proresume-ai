@@ -24,9 +24,9 @@ const PRODUCTS = [
   { env: 'STRIPE_PRICE_STARTER', name: 'ProResume AI Starter', amount: 800, interval: 'month', plan: 'starter' },
   { env: 'STRIPE_PRICE_PRO', name: 'ProResume AI Pro', amount: 1500, interval: 'month', plan: 'pro' },
   { env: 'STRIPE_PRICE_BUSINESS', name: 'ProResume AI Business', amount: 2000, interval: 'month', plan: 'business' },
-  { env: 'STRIPE_PRICE_CREDITS_25', name: 'ProResume AI — 25 Credits', amount: 499, oneTime: true, pack: 'pack_25' },
-  { env: 'STRIPE_PRICE_CREDITS_100', name: 'ProResume AI — 100 Credits', amount: 1499, oneTime: true, pack: 'pack_100' },
-  { env: 'STRIPE_PRICE_CREDITS_500', name: 'ProResume AI — 500 Credits', amount: 1999, oneTime: true, pack: 'pack_500' }
+  { env: 'STRIPE_PRICE_CREDITS_25', name: 'ProResume AI | 25 Credits', amount: 499, oneTime: true, pack: 'pack_25' },
+  { env: 'STRIPE_PRICE_CREDITS_100', name: 'ProResume AI | 100 Credits', amount: 1499, oneTime: true, pack: 'pack_100' },
+  { env: 'STRIPE_PRICE_CREDITS_500', name: 'ProResume AI | 500 Credits', amount: 1999, oneTime: true, pack: 'pack_500' }
 ];
 
 console.log('\nCreating Stripe products & prices...\n');
@@ -87,6 +87,6 @@ Verify setup:
 Test checkout:
   1. Sign in at ${FRONTEND}/login.html
   2. ${FRONTEND}/pricing.html → Get Pro
-  3. Card: 4242 4242 4242 4242 · any future expiry · any CVC
+  3. Card: 4242 4242 4242 4242, any future expiry, any CVC
   4. Account page should show plan + credits within ~30 seconds
 `);
