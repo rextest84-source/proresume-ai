@@ -19,6 +19,8 @@ import { query } from './db.js';
 applyEnvDefaults();
 
 const app = express();
+// Railway reverse proxy sets X-Forwarded-For (required for express-rate-limit)
+app.set('trust proxy', 1);
 const PORT = getServicePort(3001);
 
 let dbReady = false;
