@@ -1,7 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "services/cron/Dockerfile"
-watchPatterns = ["backend/**", "services/cron/**"]
+dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "node src/cron.js"

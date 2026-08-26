@@ -1,7 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "services/api/Dockerfile"
-watchPatterns = ["backend/**", "services/api/**"]
+dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "node src/index.js"

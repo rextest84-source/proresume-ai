@@ -9,5 +9,8 @@ healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 
-# Legacy layout: Railway root directory = backend
-# Preferred layout: repo root + services/api/ (see railway/services.json)
+# Railway root directory for ALL services: backend
+# Config file per service (set in Railway service settings):
+#   proresume-ai     → services/api/railway.toml
+#   proresume-worker → services/worker/railway.toml
+#   proresume-cron   → services/cron/railway.toml
