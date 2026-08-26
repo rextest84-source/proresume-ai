@@ -1,14 +1,40 @@
-# ProResume AI — Railway multi-service layout
-#
-# | Service          | Root     | Config file           | Dockerfile        |
-# |------------------|----------|-----------------------|-------------------|
-# | proresume-ai     | backend  | railway.toml          | Dockerfile        |
-# | proresume-worker | backend  | railway.worker.toml   | Dockerfile.worker |
-# | proresume-cron   | backend  | railway.cron.toml     | Dockerfile.cron   |
-# | Postgres         | plugin   | —                     | —                 |
-# | Redis            | plugin   | —                     | —                 |
-#
-# Shared variables (API + worker + cron): DATABASE_URL, JWT_SECRET, FRONTEND_URL
-# API only: STRIPE_SECRET_KEY, XAI_API_KEY, CORS_ORIGINS
-# Worker: RESEND_API_KEY (contact emails), REDIS_URL (optional)
-# Cron: none beyond shared
+{
+  "project": "proresume-ai",
+  "rootDirectory": ".",
+  "services": [
+    {
+      "name": "proresume-ai",
+      "config": "services/api/railway.toml",
+      "dockerfile": "services/api/Dockerfile",
+      "sharedVariables": ["DATABASE_URL", "JWT_SECRET", "FRONTEND_URL", "CORS_ORIGINS"],
+      "serviceVariables": ["STRIPE_SECRET_KEY", "XAI_API_KEY", "XAI_MODEL", "REDIS_URL"]
+    },
+    {
+      "name": "proresume-worker",
+      "config": "services/worker/railway.toml",
+      "dockerfile": "services/worker/Dockerfile",
+      "sharedVariables": ["DATABASE_URL", "JWT_SECRET", "FRONTEND_URL"],
+      "serviceVariables": ["REDIS_URL", "RESEND_API_KEY", "SUPPORT_EMAIL", "FROM_EMAIL", "WORKER_POLL_MS"]
+    },
+    {
+      "name": "proresume-cron",
+      "config": "services/cron/railway.toml",
+      "dockerfile": "services/cron/Dockerfile",
+      "sharedVariables": ["DATABASE_URL", "JWT_SECRET", "FRONTEND_URL"],
+      "serviceVariables": ["CRON_INTERVAL_MS"]
+    }
+  ],
+  "plugins": [
+    {
+      "name": "Postgres",
+      "required": true,
+      "provides": ["DATABASE_URL"]
+    },
+    {
+      "name": "Redis",
+      "required": false,
+      "provides": ["REDIS_URL"],
+      "linkTo": ["proresume-ai", "proresume-worker"]
+    }
+  ]
+}

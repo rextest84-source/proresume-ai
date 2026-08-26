@@ -1,6 +1,7 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.cron"
+dockerfilePath = "services/cron/Dockerfile"
+watchPatterns = ["backend/**", "services/cron/**"]
 
 [deploy]
 startCommand = "node src/cron.js"
@@ -8,7 +9,3 @@ healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
-
-# Railway service: proresume-cron
-# Root directory: backend
-# Link: DATABASE_URL (Postgres)

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'backend/**'
+      - 'services/**'
       - 'railway/**'
       - '.github/workflows/railway-services.yml'
 
@@ -16,11 +17,11 @@ jobs:
       matrix:
         include:
           - service: proresume-ai
-            config: railway.toml
+            config: services/api/railway.toml
           - service: proresume-worker
-            config: railway.worker.toml
+            config: services/worker/railway.toml
           - service: proresume-cron
-            config: railway.cron.toml
+            config: services/cron/railway.toml
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +29,6 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy ${{ matrix.service }}
-        working-directory: backend
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |

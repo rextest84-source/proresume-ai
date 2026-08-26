@@ -1,6 +1,7 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "services/api/Dockerfile"
+watchPatterns = ["backend/**", "services/api/**"]
 
 [deploy]
 startCommand = "node src/index.js"
@@ -8,6 +9,3 @@ healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
-
-# Legacy layout: Railway root directory = backend
-# Preferred layout: repo root + services/api/ (see railway/services.json)
