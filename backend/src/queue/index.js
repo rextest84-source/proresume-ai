@@ -1,5 +1,5 @@
 import { query } from '../db.js';
-import { publishJobSignal } from './redis.js';
+import { publishJobSignal } from '../services/redis.js';
 
 export async function enqueueJob(type, payload = {}, { runAt = null, maxAttempts = 5 } = {}) {
   const { rows } = await query(
