@@ -2,6 +2,20 @@
  * Shared responsive site navigation - one nav, no duplicate Sign In links.
  */
 (function () {
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
+  function scrollPageToTop() {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+
+  scrollPageToTop();
+  window.addEventListener('pageshow', scrollPageToTop);
+  window.addEventListener('load', () => requestAnimationFrame(scrollPageToTop));
+
   const HOME_LINKS = [
     { href: '/builder.html', label: 'Resume Builder' },
     { href: '/pricing.html', label: 'Pricing' },

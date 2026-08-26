@@ -1979,7 +1979,21 @@ function refreshTemplateAccess() {
   });
 }
 
+function resetBuilderScroll() {
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  ['editor-panel', 'preview-panel', 'preview-frame', 'builder-main'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollTop = 0;
+  });
+}
+
 async function init() {
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  resetBuilderScroll();
   updateAuthHeader();
   showCloudSaveBanner();
   await refreshLiveAiStatus();
@@ -2008,6 +2022,8 @@ async function init() {
   updateCreditsDisplay();
   setupEvents();
   setupMobileScrollGuard();
+  requestAnimationFrame(resetBuilderScroll);
+  window.addEventListener('pageshow', resetBuilderScroll);
   window.addEventListener('proresume:auth', () => {
     refreshCloudUser();
   });
