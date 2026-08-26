@@ -31,24 +31,19 @@ Stripe Checkout is **not automatic**. Your site redirects users to Stripe's host
 
 ---
 
-### Step 1 - Create products & prices
+### Step 1 - Stripe on Railway
 
-On your computer, in the project folder:
+Add **only** `STRIPE_SECRET_KEY` to Railway (test mode `sk_test_...` is fine).
 
-```bash
-cd backend
-STRIPE_SECRET_KEY=sk_test_YOUR_KEY node scripts/create-stripe-products.js
-```
+On deploy, the API **automatically** creates or finds all 6 products/prices and registers the webhook. You do **not** need to copy price IDs manually.
 
-The script prints **all Railway variables** to copy. Add them in **Railway → Variables**, then redeploy.
+Optional: run `node scripts/create-stripe-products.js` locally if you prefer manual control.
 
 ### Step 2 - Webhook
 
-Stripe Dashboard → **Developers → Webhooks → Add endpoint**
+Usually **auto-created on deploy**. If checkout works but credits do not update after payment:
 
-- **URL:** `https://proresume-ai-production.up.railway.app/api/stripe/webhook`
-- **Events:** `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`
-- Copy signing secret → Railway: `STRIPE_WEBHOOK_SECRET=whsec_...`
+Stripe Dashboard → **Developers → Webhooks** — confirm endpoint exists, or set `STRIPE_WEBHOOK_SECRET` manually.
 
 ### Step 3 - Customer portal (for Manage Billing)
 
@@ -81,17 +76,12 @@ FRONTEND_URL=https://proresume.aeloriacareer.com
 CORS_ORIGINS=https://proresume.aeloriacareer.com,https://aeloriacareer.com,https://ai-proresume.netlify.app
 ```
 
-**Stripe (after running create-stripe-products.js):**
+**Stripe (auto-provision on deploy):**
 ```
 STRIPE_SECRET_KEY
-STRIPE_WEBHOOK_SECRET
-STRIPE_PRICE_STARTER
-STRIPE_PRICE_PRO
-STRIPE_PRICE_BUSINESS
-STRIPE_PRICE_CREDITS_25
-STRIPE_PRICE_CREDITS_100
-STRIPE_PRICE_CREDITS_500
 ```
+
+Optional overrides: `STRIPE_WEBHOOK_SECRET`, individual `STRIPE_PRICE_*` IDs
 
 (CORS also auto-allows `*.netlify.app` and `*.aeloriacareer.com`.)
 

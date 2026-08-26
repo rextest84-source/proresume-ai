@@ -3,6 +3,11 @@ import Stripe from 'stripe';
 import { query } from '../db.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { SUBSCRIPTION_PLANS, CREDIT_PACKS, getPlanLimits } from '../plans.js';
+import {
+  getStripePriceId,
+  getStripeWebhookSecret,
+  getStripeCatalogState
+} from '../services/stripe-catalog.js';
 
 const router = Router();
 
@@ -32,34 +37,15 @@ async function recordCreditTransaction(userId, amount, reason, balanceAfter) {
 
 /** Public - lets frontend show helpful messages when Stripe isn't configured yet */
 router.get('/status', (_req, res) => {
-  const plans = {};
-  for (const [key, cfg] of Object.entries(SUBSCRIPTION_PLANS)) {
-    plans[key] = !!process.env[cfg.priceEnv];
-  }
-  const creditPacks = {};
-  for (const [key, cfg] of Object.entries(CREDIT_PACKS)) {
-    creditPacks[key] = !!process.env[cfg.priceEnv];
-  }
-
-  const hasKey = !!process.env.STRIPE_SECRET_KEY;
-  const hasWebhook = !!process.env.STRIPE_WEBHOOK_SECRET;
-  const subscriptionPlansReady = Object.values(plans).every(Boolean);
-  const creditPacksReady = Object.values(creditPacks).every(Boolean);
-
+  const state = getStripeCatalogState();
   res.json({
-    configured: hasKey,
-    webhook: hasWebhook,
-    plans,
-    creditPacks,
-    subscriptionPlansReady,
-    creditPacksReady,
-    ready: hasKey && hasWebhook && subscriptionPlansReady && creditPacksReady,
+    ...state,
     frontendUrl: process.env.FRONTEND_URL || null,
     missing: [
-      !hasKey && 'STRIPE_SECRET_KEY',
-      !hasWebhook && 'STRIPE_WEBHOOK_SECRET',
-      ...Object.entries(plans).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_${k.toUpperCase()}`),
-      ...Object.entries(creditPacks).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_CREDITS_${k.replace('pack_', '')}`)
+      !state.configured && 'STRIPE_SECRET_KEY',
+      !state.webhook && 'STRIPE_WEBHOOK_SECRET',
+      ...Object.entries(state.plans).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_${k.toUpperCase()}`),
+      ...Object.entries(state.creditPacks).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_CREDITS_${k.replace('pack_', '')}`)
     ].filter(Boolean)
   });
 });
@@ -92,7 +78,7 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     let sessionConfig;
 
     if (type === 'subscription' && plan && SUBSCRIPTION_PLANS[plan]) {
-      const priceId = process.env[SUBSCRIPTION_PLANS[plan].priceEnv];
+      const priceId = getStripePriceId(SUBSCRIPTION_PLANS[plan].priceEnv);
       if (!priceId) {
         return res.status(503).json({ error: `The ${plan} plan is not available yet. Try again soon or contact support@aeloriacareer.com.` });
       }
@@ -107,7 +93,7 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
         subscription_data: { metadata: { userId: req.userId, plan } }
       };
     } else if (type === 'credits' && pack && CREDIT_PACKS[pack]) {
-      const priceId = process.env[CREDIT_PACKS[pack].priceEnv];
+      const priceId = getStripePriceId(CREDIT_PACKS[pack].priceEnv);
       if (!priceId) {
         return res.status(503).json({ error: 'This credit pack is not available yet. Contact support@aeloriacareer.com.' });
       }
@@ -184,7 +170,7 @@ export async function handleStripeWebhook(req, res) {
   if (!stripe) return res.status(503).send('Stripe not configured');
 
   const sig = req.headers['stripe-signature'];
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = getStripeWebhookSecret();
   if (!secret) return res.status(503).send('Webhook secret not configured');
 
   let event;

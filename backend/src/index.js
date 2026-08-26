@@ -6,12 +6,14 @@ import rateLimit from 'express-rate-limit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Stripe from 'stripe';
 import { getPool, query } from './db.js';
 import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resumes.js';
 import stripeRoutes, { handleStripeWebhook } from './routes/stripe.js';
 import aiRoutes from './routes/ai.js';
 import { isGrokConfigured, getGrokModel } from './services/grok.js';
+import { initStripeCatalog } from './services/stripe-catalog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -20,6 +22,14 @@ const PORT = parseInt(process.env.PORT || '3001', 10);
 
 let dbReady = false;
 let dbError = null;
+
+if (!process.env.CORS_ORIGINS?.trim() && process.env.FRONTEND_URL?.trim()) {
+  process.env.CORS_ORIGINS = [
+    process.env.FRONTEND_URL.trim(),
+    'https://aeloriacareer.com',
+    'https://ai-proresume.netlify.app'
+  ].join(',');
+}
 
 if (process.env.DATA_DIR) {
   fs.mkdirSync(process.env.DATA_DIR, { recursive: true });
@@ -98,6 +108,7 @@ async function runMigrations(retries = 8) {
       dbReady = true;
       dbError = null;
       console.log('Database schema applied');
+      await bootstrapStripe();
       return;
     } catch (err) {
       dbError = err.message;
@@ -105,6 +116,17 @@ async function runMigrations(retries = 8) {
       if (attempt === retries) throw err;
       await new Promise(r => setTimeout(r, attempt * 2000));
     }
+  }
+}
+
+async function bootstrapStripe() {
+  const key = process.env.STRIPE_SECRET_KEY?.trim();
+  if (!key) return;
+  try {
+    const stripe = new Stripe(key, { apiVersion: '2024-12-18.acacia' });
+    await initStripeCatalog(stripe);
+  } catch (err) {
+    console.error('Stripe bootstrap failed:', err.message);
   }
 }
 
