@@ -10,12 +10,12 @@ window.LEGAL_CONFIG = {
   supportEmail: 'support@aeloriacareer.com',
   contactUrl: '/contact.html',
   contactLabel: 'Contact form',
-  /** Required for Stripe verification - set your registered business address */
-  addressLine1: '',
-  addressLine2: '',
-  city: '',
-  state: '',
-  postalCode: ''
+  /** Required for Stripe verification - must match Stripe business profile */
+  addressLine1: '176 E Ross St',
+  addressLine2: 'Apartment 5',
+  city: 'Batesville',
+  state: 'AR',
+  postalCode: '72501'
 };
 
 /** Formats business address for legal pages and footers. */
