@@ -64,7 +64,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <li>Add all price IDs + webhook secret to Railway, then redeploy</li>
           <li>Activate Customer Portal in Stripe Dashboard → Settings → Billing</li>
         </ol>
-        <p class="mt-3 text-zinc-500">Missing now: ${missing.slice(0, 6).join(', ')}${missing.length > 6 ? '…' : ''}</p>
+        <p class="mt-3 text-zinc-500">Missing on Railway: ${(s.missing || []).join(', ') || 'none'}</p>
+        <p class="mt-2 text-zinc-600">Full checklist: <a class="text-emerald-400 hover:underline" href="${(window.PRORESUME_CONFIG?.apiUrl || '').replace(/\/$/, '')}/api/setup/status" target="_blank" rel="noopener">/api/setup/status</a></p>
       </div>`;
   }
 

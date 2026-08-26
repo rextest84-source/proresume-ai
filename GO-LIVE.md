@@ -60,14 +60,62 @@ Allow: cancel subscription, update payment method, view invoices.
 
 ## Verify it works
 
-1. Open https://proresume-ai-production.up.railway.app/api/stripe/status  
+1. Open https://proresume-ai-production.up.railway.app/api/setup/status  
+   → Shows **every** Railway variable, PostgreSQL status, and whether Stripe/xAI keys are valid
+
+2. Open https://proresume-ai-production.up.railway.app/api/stripe/status  
    → `"ready": true` when all price IDs + webhook secret are set
 
-2. Sign in → https://proresume.aeloriacareer.com/pricing.html  
+3. Sign in → https://proresume.aeloriacareer.com/pricing.html  
    → Green banner: "Secure checkout via Stripe is active"
 
-3. Click **Get Pro** → pay with test card `4242 4242 4242 4242`  
+4. Click **Get Pro** → pay with test card `4242 4242 4242 4242`  
    → Redirects to account page → plan and credits update within ~30 seconds
+
+---
+
+## Railway services (not just variables)
+
+Your Railway **project** needs these **services**:
+
+| Service | What it does | How to add |
+|---------|----------------|------------|
+| **API** (Node.js) | Auth, resumes, Stripe, Grok | Deploy from GitHub, root directory `backend` |
+| **PostgreSQL** | Cloud saves, user accounts | Project → **+ New** → **Database** → **PostgreSQL** → link `DATABASE_URL` to API |
+
+Optional later: **Volume** mounted at `/data` only if you store uploaded files on disk (`DATA_DIR=/data`). Resume JSON already lives in Postgres.
+
+---
+
+## Current production gaps (check live)
+
+Open `/api/setup/status` on your API URL. As of the last audit, these were the typical blockers:
+
+| Status | Item |
+|--------|------|
+| Usually OK | PostgreSQL, JWT_SECRET, FRONTEND_URL, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, XAI_API_KEY |
+| **Still missing** | All 6 Stripe **price IDs** (see below) |
+| Stripe Dashboard | Customer Portal must be **activated** manually |
+
+**Missing price IDs to add in Railway → Variables:**
+
+```
+STRIPE_PRICE_STARTER
+STRIPE_PRICE_PRO
+STRIPE_PRICE_BUSINESS
+STRIPE_PRICE_CREDITS_25
+STRIPE_PRICE_CREDITS_100
+STRIPE_PRICE_CREDITS_500
+```
+
+Generate them with:
+
+```bash
+cd backend
+STRIPE_SECRET_KEY=sk_test_YOUR_KEY node scripts/create-stripe-products.js
+```
+
+Copy the six `price_...` lines into Railway, **Redeploy**, then confirm `/api/stripe/status` shows `"ready": true`.
 
 ---
 

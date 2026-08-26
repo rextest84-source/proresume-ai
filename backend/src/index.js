@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resumes.js';
 import stripeRoutes, { handleStripeWebhook } from './routes/stripe.js';
 import aiRoutes from './routes/ai.js';
+import setupRoutes from './routes/setup.js';
 import { isGrokConfigured, getGrokModel } from './services/grok.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -81,6 +82,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/setup', setupRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
