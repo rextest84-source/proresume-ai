@@ -20,7 +20,8 @@ export function requireAuth(req, res, next) {
 export async function loadUser(req, res, next) {
   try {
     const { rows } = await query(
-      `SELECT id, email, name, plan, credits, subscription_status, stripe_customer_id, created_at
+      `SELECT id, email, name, plan, credits, subscription_status, stripe_customer_id,
+              email_verified, created_at
        FROM users WHERE id = $1`,
       [req.userId]
     );

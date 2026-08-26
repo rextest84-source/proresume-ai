@@ -60,6 +60,11 @@
         );
         location.href = next;
       } catch (ex) {
+        if (ex.status === 403 && ex.data?.needsVerification) {
+          const email = encodeURIComponent(ex.data.email || document.getElementById('email').value);
+          location.href = `/check-email.html?email=${email}`;
+          return;
+        }
         err.textContent = ex.message;
         err.classList.remove('hidden');
         btn.disabled = false;

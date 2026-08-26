@@ -1,3 +1,8 @@
+import {
+  buildVerificationEmailHtml,
+  buildVerificationEmailText
+} from '../emails/verification-email.js';
+
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@aeloriacareer.com';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'ProResume AI <noreply@aeloriacareer.com>';
 
@@ -31,6 +36,22 @@ export async function sendEmail({ to, subject, text, html }) {
 
   console.log(`[email stub] To: ${to} | Subject: ${subject}\n${text}`);
   return { provider: 'log', id: null };
+}
+
+function frontendUrl() {
+  return (process.env.FRONTEND_URL || 'https://proresume.aeloriacareer.com').replace(/\/$/, '');
+}
+
+export async function sendVerificationEmail({ email, name, token }) {
+  const verifyUrl = `${frontendUrl()}/verify-email.html?token=${encodeURIComponent(token)}`;
+  const subject = 'Verify your ProResume AI account';
+
+  return sendEmail({
+    to: email,
+    subject,
+    text: buildVerificationEmailText({ name, verifyUrl }),
+    html: buildVerificationEmailHtml({ name, verifyUrl })
+  });
 }
 
 export async function sendContactNotification(message) {

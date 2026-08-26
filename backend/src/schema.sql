@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS users (
   stripe_customer_id VARCHAR(255),
   stripe_subscription_id VARCHAR(255),
   subscription_status VARCHAR(50) DEFAULT 'none',
+  email_verified BOOLEAN NOT NULL DEFAULT false,
+  email_verification_token VARCHAR(64),
+  email_verification_expires TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -36,6 +39,11 @@ CREATE TABLE IF NOT EXISTS credit_transactions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_credit_tx_user ON credit_transactions(user_id);
+
+-- Email verification (safe for existing databases)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_token VARCHAR(64);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_expires TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS platform_config (
   key VARCHAR(100) PRIMARY KEY,

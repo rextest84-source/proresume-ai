@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Check Your Email | ProResume AI</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/css/site.css" rel="stylesheet">
+  <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen flex flex-col">
+  <div data-site-nav="minimal"></div>
+
+  <main class="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+    <div class="w-full max-w-md text-center">
+      <div class="icon-wrap icon-wrap-lg mx-auto mb-6" aria-hidden="true"><i class="fa-solid fa-envelope-circle-check"></i></div>
+      <h1 class="text-3xl font-bold mb-3">Check your email</h1>
+      <p class="text-zinc-400 mb-2">We sent a verification link to</p>
+      <p id="email-display" class="text-emerald-400 font-medium mb-6 break-all"></p>
+      <p class="text-zinc-500 text-sm mb-8">Click the link in the email to activate your account. The link expires in 24 hours.</p>
+
+      <p id="resend-msg" class="text-sm mb-4 hidden"></p>
+      <button id="resend-btn" type="button" class="px-6 py-3 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm transition">
+        Resend verification email
+      </button>
+
+      <p class="text-zinc-500 text-sm mt-8">
+        Wrong email? <a href="/signup.html" class="text-emerald-400 hover:underline">Sign up again</a>
+        · <a href="/login.html" class="text-emerald-400 hover:underline">Sign in</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const email = params.get('email') || '';
+    document.getElementById('email-display').textContent = email || 'your email address';
+
+    document.getElementById('resend-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('resend-btn');
+      const msg = document.getElementById('resend-msg');
+      if (!email) {
+        msg.textContent = 'Email address missing. Please sign up again.';
+        msg.className = 'text-sm mb-4 text-amber-400';
+        msg.classList.remove('hidden');
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        await ProResumeAPI.resendVerification(email);
+        msg.textContent = 'Verification email sent. Check your inbox and spam folder.';
+        msg.className = 'text-sm mb-4 text-emerald-400';
+        msg.classList.remove('hidden');
+      } catch (ex) {
+        msg.textContent = ex.message || 'Could not resend email.';
+        msg.className = 'text-sm mb-4 text-red-400';
+        msg.classList.remove('hidden');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Resend verification email';
+    });
+  </script>
+</body>
+</html>

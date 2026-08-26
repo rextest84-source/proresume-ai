@@ -70,8 +70,28 @@ const ProResumeAPI = (() => {
         method: 'POST',
         body: JSON.stringify({ email, password, name })
       });
-      setSession(data.token, data.user);
+      if (data.token && data.user) {
+        setSession(data.token, data.user);
+      }
       return data;
+    },
+
+    async verifyEmail(token) {
+      const data = await request('/api/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token })
+      });
+      if (data.token && data.user) {
+        setSession(data.token, data.user);
+      }
+      return data;
+    },
+
+    async resendVerification(email) {
+      return request('/api/auth/resend-verification', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
     },
 
     async login(email, password) {

@@ -57,11 +57,16 @@
       btn.disabled = true;
       btn.textContent = 'Creating account...';
       try {
-        await ProResumeAPI.register(
+        const data = await ProResumeAPI.register(
           document.getElementById('email').value,
           document.getElementById('password').value,
           document.getElementById('name').value
         );
+        if (data.needsVerification) {
+          const email = encodeURIComponent(data.email || document.getElementById('email').value);
+          location.href = `/check-email.html?email=${email}`;
+          return;
+        }
         location.href = '/builder.html';
       } catch (ex) {
         err.textContent = ex.message;
