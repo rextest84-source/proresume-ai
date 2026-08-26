@@ -4,32 +4,25 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import Stripe from 'stripe';
-import { getPool, query } from './db.js';
+import { applyEnvDefaults, requireCoreEnv, getServicePort } from './lib/env.js';
+import { runMigrations, bootstrapStripe } from './lib/migrate.js';
 import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resumes.js';
 import stripeRoutes, { handleStripeWebhook } from './routes/stripe.js';
 import aiRoutes from './routes/ai.js';
+import contactRoutes from './routes/contact.js';
 import { isGrokConfigured, getGrokModel } from './services/grok.js';
-import { initStripeCatalog } from './services/stripe-catalog.js';
+import { isRedisConfigured } from './services/redis.js';
+import { getQueueStats } from './queue/index.js';
+import { query } from './db.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+applyEnvDefaults();
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3001', 10);
+const PORT = getServicePort(3001);
 
 let dbReady = false;
 let dbError = null;
-
-if (!process.env.CORS_ORIGINS?.trim() && process.env.FRONTEND_URL?.trim()) {
-  process.env.CORS_ORIGINS = [
-    process.env.FRONTEND_URL.trim(),
-    'https://aeloriacareer.com',
-    'https://ai-proresume.netlify.app'
-  ].join(',');
-}
 
 if (process.env.DATA_DIR) {
   fs.mkdirSync(process.env.DATA_DIR, { recursive: true });
@@ -44,9 +37,7 @@ const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || 
 function isAllowedOrigin(origin) {
   if (!origin) return true;
   if (allowedOrigins.includes(origin)) return true;
-  // Auto-allow Netlify preview + production URLs (reduces CORS setup friction)
   if (/^https:\/\/([a-z0-9-]+\.)*netlify\.app$/i.test(origin)) return true;
-  // Auto-allow custom domain (aeloriacareer.com and subdomains)
   if (/^https:\/\/([a-z0-9-]+\.)*aeloriacareer\.com$/i.test(origin)) return true;
   if (origin === 'http://localhost:8080' || origin === 'http://127.0.0.1:8080') return true;
   return false;
@@ -67,11 +58,17 @@ app.use(express.json({ limit: '2mb' }));
 const apiLimiter = rateLimit({ windowMs: 60 * 1000, max: 120 });
 app.use('/api/', apiLimiter);
 
-app.get('/health', (_req, res) => {
+app.get('/health', async (_req, res) => {
+  let queue = null;
+  if (dbReady) {
+    try { queue = await getQueueStats(); } catch { /* ignore */ }
+  }
   res.status(200).json({
     ok: true,
     service: 'proresume-api',
-    database: dbReady ? 'connected' : (dbError ? 'error' : 'connecting')
+    database: dbReady ? 'connected' : (dbError ? 'error' : 'connecting'),
+    redis: isRedisConfigured(),
+    queue
   });
 });
 
@@ -91,54 +88,15 @@ app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/contact', contactRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
-async function runMigrations(retries = 8) {
-  const schemaPath = path.join(__dirname, 'schema.sql');
-  const migrateSql = fs.readFileSync(schemaPath, 'utf8');
-  const pool = getPool();
-
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      await pool.query(migrateSql);
-      dbReady = true;
-      dbError = null;
-      console.log('Database schema applied');
-      await bootstrapStripe();
-      return;
-    } catch (err) {
-      dbError = err.message;
-      console.error(`Migration attempt ${attempt}/${retries} failed:`, err.message);
-      if (attempt === retries) throw err;
-      await new Promise(r => setTimeout(r, attempt * 2000));
-    }
-  }
-}
-
-async function bootstrapStripe() {
-  const key = process.env.STRIPE_SECRET_KEY?.trim();
-  if (!key) return;
-  try {
-    const stripe = new Stripe(key, { apiVersion: '2024-12-18.acacia' });
-    await initStripeCatalog(stripe);
-  } catch (err) {
-    console.error('Stripe bootstrap failed:', err.message);
-  }
-}
-
 async function start() {
-  const missing = [];
-  if (!process.env.JWT_SECRET) missing.push('JWT_SECRET');
-  if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
-
-  if (missing.length) {
-    console.error('FATAL: Missing required environment variables:', missing.join(', '));
-    process.exit(1);
-  }
+  requireCoreEnv();
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`ProResume API listening on port ${PORT}`);
@@ -148,11 +106,20 @@ async function start() {
     } else {
       console.log('Grok AI: not configured (set XAI_API_KEY for live suggestions)');
     }
+    if (isRedisConfigured()) {
+      console.log('Redis: configured for job queue signals');
+    }
   });
 
-  runMigrations().catch(err => {
+  try {
+    await runMigrations();
+    dbReady = true;
+    dbError = null;
+    await bootstrapStripe();
+  } catch (err) {
+    dbError = err.message;
     console.error('Database setup failed:', err.message);
-  });
+  }
 }
 
 start().catch(err => {

@@ -2,12 +2,14 @@ import { Router } from 'express';
 import Stripe from 'stripe';
 import { query } from '../db.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
-import { SUBSCRIPTION_PLANS, CREDIT_PACKS, getPlanLimits } from '../plans.js';
+import { SUBSCRIPTION_PLANS, CREDIT_PACKS } from '../plans.js';
 import {
   getStripePriceId,
   getStripeWebhookSecret,
   getStripeCatalogState
 } from '../services/stripe-catalog.js';
+import { storeStripeEvent } from '../services/stripe-events.js';
+import { enqueueJob } from '../queue/index.js';
 
 const router = Router();
 
@@ -15,24 +17,6 @@ function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
   return new Stripe(key, { apiVersion: '2024-12-18.acacia' });
-}
-
-function planFromSession(session) {
-  return session.metadata?.planType || session.metadata?.plan || 'starter';
-}
-
-function planFromSubscription(sub) {
-  return sub.metadata?.plan ||
-    sub.items?.data?.[0]?.price?.metadata?.plan ||
-    'starter';
-}
-
-async function recordCreditTransaction(userId, amount, reason, balanceAfter) {
-  await query(
-    `INSERT INTO credit_transactions (user_id, amount, reason, balance_after)
-     VALUES ($1, $2, $3, $4)`,
-    [userId, amount, reason, balanceAfter]
-  );
 }
 
 /** Public - lets frontend show helpful messages when Stripe isn't configured yet */
@@ -141,30 +125,7 @@ router.post('/create-portal-session', requireAuth, loadUser, async (req, res) =>
   }
 });
 
-async function activateSubscription(userId, plan, subscriptionId) {
-  const limits = getPlanLimits(plan);
-  const { rows } = await query(
-    `UPDATE users SET plan = $1, credits = credits + $2,
-     stripe_subscription_id = $3, subscription_status = 'active', updated_at = NOW()
-     WHERE id = $4 RETURNING credits`,
-    [plan, limits.monthlyCredits, subscriptionId, userId]
-  );
-  if (rows[0]) {
-    await recordCreditTransaction(userId, limits.monthlyCredits, `subscription_${plan}`, rows[0].credits);
-  }
-}
-
-async function addCreditPack(userId, credits) {
-  const { rows } = await query(
-    'UPDATE users SET credits = credits + $1, updated_at = NOW() WHERE id = $2 RETURNING credits',
-    [credits, userId]
-  );
-  if (rows[0]) {
-    await recordCreditTransaction(userId, credits, 'credit_pack_purchase', rows[0].credits);
-  }
-}
-
-/** Webhook - mount with raw body in index.js */
+/** Webhook - verify, persist, enqueue for worker processing */
 export async function handleStripeWebhook(req, res) {
   const stripe = getStripe();
   if (!stripe) return res.status(503).send('Stripe not configured');
@@ -182,91 +143,13 @@ export async function handleStripeWebhook(req, res) {
   }
 
   try {
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        const userId = session.metadata?.userId || session.client_reference_id;
-        if (!userId) break;
-
-        if (session.mode === 'subscription' && session.subscription) {
-          const plan = planFromSession(session);
-          await activateSubscription(userId, plan, session.subscription);
-        } else if (session.metadata?.credits) {
-          const credits = parseInt(session.metadata.credits, 10);
-          if (credits > 0) await addCreditPack(userId, credits);
-        }
-        break;
-      }
-      case 'customer.subscription.updated': {
-        const sub = event.data.object;
-        const userId = sub.metadata?.userId;
-        const plan = planFromSubscription(sub);
-        if (userId && sub.status === 'active') {
-          await query(
-            `UPDATE users SET plan = $1, subscription_status = 'active',
-             stripe_subscription_id = $2, updated_at = NOW() WHERE id = $3`,
-            [plan, sub.id, userId]
-          );
-        } else if (userId && ['canceled', 'unpaid', 'past_due'].includes(sub.status)) {
-          await query(
-            `UPDATE users SET subscription_status = $1, updated_at = NOW() WHERE id = $2`,
-            [sub.status, userId]
-          );
-        }
-        break;
-      }
-      case 'customer.subscription.deleted': {
-        const sub = event.data.object;
-        const userId = sub.metadata?.userId;
-        if (userId) {
-          await query(
-            `UPDATE users SET plan = 'free', subscription_status = 'cancelled',
-             stripe_subscription_id = NULL, updated_at = NOW() WHERE id = $1`,
-            [userId]
-          );
-        } else {
-          await query(
-            `UPDATE users SET plan = 'free', subscription_status = 'cancelled',
-             stripe_subscription_id = NULL, updated_at = NOW()
-             WHERE stripe_subscription_id = $1`,
-            [sub.id]
-          );
-        }
-        break;
-      }
-      case 'invoice.paid': {
-        const invoice = event.data.object;
-        if (invoice.billing_reason !== 'subscription_cycle') break;
-        const subId = invoice.subscription;
-        const { rows } = await query(
-          'SELECT id, plan FROM users WHERE stripe_subscription_id = $1',
-          [subId]
-        );
-        if (rows[0]) {
-          const limits = getPlanLimits(rows[0].plan);
-          if (limits.monthlyCredits < 999999) {
-            const { rows: updated } = await query(
-              'UPDATE users SET credits = credits + $1, updated_at = NOW() WHERE id = $2 RETURNING credits',
-              [limits.monthlyCredits, rows[0].id]
-            );
-            if (updated[0]) {
-              await recordCreditTransaction(
-                rows[0].id,
-                limits.monthlyCredits,
-                'subscription_renewal',
-                updated[0].credits
-              );
-            }
-          }
-        }
-        break;
-      }
-      default:
-        break;
+    const stored = await storeStripeEvent(event);
+    if (stored) {
+      await enqueueJob('stripe_event', { stripeEventId: event.id });
     }
     res.json({ received: true });
   } catch (err) {
-    console.error('Webhook handler:', err);
+    console.error('Webhook enqueue:', err);
     res.status(500).json({ error: 'Webhook handler failed' });
   }
 }

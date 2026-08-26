@@ -1,0 +1,14 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.worker"
+
+[deploy]
+startCommand = "node src/worker.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+# Railway service: proresume-worker
+# Root directory: backend
+# Link: DATABASE_URL (Postgres), REDIS_URL (Redis plugin, optional)

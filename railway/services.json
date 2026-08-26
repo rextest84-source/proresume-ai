@@ -1,0 +1,14 @@
+# ProResume AI — Railway multi-service layout
+#
+# | Service          | Root     | Config file           | Dockerfile        |
+# |------------------|----------|-----------------------|-------------------|
+# | proresume-ai     | backend  | railway.toml          | Dockerfile        |
+# | proresume-worker | backend  | railway.worker.toml   | Dockerfile.worker |
+# | proresume-cron   | backend  | railway.cron.toml     | Dockerfile.cron   |
+# | Postgres         | plugin   | —                     | —                 |
+# | Redis            | plugin   | —                     | —                 |
+#
+# Shared variables (API + worker + cron): DATABASE_URL, JWT_SECRET, FRONTEND_URL
+# API only: STRIPE_SECRET_KEY, XAI_API_KEY, CORS_ORIGINS
+# Worker: RESEND_API_KEY (contact emails), REDIS_URL (optional)
+# Cron: none beyond shared

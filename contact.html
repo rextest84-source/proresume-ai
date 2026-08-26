@@ -57,10 +57,7 @@
       </div>
 
       <div class="w-full min-w-0">
-        <form id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/contact-success.html" class="bg-zinc-900 p-6 sm:p-8 rounded-2xl border border-white/5 space-y-6 w-full">
-          <input type="hidden" name="form-name" value="contact">
-          <p class="hidden"><label>Don't fill this out: <input name="bot-field"></label></p>
-
+        <form id="contact-form" class="bg-zinc-900 p-6 sm:p-8 rounded-2xl border border-white/5 space-y-6 w-full">
           <div>
             <label for="name" class="block text-sm font-medium mb-2">Full Name</label>
             <input type="text" id="name" name="name" required class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition">
@@ -105,6 +102,7 @@
   <script src="/js/legal-config.js"></script>
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
+  <script src="/js/contact-form.js"></script>
   <script>
     document.getElementById('legal-address-block').innerHTML = window.formatLegalAddress?.() || 'United States';
   </script>

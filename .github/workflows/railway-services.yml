@@ -1,0 +1,37 @@
+name: Railway Services
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'railway/**'
+      - '.github/workflows/railway-services.yml'
+
+jobs:
+  deploy:
+    if: ${{ secrets.RAILWAY_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: proresume-ai
+            config: railway.toml
+          - service: proresume-worker
+            config: railway.worker.toml
+          - service: proresume-cron
+            config: railway.cron.toml
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy ${{ matrix.service }}
+        working-directory: backend
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          cp "${{ matrix.config }}" railway.toml
+          railway link --service "${{ matrix.service }}" || railway link
+          railway up --detach
