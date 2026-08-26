@@ -37,18 +37,18 @@
 
       <section>
         <h2 class="text-xl font-semibold text-white mb-3">4. Subscriptions and Payments</h2>
-        <p><strong>Free Plan:</strong> Provides limited access with 20 AI credits at no cost.</p>
-        <p class="mt-2"><strong>Starter Plan:</strong> $8.00 USD per month. Includes 50 AI credits monthly, 7 templates, and 10 PDF exports.</p>
-        <p class="mt-2"><strong>Pro Plan:</strong> $15.00 USD per month. Includes 200 AI credits monthly, 12 premium templates, unlimited PDF exports, and advanced AI features.</p>
-        <p class="mt-2"><strong>Business Plan:</strong> $20.00 USD per month. Includes unlimited AI credits, all templates, team features, and LinkedIn optimization.</p>
+        <p class="mt-2"><strong>Free Plan:</strong> $0. Includes 20 AI credits, 12 templates, 1 saved resume, and credit-based PDF export (3 credits per export).</p>
+        <p class="mt-2"><strong>Starter Plan:</strong> $8.00 USD per month. Includes 50 AI credits monthly, 31 templates, up to 3 saved resumes, and email support.</p>
+        <p class="mt-2"><strong>Pro Plan:</strong> $15.00 USD per month. Includes 200 AI credits monthly, 56 templates, up to 10 saved resumes, keyword alignment suggestions, cover letter drafts, and priority support.</p>
+        <p class="mt-2"><strong>Business Plan:</strong> $20.00 USD per month. Includes unlimited AI credits, all 64 templates, up to 50 saved resumes, LinkedIn profile tips, and resume checklist reports.</p>
         <p class="mt-2"><strong>AI Credit Packs:</strong> One-time purchases of 25 ($4.99), 100 ($14.99), or 500 ($19.99) credits. Credits do not expire.</p>
-        <p class="mt-2"><strong>Enterprise Plan:</strong> Volume pricing from $20/month for teams and organizations. Contact us via the <a href="/contact.html" class="text-emerald-400 hover:underline">contact form</a> for details.</p>
+        <p class="mt-2"><strong>Enterprise:</strong> Custom volume pricing for teams. Contact us via the <a href="/contact.html" class="text-emerald-400 hover:underline">contact form</a> for details.</p>
         <p class="mt-2">Payments are processed securely through Stripe. By subscribing, you authorize us to charge your payment method on a recurring monthly basis until you cancel. All fees are in U.S. dollars and are non-refundable except as stated in our <a href="/refund-policy.html" class="text-emerald-400 hover:underline">Refund Policy</a>.</p>
       </section>
 
       <section>
         <h2 class="text-xl font-semibold text-white mb-3">5. Cancellation</h2>
-        <p>You may cancel your subscription at any time through your account settings or by submitting a request through our <a href="/contact.html" class="text-emerald-400 hover:underline">contact form</a>. Cancellation takes effect at the end of your current billing period. You will retain access to Pro features until the end of the paid period. No cancellation fees apply.</p>
+        <p>You may cancel your subscription at any time from your <a href="/account.html" class="text-emerald-400 hover:underline">Account</a> page by clicking <strong>Manage Billing</strong>, which opens the secure Stripe Customer Portal. You can also submit a request through our <a href="/contact.html" class="text-emerald-400 hover:underline">contact form</a>. Cancellation takes effect at the end of your current billing period. You will retain access to paid features until the end of the paid period. No cancellation fees apply.</p>
       </section>
 
       <section>
@@ -90,6 +90,7 @@
         <h2 class="text-xl font-semibold text-white mb-3">13. Contact</h2>
         <p>For questions about these Terms, contact us at:</p>
         <p class="mt-2">Aeloria Career Services<br>
+        <span id="legal-address-block">United States</span><br>
         Website: <a href="https://proresume.aeloriacareer.com" class="text-emerald-400 hover:underline">https://proresume.aeloriacareer.com</a><br>
         Email: <a href="mailto:support@aeloriacareer.com" class="text-emerald-400 hover:underline">support@aeloriacareer.com</a><br>
         Contact form: <a href="/contact.html" class="text-emerald-400 hover:underline">Contact us</a></p>
@@ -103,7 +104,11 @@
     </div>
   </footer>
   <script src="/js/config.js"></script>
+  <script src="/js/legal-config.js"></script>
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
+  <script>
+    document.getElementById('legal-address-block').innerHTML = window.formatLegalAddress?.() || 'United States';
+  </script>
 </body>
 </html>

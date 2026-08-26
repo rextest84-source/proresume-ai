@@ -9,6 +9,9 @@ const STARTING_CREDITS = 20;
 // Set to false for production - credits enforced via Railway API when logged in.
 const UNLIMITED_AI = false;
 
+/** Temporary QA flag: all templates visible/selectable. Set false before re-enabling paid gating. */
+const PREVIEW_ALL_TEMPLATES = true;
+
 let cloudResumeId = localStorage.getItem('proresume_resume_id');
 let cloudSaveTimer = null;
 let cloudUser = null;
@@ -40,7 +43,7 @@ function getTemplateTier(templateId) {
 }
 
 function canAccessTemplate(templateId) {
-  if (UNLIMITED_AI) return true;
+  if (PREVIEW_ALL_TEMPLATES || UNLIMITED_AI) return true;
   const userRank = PLAN_TEMPLATE_RANK[getUserPlan()] ?? 0;
   const templateRank = PLAN_TEMPLATE_RANK[getTemplateTier(templateId)] ?? 0;
   return userRank >= templateRank;
@@ -122,6 +125,20 @@ async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'smart sugges
     showToast(UNLIMITED_AI ? '✦ Suggestions ready!' : `✦ ${liveLabel} (−${creditCost} credit${creditCost > 1 ? 's' : ''})`);
     schedulePreviewUpdate();
   } catch (e) {
+    if (useLive && liveAction && e.status !== 402 && e.message !== 'empty' && e.message !== 'need_title') {
+      try {
+        if (regenerate) AIEngine.regenerateSeed();
+        await fn(false);
+        showToast('Live AI unavailable. Offline suggestions applied instead.', 'warning');
+        schedulePreviewUpdate();
+        return;
+      } catch (fallbackErr) {
+        if (fallbackErr.message === 'empty') showToast(fallbackErr.hint || 'Add some text first', 'warning');
+        else if (fallbackErr.message === 'need_title') showToast(fallbackErr.hint || 'Add your job title first', 'warning');
+        else showToast('Suggestions failed. Try again.', 'warning');
+        return;
+      }
+    }
     if (useLive) {
       if (e.status === 402) {
         showUpgradeModal(`Need ${creditCost} credits for ${featureName}. You have ${e.data?.credits ?? 0}.`);
@@ -1224,7 +1241,7 @@ function selectTemplate(template) {
     btn.classList.toggle('opacity-60', !canAccessTemplate(btn.dataset.template));
   });
   renderPreview(true);
-  if (!canAccessTemplate(template)) {
+  if (!PREVIEW_ALL_TEMPLATES && !canAccessTemplate(template)) {
     showUpgradeModal(`${TIER_LABELS[getTemplateTier(template)]} templates`);
   }
 }
@@ -1590,7 +1607,7 @@ async function exportResume(format = 'pdf') {
   const label = EXPORT_LABEL_MAP[format] || 'File';
 
   const tpl = normalizeTemplate(resumeData.template);
-  if (!canAccessTemplate(tpl)) {
+  if (!PREVIEW_ALL_TEMPLATES && !canAccessTemplate(tpl)) {
     showUpgradeModal(`${TIER_LABELS[getTemplateTier(tpl)]} templates`);
     return;
   }
@@ -1932,15 +1949,17 @@ function renderTemplatePicker() {
 
   const accessible = countAccessibleTemplates();
   if (label) {
-    label.textContent = accessible >= catalog.length
-      ? `${catalog.length} professional designs`
-      : `${catalog.length} designs, ${accessible} on your plan`;
+    label.textContent = PREVIEW_ALL_TEMPLATES
+      ? `${catalog.length} professional designs (all unlocked for preview)`
+      : accessible >= catalog.length
+        ? `${catalog.length} professional designs`
+        : `${catalog.length} designs, ${accessible} on your plan`;
   }
 
   grid.innerHTML = catalog.map(t => {
     const orient = window.TEMPLATE_EXTENSIONS?.getOrientation?.(t.id) || 'portrait';
     const thumbClass = orient === 'landscape' ? 'tpl-thumb-landscape' : 'tpl-thumb-portrait';
-    const locked = !canAccessTemplate(t.id);
+    const locked = !PREVIEW_ALL_TEMPLATES && !canAccessTemplate(t.id);
     return `
     <button data-action="select-template" data-template="${t.id}" class="template-btn p-2 bg-zinc-800 rounded-lg border border-white/10 text-center relative${locked ? ' opacity-60' : ''}" title="${t.label}${locked ? ' (upgrade to unlock)' : ''}">
       ${locked ? '<span class="absolute top-1 right-1 text-[8px] text-zinc-400" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>' : ''}

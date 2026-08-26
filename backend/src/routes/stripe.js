@@ -54,7 +54,13 @@ router.get('/status', (_req, res) => {
     subscriptionPlansReady,
     creditPacksReady,
     ready: hasKey && hasWebhook && subscriptionPlansReady && creditPacksReady,
-    frontendUrl: process.env.FRONTEND_URL || null
+    frontendUrl: process.env.FRONTEND_URL || null,
+    missing: [
+      !hasKey && 'STRIPE_SECRET_KEY',
+      !hasWebhook && 'STRIPE_WEBHOOK_SECRET',
+      ...Object.entries(plans).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_${k.toUpperCase()}`),
+      ...Object.entries(creditPacks).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_CREDITS_${k.replace('pack_', '')}`)
+    ].filter(Boolean)
   });
 });
 
@@ -122,7 +128,11 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     res.json({ url: session.url, sessionId: session.id });
   } catch (err) {
     console.error('checkout:', err);
-    res.status(500).json({ error: 'Failed to create checkout session. Try again or contact support@aeloriacareer.com.' });
+    const msg = err?.message || '';
+    if (msg.includes('No such price')) {
+      return res.status(503).json({ error: 'This plan price ID is invalid on Stripe. Re-run create-stripe-products.js and update Railway variables.' });
+    }
+    res.status(500).json({ error: err.message || 'Failed to create checkout session. Try again or contact support@aeloriacareer.com.' });
   }
 });
 

@@ -45,7 +45,7 @@
           <div class="icon-wrap icon-wrap-md mb-4" aria-hidden="true"><i class="fa-solid fa-building"></i></div>
           <h3 class="font-semibold text-lg mb-2">Company</h3>
           <p class="text-zinc-400 text-sm mb-3">Aeloria Career Services</p>
-          <p class="text-zinc-400 text-sm">Operates ProResume AI, United States</p>
+          <p id="legal-address-block" class="text-zinc-400 text-sm">United States</p>
           <p class="text-zinc-400 text-sm mt-2"><a href="https://proresume.aeloriacareer.com" class="text-emerald-400 hover:underline">proresume.aeloriacareer.com</a></p>
         </div>
         <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
@@ -102,7 +102,11 @@
     </div>
   </footer>
   <script src="/js/config.js"></script>
+  <script src="/js/legal-config.js"></script>
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
+  <script>
+    document.getElementById('legal-address-block').innerHTML = window.formatLegalAddress?.() || 'United States';
+  </script>
 </body>
 </html>

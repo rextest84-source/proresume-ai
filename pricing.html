@@ -23,6 +23,7 @@
       <p class="text-xl text-zinc-400 max-w-2xl mx-auto">Start free. Upgrade for more AI credits, templates, and exports. All payments processed securely via Stripe.</p>
       <p id="checkout-notice" class="mt-4 text-sm text-amber-400/90 max-w-xl mx-auto">Sign in or create a free account before subscribing. Checkout requires an account.</p>
       <p id="stripe-status-banner" class="hidden mt-3 text-sm text-zinc-500 max-w-xl mx-auto"></p>
+      <div id="stripe-setup-panel" class="hidden"></div>
     </div>
 
     <!-- Subscription Plans -->
@@ -34,7 +35,7 @@
         <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>20 AI credits</li>
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>12 templates</li>
-          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>1 PDF export</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>PDF export (3 credits each)</li>
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>1 resume</li>
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Resume checklist score</li>
         </ul>
@@ -48,7 +49,7 @@
         <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
           <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>50 AI credits/mo</li>
           <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>31 templates</li>
-          <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>10 PDF exports/mo</li>
+          <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>PDF export (3 credits each)</li>
           <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>3 resumes</li>
           <li><i class="fa-solid fa-check text-blue-400 mr-2"></i>Email support</li>
         </ul>
@@ -63,7 +64,7 @@
         <ul class="space-y-3 text-sm flex-1 mb-6">
           <li><i class="fa-solid fa-check mr-2"></i>200 AI credits/mo</li>
           <li><i class="fa-solid fa-check mr-2"></i>56 premium templates</li>
-          <li><i class="fa-solid fa-check mr-2"></i>Unlimited PDF exports</li>
+          <li><i class="fa-solid fa-check mr-2"></i>PDF export (3 credits each)</li>
           <li><i class="fa-solid fa-check mr-2"></i>Keyword alignment suggestions</li>
           <li><i class="fa-solid fa-check mr-2"></i>Cover letter drafts</li>
           <li><i class="fa-solid fa-check mr-2"></i>Priority support</li>
@@ -78,10 +79,10 @@
         <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Unlimited AI credits</li>
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>All 64 templates</li>
-          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Unlimited exports</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>PDF export (3 credits each)</li>
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>LinkedIn profile tips</li>
-          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Team sharing (5 seats)</li>
           <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Resume checklist reports</li>
+          <li><i class="fa-solid fa-check text-purple-400 mr-2"></i>Priority email support</li>
         </ul>
         <button type="button" data-checkout-plan="business" class="block w-full py-3 text-center bg-purple-600 hover:bg-purple-500 rounded-xl font-semibold text-sm transition">Get Business</button>
       </div>
@@ -92,10 +93,9 @@
         <p class="text-zinc-500 text-xs mb-6">from $20/mo, volume pricing</p>
         <ul class="space-y-3 text-sm text-zinc-400 flex-1 mb-6">
           <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Everything in Business</li>
-          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Unlimited team seats</li>
-          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>SSO & admin dashboard</li>
-          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Custom branding</li>
-          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Dedicated manager</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Volume pricing for teams</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Custom onboarding</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Dedicated account manager</li>
         </ul>
         <a href="/contact.html?plan=enterprise" class="block py-3 text-center border border-white/20 rounded-xl font-semibold text-sm hover:bg-white/5 transition">Contact Sales</a>
       </div>

@@ -18,9 +18,18 @@ Everything you need in one place. The code is ready - connect Stripe on Railway 
 | Legal pages | Terms, Privacy, Refunds |
 | Pricing + Stripe checkout code | `/pricing.html` |
 
----
+## Stripe account: when can you build checkout?
 
-## Connect Stripe (3 steps, ~15 min)
+You need a **Stripe account first** to get API keys. You do not wait for full business verification to start building.
+
+1. **Sign up at stripe.com** (free). You immediately get **test mode** keys (`sk_test_...`).
+2. **Build and test checkout** using test keys and test card `4242 4242 4242 4242`.
+3. **Submit business verification** in Stripe Dashboard when ready for live payments.
+4. After approval, switch Railway to **live keys** (`sk_live_...`) and live price IDs.
+
+Stripe Checkout is **not automatic**. Your site redirects users to Stripe's hosted payment page via the API you integrate (already built in this repo). Stripe handles card entry and security; you must provide products, price IDs, webhooks, and the Customer Portal.
+
+---
 
 ### Step 1 - Create products & prices
 
