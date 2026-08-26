@@ -114,8 +114,9 @@ router.post('/generate', aiLimiter, requireAuth, loadUser, async (req, res) => {
     }
 
     console.error('AI generate:', err);
+    const detail = err.message?.includes('Grok') ? err.message : 'Live AI request failed';
     res.status(502).json({
-      error: 'Live AI request failed. Credits were refunded if charged.',
+      error: `${detail}. Credits were refunded if charged.`,
       credits: creditsAfter
     });
   }
