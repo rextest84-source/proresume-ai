@@ -60,7 +60,7 @@ async function refundCredits(userId, amount, balanceAfter) {
 /** Live Grok generation - auth required, credits deducted atomically */
 router.post('/generate', aiLimiter, requireAuth, loadUser, async (req, res) => {
   if (!isGrokConfigured()) {
-    return res.status(503).json({ error: 'Live AI is not configured yet.' });
+    return res.status(503).json({ error: 'AI suggestions are temporarily unavailable. Offline suggestions still work.' });
   }
 
   const { action, resume, jobText, experienceIndex, regenerate } = req.body;

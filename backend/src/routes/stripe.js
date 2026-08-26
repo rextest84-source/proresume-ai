@@ -24,13 +24,7 @@ router.get('/status', (_req, res) => {
   const state = getStripeCatalogState();
   res.json({
     ...state,
-    frontendUrl: process.env.FRONTEND_URL || null,
-    missing: [
-      !state.configured && 'STRIPE_SECRET_KEY',
-      !state.webhook && 'STRIPE_WEBHOOK_SECRET',
-      ...Object.entries(state.plans).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_${k.toUpperCase()}`),
-      ...Object.entries(state.creditPacks).filter(([, ok]) => !ok).map(([k]) => `STRIPE_PRICE_CREDITS_${k.replace('pack_', '')}`)
-    ].filter(Boolean)
+    frontendUrl: process.env.FRONTEND_URL || null
   });
 });
 
@@ -52,7 +46,7 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
   try {
     const stripe = getStripe();
     if (!stripe) {
-      return res.status(503).json({ error: 'Payments not configured yet. Email support@aeloriacareer.com for help.' });
+      return res.status(503).json({ error: 'Payments are temporarily unavailable. Email support@aeloriacareer.com for help.' });
     }
 
     const { type, plan, pack } = req.body;
@@ -64,7 +58,7 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     if (type === 'subscription' && plan && SUBSCRIPTION_PLANS[plan]) {
       const priceId = getStripePriceId(SUBSCRIPTION_PLANS[plan].priceEnv);
       if (!priceId) {
-        return res.status(503).json({ error: `The ${plan} plan is not available yet. Try again soon or contact support@aeloriacareer.com.` });
+        return res.status(503).json({ error: `The ${plan} plan is temporarily unavailable. Contact support@aeloriacareer.com.` });
       }
       sessionConfig = {
         mode: 'subscription',
@@ -79,7 +73,7 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     } else if (type === 'credits' && pack && CREDIT_PACKS[pack]) {
       const priceId = getStripePriceId(CREDIT_PACKS[pack].priceEnv);
       if (!priceId) {
-        return res.status(503).json({ error: 'This credit pack is not available yet. Contact support@aeloriacareer.com.' });
+        return res.status(503).json({ error: 'This credit pack is temporarily unavailable. Contact support@aeloriacareer.com.' });
       }
       sessionConfig = {
         mode: 'payment',
@@ -100,7 +94,7 @@ router.post('/create-checkout-session', requireAuth, loadUser, async (req, res) 
     console.error('checkout:', err);
     const msg = err?.message || '';
     if (msg.includes('No such price')) {
-      return res.status(503).json({ error: 'This plan price ID is invalid on Stripe. Re-run create-stripe-products.js and update Railway variables.' });
+      return res.status(503).json({ error: 'Checkout is temporarily unavailable. Email support@aeloriacareer.com for help.' });
     }
     res.status(500).json({ error: err.message || 'Failed to create checkout session. Try again or contact support@aeloriacareer.com.' });
   }
