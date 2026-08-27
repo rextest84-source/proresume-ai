@@ -4,7 +4,7 @@ import {
 } from '../emails/verification-email.js';
 
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@aeloriacareer.com';
-const FROM_EMAIL = process.env.FROM_EMAIL || `ProResume AI <${SUPPORT_EMAIL}>`;
+const FROM_EMAIL = process.env.FROM_EMAIL || 'ProResume AI <noreply@aeloriacareer.com>';
 const REPLY_TO = process.env.REPLY_TO_EMAIL || SUPPORT_EMAIL;
 
 export function isEmailConfigured() {
