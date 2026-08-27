@@ -22,5 +22,5 @@
     { "name": "Postgres", "required": true, "provides": ["DATABASE_URL"] },
     { "name": "Redis", "required": false, "provides": ["REDIS_URL"] }
   ],
-  "sharedVariables": ["DATABASE_URL", "JWT_SECRET", "FRONTEND_URL", "CORS_ORIGINS", "RESEND_API_KEY", "FROM_EMAIL"]
+  "sharedVariables": ["DATABASE_URL", "JWT_SECRET", "FRONTEND_URL", "CORS_ORIGINS", "RESEND_API_KEY", "SUPPORT_EMAIL", "FROM_EMAIL", "REPLY_TO_EMAIL"]
 }
