@@ -30,7 +30,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2" for="password">Password</label>
-          <input id="password" type="password" required minlength="8" autocomplete="new-password" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 focus:border-emerald-500/50 focus:outline-none">
+          <input id="password" type="password" required minlength="8" autocomplete="new-password" data-password-toggle class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 focus:border-emerald-500/50 focus:outline-none">
           <p class="text-zinc-500 text-xs mt-1">At least 8 characters</p>
         </div>
         <p id="error" class="text-red-400 text-sm hidden"></p>
@@ -46,6 +46,7 @@
   <script src="/js/config.js"></script>
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
+  <script src="/js/password-toggle.js"></script>
   <script>
     if (ProResumeAPI.isLoggedIn()) location.href = '/account.html';
 
