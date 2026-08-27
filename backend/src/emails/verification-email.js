@@ -43,8 +43,11 @@ export function buildVerificationEmailHtml({ name, verifyUrl }) {
               <p style="margin:0 0 28px;font-size:12px;line-height:1.5;word-break:break-all;">
                 <a href="${verifyUrl}" style="color:#34d399;text-decoration:none;">${verifyUrl}</a>
               </p>
-              <p style="margin:0;font-size:13px;line-height:1.5;color:#52525b;">
+              <p style="margin:0 0 12px;font-size:13px;line-height:1.5;color:#52525b;">
                 If you did not create an account, you can safely ignore this email.
+              </p>
+              <p style="margin:0;font-size:13px;line-height:1.5;color:#52525b;">
+                Need help? Email <a href="mailto:support@aeloriacareer.com" style="color:#71717a;text-decoration:underline;">support@aeloriacareer.com</a>
               </p>
             </td>
           </tr>
@@ -73,6 +76,8 @@ Verify your ProResume AI account by opening this link (expires in 24 hours):
 ${verifyUrl}
 
 If you did not create an account, ignore this email.
+
+Questions? support@aeloriacareer.com
 
 — ProResume AI / Aeloria Career Services`;
 }

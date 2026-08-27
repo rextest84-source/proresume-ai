@@ -4,28 +4,32 @@ import {
 } from '../emails/verification-email.js';
 
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@aeloriacareer.com';
-const FROM_EMAIL = process.env.FROM_EMAIL || 'ProResume AI <noreply@aeloriacareer.com>';
+const FROM_EMAIL = process.env.FROM_EMAIL || `ProResume AI <${SUPPORT_EMAIL}>`;
+const REPLY_TO = process.env.REPLY_TO_EMAIL || SUPPORT_EMAIL;
 
 export function isEmailConfigured() {
   return Boolean(process.env.RESEND_API_KEY?.trim() || process.env.SMTP_URL?.trim());
 }
 
-export async function sendEmail({ to, subject, text, html }) {
+export async function sendEmail({ to, subject, text, html, replyTo = REPLY_TO }) {
   const resendKey = process.env.RESEND_API_KEY?.trim();
   if (resendKey) {
+    const payload = {
+      from: FROM_EMAIL,
+      to: [to],
+      subject,
+      text,
+      html: html || text.replace(/\n/g, '<br>')
+    };
+    if (replyTo) payload.reply_to = replyTo;
+
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${resendKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [to],
-        subject,
-        text,
-        html: html || text.replace(/\n/g, '<br>')
-      })
+      body: JSON.stringify(payload)
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -84,6 +88,6 @@ export async function sendContactNotification(message) {
   await sendEmail({
     to: message.email,
     subject: 'We received your message - ProResume AI',
-    text: `Hi ${message.name},\n\nThanks for contacting ProResume AI. We received your message and will respond within 1 business day.\n\n— Aeloria Career Services`
+    text: `Hi ${message.name},\n\nThanks for contacting ProResume AI. We received your message and will respond within 1 business day.\n\nReply to this email or write to ${SUPPORT_EMAIL} if you need to follow up.\n\n— Aeloria Career Services`
   });
 }
