@@ -91,3 +91,37 @@ body.nav-menu-open {
   outline: 2px solid rgba(16, 185, 129, 0.5);
   outline-offset: 2px;
 }
+
+.credit-cost-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.ai-btn .credit-cost-badge {
+  margin-left: 0.125rem;
+}
+
+.export-menu-item {
+  justify-content: space-between;
+}
+
+.export-menu-item .credit-cost-badge {
+  margin-left: auto;
+}
+
+.credits-pill {
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}

@@ -54,12 +54,16 @@ function countAccessibleTemplates() {
   return catalog.filter(t => canAccessTemplate(t.id)).length;
 }
 
-const CREDIT_COSTS = {
+const CREDIT_COSTS = window.ProResumeCredits?.costs || {
   enhance_summary: 2, enhance_exp: 2, export_pdf: 3, export_png: 2, export_jpeg: 2,
   export_doc: 3, export_html: 2, export_rtf: 2, regenerate: 1,
   build_resume: 5, suggest_skills: 1,
   job_match: 5, cover_letter: 4, ats_scan: 2, linkedin: 3
 };
+
+function applyCreditCostBadges(root) {
+  window.ProResumeCredits?.applyActionBadges(root);
+}
 
 // ─── AI (Grok via Railway when signed in, else ai-engine.js templates) ───
 
@@ -1212,6 +1216,7 @@ function renderExperienceFields() {
       </button>
     </div>
   `).join('');
+  applyCreditCostBadges(container);
 }
 
 function renderEducationFields() {
@@ -2017,6 +2022,7 @@ async function init() {
 
   renderExperienceFields();
   renderEducationFields();
+  applyCreditCostBadges(document);
   selectTemplate(resumeData.template);
   renderPreview();
   updateCreditsDisplay();
