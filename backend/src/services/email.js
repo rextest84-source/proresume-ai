@@ -2,6 +2,14 @@ import {
   buildVerificationEmailHtml,
   buildVerificationEmailText
 } from '../emails/verification-email.js';
+import {
+  buildContactReceiptHtml,
+  buildContactReceiptText,
+  buildContactStaffHtml,
+  buildContactStaffText,
+  contactStaffSubject
+} from '../emails/contact-emails.js';
+import { getEmailLogoAttachment } from '../emails/email-branding.js';
 
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@aeloriacareer.com';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'ProResume AI <noreply@aeloriacareer.com>';
@@ -22,6 +30,9 @@ export async function sendEmail({ to, subject, text, html, replyTo = REPLY_TO })
       html: html || text.replace(/\n/g, '<br>')
     };
     if (replyTo) payload.reply_to = replyTo;
+    if (html) {
+      payload.attachments = [getEmailLogoAttachment()];
+    }
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -59,35 +70,18 @@ export async function sendVerificationEmail({ email, name, token }) {
 }
 
 export async function sendContactNotification(message) {
-  const subjectLabels = {
-    support: 'Customer Support',
-    billing: 'Billing & Subscriptions',
-    refund: 'Refund Request',
-    sales: 'Sales & Enterprise',
-    other: 'General Inquiry'
-  };
-  const subjectLabel = subjectLabels[message.subject] || message.subject;
-  const text = [
-    `New contact form submission`,
-    '',
-    `Name: ${message.name}`,
-    `Email: ${message.email}`,
-    `Subject: ${subjectLabel}`,
-    '',
-    message.message,
-    '',
-    `Message ID: ${message.id}`
-  ].join('\n');
-
   await sendEmail({
     to: SUPPORT_EMAIL,
-    subject: `[ProResume AI] ${subjectLabel} from ${message.name}`,
-    text
+    subject: contactStaffSubject(message),
+    text: buildContactStaffText(message),
+    html: buildContactStaffHtml(message),
+    replyTo: message.email
   });
 
   await sendEmail({
     to: message.email,
     subject: 'We received your message - ProResume AI',
-    text: `Hi ${message.name},\n\nThanks for contacting ProResume AI. We received your message and will respond within 1 business day.\n\nReply to this email or write to ${SUPPORT_EMAIL} if you need to follow up.\n\n— Aeloria Career Services`
+    text: buildContactReceiptText({ name: message.name }),
+    html: buildContactReceiptHtml({ name: message.name })
   });
 }

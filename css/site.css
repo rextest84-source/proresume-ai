@@ -96,16 +96,24 @@ body.nav-menu-open {
   display: inline-flex;
   align-items: center;
   margin-left: 0.25rem;
-  padding: 0.125rem 0.375rem;
+  padding: 0.125rem 0.5rem;
   border-radius: 9999px;
   font-size: 0.625rem;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.2;
   color: #fbbf24;
   background: rgba(245, 158, 11, 0.12);
   border: 1px solid rgba(245, 158, 11, 0.25);
   vertical-align: middle;
   white-space: nowrap;
+}
+
+.builder-tool-btn .credit-cost-badge {
+  display: block;
+  margin-left: 0;
+  margin-top: 0.375rem;
+  width: fit-content;
+  font-size: 0.625rem;
 }
 
 .ai-btn .credit-cost-badge {

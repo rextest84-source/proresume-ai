@@ -61,7 +61,7 @@
   }
 
   function badgeText(n) {
-    return `${n} cr`;
+    return formatCredits(n);
   }
 
   function getCostForAction(action, format) {
@@ -100,14 +100,14 @@
         badge.className = 'credit-cost-badge';
         badge.setAttribute('aria-label', formatCredits(cost));
         if (el.classList.contains('builder-tool-btn')) {
-          const paragraphs = el.querySelectorAll('p');
-          const subtitle = paragraphs[paragraphs.length - 1];
-          if (subtitle) {
-            subtitle.appendChild(document.createTextNode(' · '));
-            subtitle.appendChild(badge);
-          } else {
-            el.appendChild(badge);
+          let line = el.querySelector('.tool-credit-line');
+          if (!line) {
+            line = document.createElement('p');
+            line.className = 'tool-credit-line text-[10px] text-zinc-500 mt-1';
+            el.appendChild(line);
           }
+          line.textContent = formatCredits(cost);
+          return;
         } else if (action === 'export-resume') {
           el.classList.add('export-menu-item');
           el.appendChild(badge);
