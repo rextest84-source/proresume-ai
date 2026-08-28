@@ -1,4 +1,4 @@
-/** AI credit costs - keep in sync with js/builder.js CREDIT_COSTS */
+/** AI credit costs - keep in sync with js/credit-costs.js */
 export const AI_CREDIT_COSTS = {
   enhance_summary: 2,
   enhance_exp: 2,
