@@ -147,26 +147,25 @@
       </div>
     </section>
 
-    <!-- Credit costs table -->
-    <section class="max-w-3xl mx-auto">
-      <h2 class="text-2xl font-bold text-center mb-8">What credits are used for</h2>
-      <div class="bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden">
-        <table class="w-full text-sm">
-          <thead class="bg-zinc-800 text-zinc-300">
-            <tr><th class="text-left p-4 font-semibold">Feature</th><th class="text-right p-4 font-semibold">Credits</th></tr>
-          </thead>
-          <tbody class="text-zinc-400 divide-y divide-white/5">
-            <tr><td class="p-4">Summary suggestions</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
-            <tr><td class="p-4">Experience suggestions</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
-            <tr><td class="p-4">PDF Export</td><td class="p-4 text-right text-amber-400 font-semibold">3</td></tr>
-            <tr><td class="p-4">PNG / JPEG Export</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
-            <tr><td class="p-4">Keyword Alignment</td><td class="p-4 text-right text-amber-400 font-semibold">5</td></tr>
-            <tr><td class="p-4">Cover Letter Draft</td><td class="p-4 text-right text-amber-400 font-semibold">4</td></tr>
-            <tr><td class="p-4">Resume Checklist</td><td class="p-4 text-right text-amber-400 font-semibold">2</td></tr>
-            <tr><td class="p-4">LinkedIn Profile Tips</td><td class="p-4 text-right text-amber-400 font-semibold">3</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Credit rate card (reference — costs also shown on each action in the builder) -->
+    <section id="credit-rate-card" class="max-w-3xl mx-auto">
+      <details class="bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden group">
+        <summary class="p-5 sm:p-6 cursor-pointer font-semibold flex justify-between items-center gap-4 list-none [&::-webkit-details-marker]:hidden">
+          <span>
+            <span class="block text-lg">Credit rate card</span>
+            <span class="block text-sm font-normal text-zinc-500 mt-1">Full list of what each action costs — also shown on buttons in the builder</span>
+          </span>
+          <i class="fa-solid fa-chevron-down text-zinc-500 shrink-0 group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <div class="border-t border-white/5">
+          <table class="w-full text-sm">
+            <thead class="bg-zinc-800 text-zinc-300">
+              <tr><th class="text-left p-4 font-semibold">Feature</th><th class="text-right p-4 font-semibold">Credits</th></tr>
+            </thead>
+            <tbody id="credit-rate-card-body" class="text-zinc-400 divide-y divide-white/5"></tbody>
+          </table>
+        </div>
+      </details>
       <p class="text-center text-zinc-500 text-sm mt-6">Subscriptions include monthly credit allowances. <a href="/refund-policy.html" class="text-emerald-400 hover:underline">14-day money-back guarantee</a> on all purchases.</p>
     </section>
   </main>
@@ -179,6 +178,12 @@
   <script src="/js/config.js"></script>
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
+  <script src="/js/credit-costs.js"></script>
   <script src="/js/pricing-checkout.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.ProResumeCredits?.renderRateCardTable('credit-rate-card-body');
+    });
+  </script>
 </body>
 </html>

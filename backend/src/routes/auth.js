@@ -64,6 +64,13 @@ router.post('/register', authLimiter, async (req, res) => {
     if (!email?.trim() || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
+    const trimmedName = (name || '').trim();
+    if (!trimmedName) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+    if (trimmedName.length > 120) {
+      return res.status(400).json({ error: 'Name must be 120 characters or less' });
+    }
     if (password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
@@ -86,7 +93,7 @@ router.post('/register', authLimiter, async (req, res) => {
       [
         normalized,
         hash,
-        (name || '').trim(),
+        trimmedName,
         getPlanLimits('free').credits,
         !emailConfigured,
         verificationToken,
