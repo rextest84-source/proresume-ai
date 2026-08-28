@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import { query } from '../db.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { getPlanLimits } from '../plans.js';
-import { isEmailConfigured, sendVerificationEmail } from '../services/email.js';
+import { isEmailConfigured, sendVerificationEmail, queueLoginAlertEmail } from '../services/email.js';
 
 const router = Router();
 
@@ -148,6 +148,7 @@ router.post('/verify-email', authLimiter, async (req, res) => {
     }
     if (user.email_verified) {
       const jwtToken = signToken(user);
+      queueLoginAlertEmail({ email: user.email, name: user.name, req });
       return res.json({ token: jwtToken, user: sanitizeUser(user), alreadyVerified: true });
     }
     if (user.email_verification_expires && new Date(user.email_verification_expires) < new Date()) {
@@ -165,6 +166,7 @@ router.post('/verify-email', authLimiter, async (req, res) => {
     );
 
     const jwtToken = signToken(updated[0]);
+    queueLoginAlertEmail({ email: updated[0].email, name: updated[0].name, req });
     res.json({ token: jwtToken, user: sanitizeUser(updated[0]) });
   } catch (err) {
     console.error('verify-email:', err);
@@ -226,6 +228,7 @@ router.post('/login', authLimiter, async (req, res) => {
       });
     }
     const token = signToken(user);
+    queueLoginAlertEmail({ email: user.email, name: user.name, req });
     res.json({ token, user: sanitizeUser(user) });
   } catch (err) {
     console.error('login:', err);

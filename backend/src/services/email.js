@@ -9,7 +9,12 @@ import {
   buildContactStaffText,
   contactStaffSubject
 } from '../emails/contact-emails.js';
+import {
+  buildLoginAlertEmailHtml,
+  buildLoginAlertEmailText
+} from '../emails/login-alert-email.js';
 import { getEmailLogoAttachment } from '../emails/email-branding.js';
+import { buildLoginContext } from '../lib/login-context.js';
 
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@aeloriacareer.com';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'ProResume AI <noreply@aeloriacareer.com>';
@@ -83,5 +88,25 @@ export async function sendContactNotification(message) {
     subject: 'We received your message - ProResume AI',
     text: buildContactReceiptText({ name: message.name }),
     html: buildContactReceiptHtml({ name: message.name })
+  });
+}
+
+/** Security alert after successful sign-in (non-blocking for auth handlers). */
+export async function sendLoginAlertEmail({ email, name, req }) {
+  const context = await buildLoginContext(req);
+  const subject = 'New sign-in to your ProResume AI account';
+
+  return sendEmail({
+    to: email,
+    subject,
+    text: buildLoginAlertEmailText({ name, email, context }),
+    html: buildLoginAlertEmailHtml({ name, email, context })
+  });
+}
+
+export function queueLoginAlertEmail({ email, name, req }) {
+  if (!isEmailConfigured()) return;
+  sendLoginAlertEmail({ email, name, req }).catch((err) => {
+    console.error('login alert email:', err.message);
   });
 }
