@@ -191,6 +191,7 @@ function saveData() {
 async function refreshCloudUser() {
   if (!window.ProResumeAPI?.isLoggedIn()) {
     cloudUser = null;
+    updateAuthHeader();
     refreshTemplateAccess();
     return null;
   }
@@ -263,23 +264,29 @@ async function mergeLocalToCloud() {
 function updateAuthHeader() {
   const link = document.getElementById('auth-nav-link');
   const badge = document.getElementById('unlimited-badge');
-  const appNav = document.getElementById('builder-app-nav');
+  const menuMount = document.getElementById('builder-app-menu');
   const pricingLink = document.getElementById('builder-pricing-link');
   const creditsLink = document.getElementById('builder-credits-link');
   const loggedIn = window.ProResumeAPI?.isLoggedIn();
 
   if (link) {
-    if (loggedIn) {
-      link.href = '/account.html';
-      link.textContent = 'Account';
-    } else {
+    link.classList.toggle('hidden', loggedIn);
+    if (!loggedIn) {
       link.href = '/login.html?next=/builder.html';
       link.textContent = 'Sign in';
     }
   }
-  if (appNav) {
-    appNav.classList.toggle('hidden', !loggedIn);
-    appNav.classList.toggle('lg:flex', loggedIn);
+  if (menuMount && window.ProResumeAppMenu) {
+    if (loggedIn) {
+      menuMount.classList.remove('hidden');
+      if (!menuMount.querySelector('[data-app-menu]')) {
+        menuMount.innerHTML = window.ProResumeAppMenu.renderMenu({ idPrefix: 'builder' });
+        window.ProResumeAppMenu.bindMenu('builder');
+      }
+    } else {
+      menuMount.classList.add('hidden');
+      menuMount.innerHTML = '';
+    }
   }
   if (pricingLink) {
     pricingLink.textContent = loggedIn ? 'Upgrade' : 'Pricing';
