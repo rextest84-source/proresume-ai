@@ -172,9 +172,13 @@ const defaultData = {
   skills: '', template: 'modern'
 };
 
-let resumeData = loadData();
+let resumeData = structuredClone(defaultData);
 
-function loadData() {
+function isCloudAuthoritative() {
+  return window.ProResumeAPI?.isLoggedIn?.() ?? false;
+}
+
+function loadGuestResumeCache() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return structuredClone(defaultData);
@@ -185,13 +189,27 @@ function loadData() {
   }
 }
 
+function persistGuestResumeCache() {
+  if (isCloudAuthoritative()) return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+}
+
+function loadData() {
+  if (isCloudAuthoritative()) return structuredClone(defaultData);
+  return loadGuestResumeCache();
+}
+
+resumeData = loadData();
+
 function saveData() {
   if (!applyingRemoteUpdate) {
     lastLocalEditAt = Date.now();
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+  persistGuestResumeCache();
   updateSaveIndicator();
-  window.ProResumeHistory?.scheduleSnapshot?.('auto');
+  if (!isCloudAuthoritative()) {
+    window.ProResumeHistory?.scheduleSnapshot?.('auto');
+  }
   scheduleCloudSave();
 }
 
@@ -203,7 +221,7 @@ async function ensureCloudResumeId() {
   if (cloudResumeId) {
     try {
       await ProResumeAPI.getResume(cloudResumeId);
-      if (localProjectId) window.ProResumeHistory?.onCloudResumeLinked?.(localProjectId, cloudResumeId);
+      if (localProjectId) await window.ProResumeHistory?.onCloudResumeLinked?.(localProjectId, cloudResumeId);
       return true;
     } catch {
       cloudResumeId = null;
@@ -221,7 +239,7 @@ async function ensureCloudResumeId() {
       cloudResumeId = resume.id;
     }
     localStorage.setItem('proresume_resume_id', cloudResumeId);
-    if (localProjectId) window.ProResumeHistory?.onCloudResumeLinked?.(localProjectId, cloudResumeId);
+    if (localProjectId) await window.ProResumeHistory?.onCloudResumeLinked?.(localProjectId, cloudResumeId);
     return true;
   } catch (e) {
     console.warn('ensureCloudResumeId failed:', e);
@@ -248,7 +266,7 @@ function applyRemoteResume(msg) {
 
   applyingRemoteUpdate = true;
   resumeData = { ...structuredClone(defaultData), ...msg.resume.data };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+  persistGuestResumeCache();
   lastCloudUpdatedAt = remoteTs;
   syncFormFields();
   renderExperienceFields();
@@ -295,7 +313,7 @@ async function loadFromCloud() {
     localStorage.setItem('proresume_resume_id', cloudResumeId);
     const { resume } = await ProResumeAPI.getResume(cloudResumeId);
     resumeData = { ...structuredClone(defaultData), ...resume.data };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+    persistGuestResumeCache();
     lastCloudUpdatedAt = new Date(resume.updated_at || 0).getTime() || Date.now();
     return true;
   } catch (e) {
@@ -307,25 +325,32 @@ async function loadFromCloud() {
 function scheduleCloudSave() {
   if (!window.ProResumeAPI?.isLoggedIn()) return;
   clearTimeout(cloudSaveTimer);
-  cloudSaveTimer = setTimeout(async () => {
-    try {
-      const ready = cloudResumeId || await ensureCloudResumeId();
-      if (!ready || !cloudResumeId) return;
+  cloudSaveTimer = setTimeout(() => flushCloudSaveNow('auto'), 1200);
+}
 
-      const title = resumeData.name?.trim() || resumeData.title?.trim() || 'My Resume';
-      const clientId = window.ProResumeRealtime?.getClientId?.() || null;
-      const { resume } = await ProResumeAPI.saveResume(cloudResumeId, resumeData, title, clientId);
-      lastCloudUpdatedAt = new Date(resume.updated_at || 0).getTime() || Date.now();
-      connectRealtimeSync();
-      const el = document.getElementById('save-indicator');
-      if (el) {
-        el.textContent = 'Saved to cloud';
-        el.classList.add('text-emerald-400');
-      }
-    } catch (e) {
-      console.warn('Cloud save failed:', e);
+async function flushCloudSaveNow(historySource = 'auto') {
+  if (!window.ProResumeAPI?.isLoggedIn()) return false;
+  try {
+    const ready = cloudResumeId || await ensureCloudResumeId();
+    if (!ready || !cloudResumeId) return false;
+
+    const title = resumeData.name?.trim() || resumeData.title?.trim() || 'My Resume';
+    const clientId = window.ProResumeRealtime?.getClientId?.() || null;
+    const { resume } = await ProResumeAPI.saveResume(cloudResumeId, resumeData, title, clientId, historySource);
+    lastCloudUpdatedAt = new Date(resume.updated_at || 0).getTime() || Date.now();
+    connectRealtimeSync();
+    const el = document.getElementById('save-indicator');
+    if (el) {
+      el.textContent = 'Saved to cloud';
+      el.classList.remove('hidden');
+      el.classList.add('text-emerald-400');
     }
-  }, 1200);
+    void renderHistoryPreview();
+    return true;
+  } catch (e) {
+    console.warn('Cloud save failed:', e);
+    return false;
+  }
 }
 
 async function mergeLocalToCloud() {
@@ -460,6 +485,8 @@ function updateSaveIndicator() {
 
 async function renderHistoryPreview() {
   const list = document.getElementById('history-preview-list');
+  const note = document.getElementById('history-storage-note');
+  if (note) note.classList.toggle('hidden', !isCloudAuthoritative());
   if (!list || !window.ProResumeHistory) return;
 
   const items = await ProResumeHistory.listHistory();
@@ -496,7 +523,7 @@ async function renderHistoryModal() {
       <div class="min-w-0">
         <p class="font-medium text-zinc-100 truncate">${escapeHtml(item.title || 'Untitled')}</p>
         <p class="text-zinc-500 text-xs mt-1">${escapeHtml(ProResumeHistory.formatWhen(item.savedAt))}</p>
-        <p class="text-zinc-400 text-xs mt-1">${escapeHtml(ProResumeHistory.sourceLabel(item.source))}${item.cloud ? ' · Cloud' : ' · This device'}</p>
+        <p class="text-zinc-400 text-xs mt-1">${escapeHtml(ProResumeHistory.sourceLabel(item.source))}${item.cloud === false ? ' · This device' : ''}</p>
       </div>
       <button type="button" data-action="restore-history" data-version-id="${escapeHtml(item.id)}" class="text-xs px-3 py-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 rounded-lg shrink-0 hover:bg-emerald-500/25">Restore</button>
     </li>
@@ -516,9 +543,9 @@ async function restoreHistoryVersion(versionId) {
   if (!versionId || !window.ProResumeHistory) return;
 
   try {
-    let data = await ProResumeHistory.getVersionData(versionId);
+    let data = null;
 
-    if (!data && window.ProResumeAPI?.isLoggedIn() && cloudResumeId) {
+    if (isCloudAuthoritative() && cloudResumeId) {
       const { resume } = await ProResumeAPI.restoreResumeVersion(
         cloudResumeId,
         versionId,
@@ -526,6 +553,8 @@ async function restoreHistoryVersion(versionId) {
       );
       data = resume?.data;
       lastCloudUpdatedAt = new Date(resume.updated_at || 0).getTime() || Date.now();
+    } else {
+      data = await ProResumeHistory.getVersionData(versionId);
     }
 
     if (!data) {
@@ -535,7 +564,7 @@ async function restoreHistoryVersion(versionId) {
 
     applyingRemoteUpdate = true;
     resumeData = { ...structuredClone(defaultData), ...data };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+    persistGuestResumeCache();
     applyingRemoteUpdate = false;
 
     syncFormFields();
@@ -545,7 +574,9 @@ async function restoreHistoryVersion(versionId) {
     selectTemplate(resumeData.template);
     renderPreview();
     saveData();
-    await ProResumeHistory.recordSnapshot('restore', { force: true });
+    if (!isCloudAuthoritative()) {
+      await ProResumeHistory.recordSnapshot('restore', { force: true });
+    }
     await renderHistoryPreview();
     closeHistoryModal();
     showToast('Restored from history', 'success');
@@ -2254,7 +2285,7 @@ async function bootstrapBuilderData() {
     window.ProResumeRealtime?.disconnect?.();
     await renderHistoryPreview();
     if (versionParam) await restoreHistoryFromUrl(versionParam);
-    else await window.ProResumeHistory?.recordSnapshot?.('auto', { force: true });
+    else if (!isCloudAuthoritative()) await window.ProResumeHistory?.recordSnapshot?.('auto', { force: true });
     return;
   }
 
@@ -2273,7 +2304,6 @@ async function bootstrapBuilderData() {
   await mergeLocalToCloud();
   await renderHistoryPreview();
   if (versionParam) await restoreHistoryFromUrl(versionParam);
-  else await window.ProResumeHistory?.recordSnapshot?.('auto', { force: true });
 }
 
 async function init() {
@@ -2287,7 +2317,8 @@ async function init() {
   window.ProResumeHistory?.bind?.({
     getResumeData: () => resumeData,
     getCloudResumeId: () => cloudResumeId,
-    onHistoryChange: () => { void renderHistoryPreview(); }
+    onHistoryChange: () => { void renderHistoryPreview(); },
+    onFlushCloud: (source) => flushCloudSaveNow(source)
   });
 
   initBuilderUI();
@@ -2295,6 +2326,11 @@ async function init() {
   requestAnimationFrame(resetBuilderScroll);
   window.addEventListener('pageshow', resetBuilderScroll);
   window.addEventListener('proresume:auth', () => {
+    if (window.ProResumeAPI?.isLoggedIn()) {
+      resumeData = structuredClone(defaultData);
+    } else {
+      resumeData = loadGuestResumeCache();
+    }
     refreshCloudUser().then(() => bootstrapBuilderData());
   });
   window.addEventListener('proresume:before-logout', () => {

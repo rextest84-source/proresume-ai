@@ -1,5 +1,5 @@
 /**
- * Resume project history — auto-saves snapshots per project (local + cloud when signed in).
+ * Resume project history — cloud-only for signed-in users; localStorage for guests only.
  */
 (function () {
   const LOCAL_PROJECT_KEY = 'proresume_local_project_id';
@@ -12,6 +12,15 @@
   let getResumeData = () => ({});
   let getCloudResumeId = () => null;
   let onHistoryChange = null;
+  let onFlushCloud = null;
+
+  function isLoggedIn() {
+    return window.ProResumeAPI?.isLoggedIn?.() ?? false;
+  }
+
+  function useLocalHistory() {
+    return !isLoggedIn();
+  }
 
   function hashData(data) {
     return JSON.stringify(data);
@@ -27,14 +36,21 @@
   }
 
   function getProjectId() {
-    return getCloudResumeId() || localStorage.getItem('proresume_resume_id') || ensureLocalProjectId();
+    if (isLoggedIn()) return getCloudResumeId() || localStorage.getItem('proresume_resume_id') || null;
+    return ensureLocalProjectId();
   }
 
   function historyStorageKey(projectId) {
     return `${HISTORY_PREFIX}${projectId}`;
   }
 
+  function clearLocalHistory(projectId) {
+    if (!projectId) return;
+    localStorage.removeItem(historyStorageKey(projectId));
+  }
+
   function loadLocalVersions(projectId) {
+    if (!useLocalHistory() || !projectId) return [];
     try {
       const raw = localStorage.getItem(historyStorageKey(projectId));
       if (!raw) return [];
@@ -46,6 +62,7 @@
   }
 
   function saveLocalVersions(projectId, versions) {
+    if (!useLocalHistory() || !projectId) return;
     localStorage.setItem(historyStorageKey(projectId), JSON.stringify(versions.slice(0, MAX_LOCAL_VERSIONS)));
   }
 
@@ -56,7 +73,8 @@
       logout: 'Saved on sign out',
       restore: 'Restored version',
       create: 'Project created',
-      unload: 'Saved on close'
+      unload: 'Saved on close',
+      import: 'Imported from guest session'
     };
     return labels[source] || 'Saved';
   }
@@ -81,6 +99,8 @@
   }
 
   function saveLocalSnapshot(projectId, data, { source = 'auto', title } = {}) {
+    if (!useLocalHistory() || !projectId) return null;
+
     const nextHash = hashData(data);
     const versions = loadLocalVersions(projectId);
     if (versions[0]?.hash === nextHash) return null;
@@ -103,25 +123,39 @@
     return entry;
   }
 
-  function migrateLocalHistory(fromId, toId) {
-    if (!fromId || !toId || fromId === toId) return;
-    const fromVersions = loadLocalVersions(fromId);
-    if (!fromVersions.length) return;
+  async function uploadLocalHistoryToCloud(localProjectId, cloudResumeId) {
+    if (!isLoggedIn() || !localProjectId || !cloudResumeId) return;
 
-    const existing = loadLocalVersions(toId);
-    const merged = [...fromVersions, ...existing]
-      .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt))
-      .filter((v, i, arr) => arr.findIndex(x => x.hash === v.hash) === i)
-      .slice(0, MAX_LOCAL_VERSIONS);
+    const versions = loadLocalVersions(localProjectId);
+    if (!versions.length) {
+      clearLocalHistory(localProjectId);
+      clearLocalHistory(cloudResumeId);
+      return;
+    }
 
-    saveLocalVersions(toId, merged);
-    localStorage.removeItem(historyStorageKey(fromId));
+    for (const version of [...versions].reverse()) {
+      if (!version?.data) continue;
+      try {
+        await window.ProResumeAPI.saveResumeHistorySnapshot(
+          cloudResumeId,
+          version.data,
+          version.title || previewLabel(version.data),
+          version.source || 'import'
+        );
+      } catch {
+        /* continue uploading remaining snapshots */
+      }
+    }
+
+    clearLocalHistory(localProjectId);
+    clearLocalHistory(cloudResumeId);
+    onHistoryChange?.();
   }
 
   async function listCloudHistory(resumeId) {
-    if (!window.ProResumeAPI?.isLoggedIn() || !resumeId) return [];
+    if (!isLoggedIn() || !resumeId) return [];
     try {
-      const { versions } = await ProResumeAPI.listResumeHistory(resumeId);
+      const { versions } = await window.ProResumeAPI.listResumeHistory(resumeId);
       return (versions || []).map(v => ({
         id: v.id,
         savedAt: v.created_at,
@@ -137,8 +171,12 @@
   }
 
   async function listHistory() {
+    if (isLoggedIn()) {
+      return listCloudHistory(getCloudResumeId());
+    }
+
     const projectId = getProjectId();
-    const local = loadLocalVersions(projectId).map(v => ({
+    return loadLocalVersions(projectId).map(v => ({
       id: v.id,
       savedAt: v.savedAt,
       source: v.source,
@@ -147,34 +185,24 @@
       preview_title: v.preview_title,
       cloud: false
     }));
-
-    const cloud = await listCloudHistory(getCloudResumeId());
-    const merged = [...local, ...cloud]
-      .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
-
-    const seen = new Set();
-    return merged.filter(v => {
-      const key = `${v.savedAt}|${v.preview_name}|${v.preview_title}|${v.source}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).slice(0, MAX_LOCAL_VERSIONS);
   }
 
   async function getVersionData(versionId) {
-    const projectId = getProjectId();
-    const local = loadLocalVersions(projectId).find(v => v.id === versionId);
-    if (local?.data) return local.data;
-
     const resumeId = getCloudResumeId();
-    if (window.ProResumeAPI?.isLoggedIn() && resumeId) {
-      const { version } = await ProResumeAPI.getResumeHistoryVersion(resumeId, versionId);
+
+    if (isLoggedIn()) {
+      if (!resumeId) return null;
+      const { version } = await window.ProResumeAPI.getResumeHistoryVersion(resumeId, versionId);
       return version?.data || null;
     }
-    return null;
+
+    const projectId = getProjectId();
+    const local = loadLocalVersions(projectId).find(v => v.id === versionId);
+    return local?.data || null;
   }
 
   function scheduleSnapshot(source = 'auto') {
+    if (!useLocalHistory()) return;
     clearTimeout(snapshotTimer);
     snapshotTimer = setTimeout(() => {
       void recordSnapshot(source);
@@ -182,57 +210,65 @@
   }
 
   async function recordSnapshot(source = 'auto', { force = false } = {}) {
+    if (!useLocalHistory()) return null;
+
     const data = getResumeData();
     const projectId = getProjectId();
     const title = previewLabel(data);
     const nextHash = hashData(data);
 
     if (!force && lastLocalHash === nextHash) return null;
-
-    const entry = saveLocalSnapshot(projectId, data, { source, title });
-    return entry;
+    return saveLocalSnapshot(projectId, data, { source, title });
   }
 
   async function flushSnapshot(source = 'unload') {
     clearTimeout(snapshotTimer);
+
+    if (isLoggedIn()) {
+      try {
+        await onFlushCloud?.(source);
+      } catch {
+        /* fall through to history POST */
+      }
+
+      const resumeId = getCloudResumeId();
+      const data = getResumeData();
+      const title = previewLabel(data);
+      const base = (window.PRORESUME_CONFIG?.apiUrl || '').replace(/\/$/, '');
+      const token = window.ProResumeAPI.getToken?.();
+      if (!resumeId || !base || !token) return;
+
+      try {
+        await fetch(`${base}/api/resumes/${resumeId}/history`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ data, title, source }),
+          keepalive: true
+        });
+      } catch {
+        /* cloud PUT/history is best effort on exit */
+      }
+      return;
+    }
+
     const data = getResumeData();
     const projectId = getProjectId();
-    const title = previewLabel(data);
-    saveLocalSnapshot(projectId, data, { source, title });
-
-    const resumeId = getCloudResumeId();
-    if (!window.ProResumeAPI?.isLoggedIn() || !resumeId) return;
-
-    const base = (window.PRORESUME_CONFIG?.apiUrl || '').replace(/\/$/, '');
-    const token = window.ProResumeAPI.getToken?.();
-    if (!base || !token) return;
-
-    const payload = JSON.stringify({ data, title, source });
-    const url = `${base}/api/resumes/${resumeId}/history`;
-
-    try {
-      await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: payload,
-        keepalive: true
-      });
-    } catch {
-      /* local history already saved */
-    }
+    saveLocalSnapshot(projectId, data, { source, title: previewLabel(data) });
   }
+
   function bind(options = {}) {
     getResumeData = options.getResumeData || getResumeData;
     getCloudResumeId = options.getCloudResumeId || getCloudResumeId;
     onHistoryChange = options.onHistoryChange || null;
+    onFlushCloud = options.onFlushCloud || null;
   }
 
-  function onCloudResumeLinked(localProjectId, cloudResumeId) {
-    migrateLocalHistory(localProjectId, cloudResumeId);
-    ensureLocalProjectId();
+  async function onCloudResumeLinked(localProjectId, cloudResumeId) {
+    await uploadLocalHistoryToCloud(localProjectId, cloudResumeId);
+    clearLocalHistory(cloudResumeId);
   }
 
   window.ProResumeHistory = {
@@ -247,6 +283,7 @@
     getVersionData,
     sourceLabel,
     formatWhen,
-    previewLabel
+    previewLabel,
+    useLocalHistory
   };
 })();
