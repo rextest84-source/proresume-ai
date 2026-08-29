@@ -11,6 +11,7 @@ import resumeRoutes from './routes/resumes.js';
 import stripeRoutes, { handleStripeWebhook } from './routes/stripe.js';
 import aiRoutes from './routes/ai.js';
 import contactRoutes, { deliverContactMessage } from './routes/contact.js';
+import supportRoutes from './routes/support.js';
 import { isGrokConfigured, getGrokModel } from './services/grok.js';
 import { isRedisConfigured } from './services/redis.js';
 import { isEmailConfigured } from './services/email.js';
@@ -92,6 +93,7 @@ app.use('/api/resumes', resumeRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/support', supportRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

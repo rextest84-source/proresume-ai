@@ -71,6 +71,4 @@ router.post('/', contactLimiter, async (req, res) => {
   }
 });
 
-export { deliverContactMessage };
-
 export default router;

@@ -170,6 +170,21 @@ const ProResumeAPI = (() => {
       return data;
     },
 
+    async getUsage() {
+      return request('/api/auth/usage');
+    },
+
+    async listSupportMessages() {
+      return request('/api/support/messages');
+    },
+
+    async sendSupportMessage(body) {
+      return request('/api/support/messages', {
+        method: 'POST',
+        body: JSON.stringify({ body })
+      });
+    },
+
     async aiStatus() {
       return request('/api/ai/status');
     },

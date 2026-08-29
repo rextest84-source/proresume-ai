@@ -8,6 +8,34 @@ import { requireAuth, loadUser } from '../middleware/auth.js';
 import { getPlanLimits } from '../plans.js';
 import { isEmailConfigured, sendVerificationEmail, queueLoginAlertEmail } from '../services/email.js';
 
+const CREDIT_REASON_LABELS = {
+  enhance_summary: 'Summary suggestions',
+  enhance_exp: 'Experience suggestions',
+  export_pdf: 'PDF export',
+  export_png: 'PNG export',
+  export_jpeg: 'JPEG export',
+  export_doc: 'Word export',
+  export_html: 'HTML export',
+  export_rtf: 'RTF export',
+  regenerate: 'Summary variation',
+  build_resume: 'Resume draft',
+  suggest_skills: 'Skill suggestions',
+  job_match: 'Keyword alignment',
+  cover_letter: 'Cover letter draft',
+  ats_scan: 'Resume checklist',
+  linkedin: 'LinkedIn tips',
+  feature_use: 'AI feature',
+  credit_pack_purchase: 'Credit pack purchase',
+  subscription_starter: 'Starter plan renewal',
+  subscription_pro: 'Pro plan renewal',
+  subscription_business: 'Business plan renewal'
+};
+
+function labelCreditReason(reason) {
+  if (!reason) return 'Credit update';
+  return CREDIT_REASON_LABELS[reason] || reason.replace(/_/g, ' ');
+}
+
 const router = Router();
 
 const authLimiter = rateLimit({
@@ -238,6 +266,38 @@ router.post('/login', authLimiter, async (req, res) => {
 
 router.get('/me', requireAuth, loadUser, (req, res) => {
   res.json({ user: sanitizeUser(req.user) });
+});
+
+router.get('/usage', requireAuth, loadUser, async (req, res) => {
+  try {
+    const limits = getPlanLimits(req.user.plan);
+    const unlimited = limits.credits >= 999999;
+    const { rows } = await query(
+      `SELECT amount, reason, balance_after, created_at
+       FROM credit_transactions
+       WHERE user_id = $1
+       ORDER BY created_at DESC
+       LIMIT 50`,
+      [req.userId]
+    );
+    res.json({
+      credits: req.user.credits,
+      plan: req.user.plan,
+      subscriptionStatus: req.user.subscription_status,
+      monthlyAllowance: limits.monthlyCredits,
+      unlimited,
+      transactions: rows.map((row) => ({
+        amount: row.amount,
+        reason: row.reason,
+        label: labelCreditReason(row.reason),
+        balanceAfter: row.balance_after,
+        createdAt: row.created_at
+      }))
+    });
+  } catch (err) {
+    console.error('usage:', err);
+    res.status(500).json({ error: 'Could not load usage' });
+  }
 });
 
 router.patch('/me', requireAuth, loadUser, async (req, res) => {

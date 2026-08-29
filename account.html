@@ -21,8 +21,10 @@
     </div>
 
     <div id="account-panel" class="hidden space-y-8">
+      <div data-account-nav></div>
+
       <div>
-        <h1 class="text-3xl font-bold mb-2">My Account</h1>
+        <h1 class="text-3xl font-bold mb-2">Account</h1>
         <p id="user-email" class="text-zinc-400"></p>
       </div>
 
@@ -46,15 +48,17 @@
       </div>
 
       <section class="bg-zinc-900 border border-white/10 rounded-2xl p-6">
-        <h2 class="text-lg font-semibold mb-4">Saved Resumes</h2>
+        <h2 class="text-lg font-semibold mb-4">Saved resumes</h2>
         <ul id="resume-list" class="space-y-2 text-sm text-zinc-300"></ul>
-        <a href="/builder.html" class="inline-block mt-4 text-emerald-400 hover:underline text-sm">Open resume builder →</a>
+        <a href="/builder.html" class="inline-block mt-4 text-emerald-400 hover:underline text-sm">Open builder →</a>
       </section>
 
       <section class="flex flex-wrap gap-3">
-        <a href="/pricing.html" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-sm">Upgrade Plan</a>
-        <button id="billing-btn" class="px-5 py-2.5 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm">Manage Billing</button>
-        <button id="logout-btn" class="px-5 py-2.5 border border-white/10 text-zinc-400 hover:text-white rounded-xl text-sm">Sign Out</button>
+        <a href="/builder.html" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-sm">Open builder</a>
+        <a href="/usage.html" class="px-5 py-2.5 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm">View usage</a>
+        <a href="/billing.html" class="px-5 py-2.5 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm">Billing</a>
+        <button type="button" data-support-chat-open class="px-5 py-2.5 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm">Support chat</button>
+        <button id="logout-btn" class="px-5 py-2.5 border border-white/10 text-zinc-400 hover:text-white rounded-xl text-sm">Sign out</button>
       </section>
     </div>
   </main>
@@ -62,13 +66,15 @@
   <script src="/js/config.js"></script>
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
+  <script src="/js/account-nav.js"></script>
+  <script src="/js/support-chat.js"></script>
   <script>
     let pollTimer = null;
 
     function renderUser(user, resumes) {
       document.getElementById('user-email').textContent = user.email;
       document.getElementById('user-plan').textContent = user.plan;
-      document.getElementById('user-credits').textContent = user.credits;
+      document.getElementById('user-credits').textContent = user.credits >= 999999 ? 'Unlimited' : user.credits;
       document.getElementById('resume-count').textContent = resumes.length;
       document.getElementById('resume-list').innerHTML = resumes.map(r => `
         <li class="flex justify-between items-center py-2 border-b border-white/5">
@@ -131,14 +137,6 @@
       if (pollTimer) clearInterval(pollTimer);
       ProResumeAPI.logout();
       location.href = '/';
-    });
-
-    document.getElementById('billing-btn')?.addEventListener('click', async () => {
-      try {
-        await ProResumeAPI.billingPortal();
-      } catch (e) {
-        alert(e.message || 'Billing portal unavailable. Subscribe first from the pricing page.');
-      }
     });
 
     loadAccount();

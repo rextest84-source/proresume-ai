@@ -263,14 +263,31 @@ async function mergeLocalToCloud() {
 function updateAuthHeader() {
   const link = document.getElementById('auth-nav-link');
   const badge = document.getElementById('unlimited-badge');
+  const appNav = document.getElementById('builder-app-nav');
+  const pricingLink = document.getElementById('builder-pricing-link');
+  const creditsLink = document.getElementById('builder-credits-link');
+  const loggedIn = window.ProResumeAPI?.isLoggedIn();
+
   if (link) {
-    if (window.ProResumeAPI?.isLoggedIn()) {
+    if (loggedIn) {
       link.href = '/account.html';
       link.textContent = 'Account';
     } else {
       link.href = '/login.html?next=/builder.html';
-      link.textContent = 'Sign in to save';
+      link.textContent = 'Sign in';
     }
+  }
+  if (appNav) {
+    appNav.classList.toggle('hidden', !loggedIn);
+    appNav.classList.toggle('lg:flex', loggedIn);
+  }
+  if (pricingLink) {
+    pricingLink.textContent = loggedIn ? 'Upgrade' : 'Pricing';
+    pricingLink.href = '/pricing.html';
+  }
+  if (creditsLink) {
+    creditsLink.href = loggedIn ? '/usage.html' : '/pricing.html#credit-rate-card';
+    creditsLink.title = loggedIn ? 'View credit usage' : 'AI credits — view rate card';
   }
   if (badge) badge.classList.toggle('hidden', !UNLIMITED_AI);
 }
