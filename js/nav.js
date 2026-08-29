@@ -1,5 +1,5 @@
 /**
- * Shared responsive site navigation — marketing links for guests, app links when signed in.
+ * Shared responsive site navigation — marketing links for guests, app menu when signed in.
  */
 (function () {
   if ('scrollRestoration' in history) {
@@ -33,14 +33,6 @@
     { href: '/contact.html', label: 'Contact' }
   ];
 
-  const APP_LINKS = [
-    { href: '/builder.html', label: 'Builder' },
-    { href: '/account.html', label: 'Account' },
-    { href: '/billing.html', label: 'Billing' },
-    { href: '/usage.html', label: 'Usage' },
-    { href: '#', label: 'Support', attrs: 'data-support-chat-open' }
-  ];
-
   function linkRow(links, className) {
     return links.map((l) => {
       const extra = l.attrs ? ` ${l.attrs}` : '';
@@ -52,30 +44,39 @@
 
   function navLinksFor(variant, loggedIn) {
     if (variant === 'minimal') return [];
-    if (loggedIn) return APP_LINKS;
+    if (loggedIn) return [];
     return variant === 'home' ? PUBLIC_HOME_LINKS : PUBLIC_DEFAULT_LINKS;
   }
 
   function renderNav(variant, loggedIn) {
     const links = navLinksFor(variant, loggedIn);
-    const hasMenu = links.length > 0;
-    const ctaHref = loggedIn ? '/builder.html' : '/builder.html';
+    const hasGuestMenu = links.length > 0;
+    const ctaHref = '/builder.html';
     const ctaLabel = loggedIn ? 'Open Builder' : 'Try Free';
 
-    const authDesktop = variant !== 'minimal'
-      ? loggedIn
-        ? `<div class="hidden sm:flex items-center gap-2">
-            <a href="/account.html" class="text-sm text-zinc-300 hover:text-white transition whitespace-nowrap max-w-[140px] truncate" id="nav-user-label">Account</a>
-            <button type="button" id="nav-signout-btn" class="text-sm text-zinc-500 hover:text-white transition whitespace-nowrap">Sign Out</button>
-          </div>`
-        : '<a id="nav-auth-link" href="/login.html" class="hidden sm:inline text-sm text-zinc-300 hover:text-white transition whitespace-nowrap">Sign In</a>'
+    const authDesktop = variant !== 'minimal' && !loggedIn
+      ? '<a id="nav-auth-link" href="/login.html" class="hidden sm:inline text-sm text-zinc-300 hover:text-white transition whitespace-nowrap">Sign In</a>'
       : '';
 
-    const authMobile = variant !== 'minimal'
-      ? loggedIn
-        ? `<a href="/account.html" class="block py-3 px-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition">Account</a>
-           <button type="button" id="nav-signout-btn-mobile" class="block w-full text-left py-3 px-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-lg transition border-t border-white/5 mt-1">Sign Out</button>`
-        : '<a id="nav-auth-link-mobile" href="/login.html" class="block py-3 px-2 text-emerald-400 font-medium border-t border-white/5 mt-1">Sign In</a>'
+    const authMobile = variant !== 'minimal' && !loggedIn
+      ? '<a id="nav-auth-link-mobile" href="/login.html" class="block py-3 px-2 text-emerald-400 font-medium border-t border-white/5 mt-1">Sign In</a>'
+      : '';
+
+    const guestDesktopLinks = hasGuestMenu
+      ? `<div class="hidden md:flex items-center gap-5 xl:gap-6 text-sm text-zinc-300 min-w-0 flex-1 justify-center">
+          ${linkRow(links, 'hover:text-white transition whitespace-nowrap')}
+        </div>`
+      : '<div class="flex-1"></div>';
+
+    const appMenu = variant !== 'minimal' && loggedIn && window.ProResumeAppMenu
+      ? window.ProResumeAppMenu.renderMenu({ idPrefix: 'nav' })
+      : '';
+
+    const guestMenuBtn = hasGuestMenu
+      ? `<button type="button" id="nav-menu-btn" class="nav-menu-btn md:hidden p-2 -mr-1 text-zinc-300 hover:text-white rounded-lg" aria-label="Open menu" aria-expanded="false">
+          <i class="fa-solid fa-bars nav-icon-menu text-lg"></i>
+          <i class="fa-solid fa-xmark nav-icon-close text-lg"></i>
+        </button>`
       : '';
 
     return `
@@ -86,21 +87,17 @@
       <span class="truncate">ProResume AI</span>
     </a>
 
-    ${hasMenu ? `<div class="hidden md:flex items-center gap-5 xl:gap-6 text-sm text-zinc-300 min-w-0 flex-1 justify-center">
-      ${linkRow(links, 'hover:text-white transition whitespace-nowrap')}
-    </div>` : '<div class="flex-1"></div>'}
+    ${loggedIn ? '<div class="flex-1"></div>' : guestDesktopLinks}
 
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
       ${authDesktop}
+      ${appMenu}
       <a href="${ctaHref}" class="inline-flex px-3 sm:px-5 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold text-xs sm:text-sm transition whitespace-nowrap">${ctaLabel}</a>
-      ${hasMenu ? `<button type="button" id="nav-menu-btn" class="nav-menu-btn md:hidden p-2 -mr-1 text-zinc-300 hover:text-white rounded-lg" aria-label="Open menu" aria-expanded="false">
-        <i class="fa-solid fa-bars nav-icon-menu text-lg"></i>
-        <i class="fa-solid fa-xmark nav-icon-close text-lg"></i>
-      </button>` : ''}
+      ${guestMenuBtn}
     </div>
   </div>
 
-  ${hasMenu ? `<div id="nav-mobile-panel" class="nav-mobile-panel hidden md:hidden border-t border-white/10 bg-zinc-950/98 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+  ${hasGuestMenu ? `<div id="nav-mobile-panel" class="nav-mobile-panel hidden md:hidden border-t border-white/10 bg-zinc-950/98 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
     <div class="flex flex-col gap-0.5 text-sm">
       ${linkRow(links, 'block py-3 px-2 text-zinc-300 hover:text-white hover:bg-white/5 rounded-lg transition')}
       ${authMobile}
@@ -111,20 +108,35 @@
   }
 
   function bindSignOut() {
-    ['nav-signout-btn', 'nav-signout-btn-mobile'].forEach((id) => {
-      document.getElementById(id)?.addEventListener('click', () => {
-        window.ProResumeAPI?.logout();
-        location.href = '/';
-      });
+    /* Sign out handled by app menu when logged in */
+  }
+
+  function bindAppMenu() {
+    window.ProResumeAppMenu?.bindMenu('nav');
+  }
+
+  function bindMobileMenu() {
+    const btn = document.getElementById('nav-menu-btn');
+    const panel = document.getElementById('nav-mobile-panel');
+    if (!btn || !panel) return;
+
+    btn.onclick = () => setMenuOpen(!panel.classList.contains('open'));
+    panel.querySelectorAll('a, button').forEach((a) => {
+      a.addEventListener('click', () => setMenuOpen(false));
     });
   }
 
-  function updateUserLabel() {
-    const el = document.getElementById('nav-user-label');
-    if (!el || !window.ProResumeAPI?.isLoggedIn()) return;
-    const user = window.ProResumeAPI.getStoredUser();
-    if (user?.name) el.textContent = user.name.split(' ')[0];
-    else if (user?.email) el.textContent = user.email.split('@')[0];
+  function setMenuOpen(open) {
+    const btn = document.getElementById('nav-menu-btn');
+    const panel = document.getElementById('nav-mobile-panel');
+    if (!btn || !panel) return;
+
+    panel.classList.toggle('open', open);
+    panel.classList.toggle('hidden', !open);
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.body.classList.toggle('nav-menu-open', open);
   }
 
   function remountNav() {
@@ -143,45 +155,36 @@
     newNav.dataset.variant = variant;
     newNav.after(newSpacer);
     bindMobileMenu();
+    bindAppMenu();
     bindSignOut();
-    updateUserLabel();
-  }
-
-  function setMenuOpen(open) {
-    const btn = document.getElementById('nav-menu-btn');
-    const panel = document.getElementById('nav-mobile-panel');
-    if (!btn || !panel) return;
-
-    panel.classList.toggle('open', open);
-    panel.classList.toggle('hidden', !open);
-    btn.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-    document.body.classList.toggle('nav-menu-open', open);
-  }
-
-  function bindMobileMenu() {
-    const btn = document.getElementById('nav-menu-btn');
-    const panel = document.getElementById('nav-mobile-panel');
-    if (!btn || !panel) return;
-
-    btn.onclick = () => setMenuOpen(!panel.classList.contains('open'));
-    panel.querySelectorAll('a, button').forEach((a) => {
-      a.addEventListener('click', () => setMenuOpen(false));
-    });
   }
 
   function mount() {
     const mountEl = document.querySelector('[data-site-nav]');
     if (!mountEl) return;
     const variant = mountEl.getAttribute('data-site-nav') || 'default';
-    const loggedIn = window.ProResumeAPI?.isLoggedIn();
-    mountEl.outerHTML = renderNav(variant, loggedIn);
-    document.getElementById('site-nav').dataset.variant = variant;
-    bindMobileMenu();
-    bindSignOut();
-    updateUserLabel();
-    window.addEventListener('proresume:auth', remountNav);
+
+    function init() {
+      const target = document.querySelector('[data-site-nav]');
+      if (!target) return;
+      const loggedIn = window.ProResumeAPI?.isLoggedIn();
+      target.outerHTML = renderNav(variant, loggedIn);
+      document.getElementById('site-nav').dataset.variant = variant;
+      bindMobileMenu();
+      bindAppMenu();
+      bindSignOut();
+      window.addEventListener('proresume:auth', remountNav);
+    }
+
+    if (window.ProResumeAppMenu) {
+      init();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = '/js/app-menu.js';
+    script.onload = init;
+    document.head.appendChild(script);
   }
 
   if (document.readyState === 'loading') {
