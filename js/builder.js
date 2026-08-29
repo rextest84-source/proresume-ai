@@ -191,15 +191,19 @@ function saveData() {
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
   updateSaveIndicator();
+  window.ProResumeHistory?.scheduleSnapshot?.('auto');
   scheduleCloudSave();
 }
 
 async function ensureCloudResumeId() {
   if (!window.ProResumeAPI?.isLoggedIn()) return false;
 
+  const localProjectId = window.ProResumeHistory?.ensureLocalProjectId?.();
+
   if (cloudResumeId) {
     try {
       await ProResumeAPI.getResume(cloudResumeId);
+      if (localProjectId) window.ProResumeHistory?.onCloudResumeLinked?.(localProjectId, cloudResumeId);
       return true;
     } catch {
       cloudResumeId = null;
@@ -217,6 +221,7 @@ async function ensureCloudResumeId() {
       cloudResumeId = resume.id;
     }
     localStorage.setItem('proresume_resume_id', cloudResumeId);
+    if (localProjectId) window.ProResumeHistory?.onCloudResumeLinked?.(localProjectId, cloudResumeId);
     return true;
   } catch (e) {
     console.warn('ensureCloudResumeId failed:', e);
@@ -448,8 +453,115 @@ function updateSaveIndicator() {
   const el = document.getElementById('save-indicator');
   if (!el) return;
   el.textContent = 'Saved';
+  el.classList.remove('hidden');
   el.classList.add('text-emerald-400');
   setTimeout(() => el.classList.remove('text-emerald-400'), 1500);
+}
+
+async function renderHistoryPreview() {
+  const list = document.getElementById('history-preview-list');
+  if (!list || !window.ProResumeHistory) return;
+
+  const items = await ProResumeHistory.listHistory();
+  if (!items.length) {
+    list.innerHTML = '<li class="text-zinc-500 text-xs py-2">Edits are saved here automatically as you work.</li>';
+    return;
+  }
+
+  list.innerHTML = items.slice(0, 3).map(item => `
+    <li class="flex items-center justify-between gap-3 py-2 px-3 bg-zinc-800/60 border border-white/5 rounded-xl">
+      <div class="min-w-0">
+        <p class="text-zinc-200 truncate text-sm">${escapeHtml(item.title || 'Untitled')}</p>
+        <p class="text-zinc-500 text-xs">${escapeHtml(ProResumeHistory.formatWhen(item.savedAt))} · ${escapeHtml(ProResumeHistory.sourceLabel(item.source))}</p>
+      </div>
+      <button type="button" data-action="restore-history" data-version-id="${escapeHtml(item.id)}" class="text-xs text-emerald-400 hover:text-emerald-300 font-medium shrink-0">Restore</button>
+    </li>
+  `).join('');
+}
+
+async function renderHistoryModal() {
+  const list = document.getElementById('history-list');
+  if (!list || !window.ProResumeHistory) return;
+
+  list.innerHTML = '<li class="px-5 py-8 text-center text-zinc-500 text-sm">Loading history…</li>';
+  const items = await ProResumeHistory.listHistory();
+
+  if (!items.length) {
+    list.innerHTML = '<li class="px-5 py-8 text-center text-zinc-500 text-sm">No saved snapshots yet. Keep editing — history saves automatically.</li>';
+    return;
+  }
+
+  list.innerHTML = items.map(item => `
+    <li class="px-5 py-4 flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <p class="font-medium text-zinc-100 truncate">${escapeHtml(item.title || 'Untitled')}</p>
+        <p class="text-zinc-500 text-xs mt-1">${escapeHtml(ProResumeHistory.formatWhen(item.savedAt))}</p>
+        <p class="text-zinc-400 text-xs mt-1">${escapeHtml(ProResumeHistory.sourceLabel(item.source))}${item.cloud ? ' · Cloud' : ' · This device'}</p>
+      </div>
+      <button type="button" data-action="restore-history" data-version-id="${escapeHtml(item.id)}" class="text-xs px-3 py-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 rounded-lg shrink-0 hover:bg-emerald-500/25">Restore</button>
+    </li>
+  `).join('');
+}
+
+function openHistoryModal() {
+  document.getElementById('history-modal')?.classList.remove('hidden');
+  void renderHistoryModal();
+}
+
+function closeHistoryModal() {
+  document.getElementById('history-modal')?.classList.add('hidden');
+}
+
+async function restoreHistoryVersion(versionId) {
+  if (!versionId || !window.ProResumeHistory) return;
+
+  try {
+    let data = await ProResumeHistory.getVersionData(versionId);
+
+    if (!data && window.ProResumeAPI?.isLoggedIn() && cloudResumeId) {
+      const { resume } = await ProResumeAPI.restoreResumeVersion(
+        cloudResumeId,
+        versionId,
+        window.ProResumeRealtime?.getClientId?.() || null
+      );
+      data = resume?.data;
+      lastCloudUpdatedAt = new Date(resume.updated_at || 0).getTime() || Date.now();
+    }
+
+    if (!data) {
+      showToast('Could not restore that snapshot', 'warning');
+      return;
+    }
+
+    applyingRemoteUpdate = true;
+    resumeData = { ...structuredClone(defaultData), ...data };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+    applyingRemoteUpdate = false;
+
+    syncFormFields();
+    renderExperienceFields();
+    renderEducationFields();
+    resumeData.template = normalizeTemplate(resumeData.template);
+    selectTemplate(resumeData.template);
+    renderPreview();
+    saveData();
+    await ProResumeHistory.recordSnapshot('restore', { force: true });
+    await renderHistoryPreview();
+    closeHistoryModal();
+    showToast('Restored from history', 'success');
+  } catch (e) {
+    console.warn('Restore history failed:', e);
+    showToast('Restore failed. Try again.', 'warning');
+  }
+}
+
+async function restoreHistoryFromUrl(versionId) {
+  if (!versionId) return;
+  await restoreHistoryVersion(versionId);
+  const params = new URLSearchParams(location.search);
+  params.delete('version');
+  const next = params.toString();
+  history.replaceState({}, '', `${location.pathname}${next ? `?${next}` : ''}`);
 }
 
 function escapeHtml(str) {
@@ -2021,6 +2133,18 @@ function setupEvents() {
         break;
 
       case 'close-text-modal': hideTextModal(); break;
+      case 'open-history':
+        openHistoryModal();
+        break;
+
+      case 'close-history':
+        closeHistoryModal();
+        break;
+
+      case 'restore-history':
+        await restoreHistoryVersion(btn.dataset.versionId);
+        break;
+
       case 'switch-tab': switchTab(btn.dataset.tab); break;
     }
   });
@@ -2117,9 +2241,20 @@ function initBuilderUI() {
 }
 
 async function bootstrapBuilderData() {
+  const params = new URLSearchParams(location.search);
+  const resumeParam = params.get('resume');
+  const versionParam = params.get('version');
+  if (resumeParam) {
+    cloudResumeId = resumeParam;
+    localStorage.setItem('proresume_resume_id', resumeParam);
+  }
+
   await refreshLiveAiStatus();
   if (!window.ProResumeAPI?.isLoggedIn()) {
     window.ProResumeRealtime?.disconnect?.();
+    await renderHistoryPreview();
+    if (versionParam) await restoreHistoryFromUrl(versionParam);
+    else await window.ProResumeHistory?.recordSnapshot?.('auto', { force: true });
     return;
   }
 
@@ -2136,6 +2271,9 @@ async function bootstrapBuilderData() {
   }
   connectRealtimeSync();
   await mergeLocalToCloud();
+  await renderHistoryPreview();
+  if (versionParam) await restoreHistoryFromUrl(versionParam);
+  else await window.ProResumeHistory?.recordSnapshot?.('auto', { force: true });
 }
 
 async function init() {
@@ -2145,12 +2283,30 @@ async function init() {
   resetBuilderScroll();
   updateAuthHeader();
   showCloudSaveBanner();
+
+  window.ProResumeHistory?.bind?.({
+    getResumeData: () => resumeData,
+    getCloudResumeId: () => cloudResumeId,
+    onHistoryChange: () => { void renderHistoryPreview(); }
+  });
+
   initBuilderUI();
-  void bootstrapBuilderData();
+  await bootstrapBuilderData();
   requestAnimationFrame(resetBuilderScroll);
   window.addEventListener('pageshow', resetBuilderScroll);
   window.addEventListener('proresume:auth', () => {
     refreshCloudUser().then(() => bootstrapBuilderData());
+  });
+  window.addEventListener('proresume:before-logout', () => {
+    void window.ProResumeHistory?.flushSnapshot?.('logout');
+  });
+  window.addEventListener('pagehide', () => {
+    void window.ProResumeHistory?.flushSnapshot?.('unload');
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      void window.ProResumeHistory?.flushSnapshot?.('unload');
+    }
   });
 
   let resizeTimer;
@@ -2167,6 +2323,9 @@ async function init() {
   document.addEventListener('click', (e) => {
     const wrap = document.getElementById('export-menu-wrap');
     if (wrap && !wrap.contains(e.target)) hideExportMenu();
+
+    const historyModal = document.getElementById('history-modal');
+    if (historyModal && e.target === historyModal) closeHistoryModal();
   });
 }
 

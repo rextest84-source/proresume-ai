@@ -29,6 +29,18 @@ CREATE TABLE IF NOT EXISTS resumes (
 
 CREATE INDEX IF NOT EXISTS idx_resumes_user_id ON resumes(user_id);
 
+CREATE TABLE IF NOT EXISTS resume_versions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  resume_id UUID NOT NULL REFERENCES resumes(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL DEFAULT 'My Resume',
+  data JSONB NOT NULL DEFAULT '{}',
+  source VARCHAR(50) NOT NULL DEFAULT 'auto',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_resume_versions_resume ON resume_versions(resume_id, created_at DESC);
+
 CREATE TABLE IF NOT EXISTS credit_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

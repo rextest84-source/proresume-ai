@@ -184,6 +184,9 @@
         <span id="unlimited-badge" class="hidden text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full shrink-0">Unlimited AI</span>
         <a id="auth-nav-link" href="/login.html?next=/builder.html" class="sm:inline text-xs text-zinc-400 hover:text-white shrink-0">Sign in</a>
         <span id="save-indicator" class="header-save text-xs text-zinc-500 hidden md:inline shrink-0">Saved</span>
+        <button type="button" data-action="open-history" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 border border-white/15 hover:bg-white/5 rounded-lg text-xs text-zinc-300 shrink-0" title="Project history">
+          <i class="fa-solid fa-clock-rotate-left"></i> History
+        </button>
         <div class="relative shrink-0" id="export-menu-wrap">
           <button data-action="toggle-export-menu" class="px-2.5 sm:px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1">
             <i class="fa-solid fa-download"></i><span class="hidden sm:inline">Download</span> <i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i>
@@ -237,7 +240,19 @@
       </section>
 
       <section class="space-y-3">
-        <h2 class="text-sm font-semibold text-zinc-300">Personal Information</h2>
+        <div class="flex justify-between items-center gap-2">
+          <div>
+            <h2 class="text-sm font-semibold text-zinc-300">Project history</h2>
+            <p class="text-zinc-500 text-xs">Auto-saved snapshots for this resume. Restore any point to continue.</p>
+          </div>
+          <button type="button" data-action="open-history" class="text-xs text-emerald-400 hover:text-emerald-300 font-medium shrink-0">
+            <i class="fa-solid fa-clock-rotate-left mr-1"></i> View all
+          </button>
+        </div>
+        <ul id="history-preview-list" class="space-y-2 text-sm"></ul>
+      </section>
+
+      <section class="space-y-3">
         <input id="name" type="text" placeholder="Full Name" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
         <input id="title" type="text" placeholder="Professional Title" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -401,8 +416,27 @@
 
   <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-sm font-medium z-50 bg-emerald-600 text-white shadow-xl"></div>
 
+  <div id="history-modal" class="hidden fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm p-4 sm:p-8 overflow-y-auto">
+    <div class="max-w-lg mx-auto bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-white/10">
+        <div>
+          <h2 class="text-lg font-semibold">Project history</h2>
+          <p class="text-zinc-500 text-xs">Saved automatically on edits, refresh, sign out, and browser close.</p>
+        </div>
+        <button type="button" data-action="close-history" class="text-zinc-400 hover:text-white p-2" aria-label="Close history">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <ul id="history-list" class="max-h-[60vh] overflow-y-auto divide-y divide-white/5"></ul>
+      <div class="px-5 py-4 border-t border-white/10">
+        <button type="button" data-action="close-history" class="w-full py-2.5 border border-white/15 rounded-xl text-sm text-zinc-300 hover:bg-white/5">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/config.js"></script>
   <script src="/js/api-client.js"></script>
+  <script src="/js/resume-history.js"></script>
   <script src="/js/ai-engine.js"></script>
   <script src="/js/template-extensions.js"></script>
   <script src="/js/export-editable.js"></script>

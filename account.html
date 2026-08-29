@@ -77,9 +77,9 @@
       document.getElementById('user-credits').textContent = user.credits >= 999999 ? 'Unlimited' : user.credits;
       document.getElementById('resume-count').textContent = resumes.length;
       document.getElementById('resume-list').innerHTML = resumes.map(r => `
-        <li class="flex justify-between items-center py-2 border-b border-white/5">
-          <span>${r.preview_name || r.title || 'Untitled'}${r.is_default ? ' <span class="text-emerald-400 text-xs">(default)</span>' : ''}</span>
-          <span class="text-zinc-500 text-xs">${new Date(r.updated_at).toLocaleDateString()}</span>
+        <li class="flex justify-between items-center gap-3 py-2 border-b border-white/5">
+          <a href="/builder.html?resume=${encodeURIComponent(r.id)}" class="text-emerald-400 hover:underline truncate">${r.preview_name || r.title || 'Untitled'}${r.is_default ? ' <span class="text-emerald-400/80 text-xs">(default)</span>' : ''}</a>
+          <span class="text-zinc-500 text-xs shrink-0">${new Date(r.updated_at).toLocaleDateString()}</span>
         </li>
       `).join('') || '<li class="text-zinc-500">No resumes yet</li>';
     }
