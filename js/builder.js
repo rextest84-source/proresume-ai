@@ -112,7 +112,7 @@ function enhanceDescriptionAI(text, role) {
   return AIEngine.enhanceDescription(text, role, resumeData.skills);
 }
 
-async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'smart suggestions', regenerate = true, liveAction = null) {
+async function runAIEnhance(btn, fn, creditCost = 2, featureName = 'writing suggestions', regenerate = true, liveAction = null) {
   if (!btn || btn.classList.contains('ai-loading')) return;
   const useLive = !!(liveAction && canUseLiveGrok());
   if (!useLive && !(await useCredits(creditCost, featureName))) return;
