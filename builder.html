@@ -178,7 +178,13 @@
         <span class="hidden sm:inline truncate">ProResume AI</span>
       </a>
       <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
-        <a href="/pricing.html#credit-rate-card" class="credits-pill shrink-0 inline-flex items-center gap-1.5 hover:bg-amber-500/10 transition rounded-full" title="AI credits — tap for rate card"><span class="icon-wrap icon-wrap-sm icon-amber" aria-hidden="true"><i class="fa-solid fa-bolt"></i></span> <span id="credits-count">20</span></a>
+        <nav id="builder-app-nav" class="builder-app-nav hidden items-center gap-3 text-xs shrink-0">
+          <a href="/account.html">Account</a>
+          <a href="/usage.html">Usage</a>
+          <a href="/billing.html">Billing</a>
+          <button type="button" data-support-chat-open class="hover:text-white">Support</button>
+        </nav>
+        <a href="/usage.html" id="builder-credits-link" class="credits-pill shrink-0 inline-flex items-center gap-1.5 hover:bg-amber-500/10 transition rounded-full" title="View credit usage"><span class="icon-wrap icon-wrap-sm icon-amber" aria-hidden="true"><i class="fa-solid fa-bolt"></i></span> <span id="credits-count">20</span></a>
         <span id="unlimited-badge" class="hidden text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full shrink-0">Unlimited AI</span>
         <a id="auth-nav-link" href="/login.html?next=/builder.html" class="sm:inline text-xs text-zinc-400 hover:text-white shrink-0">Sign in</a>
         <span id="save-indicator" class="header-save text-xs text-zinc-500 hidden md:inline shrink-0">Saved</span>
@@ -197,7 +203,7 @@
             <button data-action="export-resume" data-format="rtf" class="w-full px-4 py-2.5 text-left text-sm hover:bg-white/5 flex items-center gap-2"><i class="fa-solid fa-file-lines text-zinc-400 w-4"></i> RTF</button>
           </div>
         </div>
-        <a href="/pricing.html" class="header-pricing px-2.5 sm:px-4 py-1.5 border border-white/20 text-zinc-300 hover:bg-white/5 rounded-lg text-xs sm:text-sm font-semibold transition shrink-0">Pricing</a>
+        <a id="builder-pricing-link" href="/pricing.html" class="header-pricing px-2.5 sm:px-4 py-1.5 border border-white/20 text-zinc-300 hover:bg-white/5 rounded-lg text-xs sm:text-sm font-semibold transition shrink-0">Pricing</a>
       </div>
     </div>
   </header>
@@ -405,6 +411,7 @@
   <script src="/js/template-extensions.js"></script>
   <script src="/js/export-editable.js"></script>
   <script src="/js/credit-costs.js"></script>
+  <script src="/js/support-chat.js"></script>
   <script src="/js/builder.js"></script>
 </body>
 </html>

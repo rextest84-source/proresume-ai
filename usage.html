@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Usage | ProResume AI</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/css/site.css" rel="stylesheet">
+  <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+  <div data-site-nav="default"></div>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div id="auth-gate" class="hidden text-center py-20">
+      <p class="text-zinc-400 mb-6">Sign in to view your AI credit usage.</p>
+      <a href="/login.html?next=/usage.html" class="inline-block px-6 py-3 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold">Sign In</a>
+    </div>
+
+    <div id="usage-panel" class="hidden">
+      <div data-account-nav></div>
+      <h1 class="text-3xl font-bold mb-2">Usage</h1>
+      <p class="text-zinc-400 mb-8">Track your AI credits and recent activity.</p>
+
+      <div class="grid sm:grid-cols-2 gap-4 mb-8">
+        <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6">
+          <p class="text-zinc-500 text-xs uppercase tracking-wider mb-1">Credits remaining</p>
+          <p id="usage-credits" class="text-3xl font-bold text-amber-400">—</p>
+        </div>
+        <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6">
+          <p class="text-zinc-500 text-xs uppercase tracking-wider mb-1">Monthly allowance</p>
+          <p id="usage-allowance" class="text-3xl font-bold">—</p>
+          <p id="usage-plan" class="text-xs text-zinc-500 mt-1 capitalize">—</p>
+        </div>
+      </div>
+
+      <section class="bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/5 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-lg font-semibold">Recent activity</h2>
+          <a href="/pricing.html#credit-rate-card" class="text-sm text-emerald-400 hover:underline">Credit rate card →</a>
+        </div>
+        <div id="usage-empty" class="hidden p-8 text-center text-zinc-500 text-sm">No credit activity yet. Use AI features in the builder to get started.</div>
+        <ul id="usage-list" class="divide-y divide-white/5 text-sm"></ul>
+      </section>
+    </div>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/account-nav.js"></script>
+  <script src="/js/support-chat.js"></script>
+  <script>
+    function formatAmount(n) {
+      if (n > 0) return `+${n}`;
+      return String(n);
+    }
+
+    function renderUsage(data) {
+      document.getElementById('usage-credits').textContent = data.unlimited ? 'Unlimited' : data.credits;
+      document.getElementById('usage-allowance').textContent = data.unlimited
+        ? 'Unlimited'
+        : (data.monthlyAllowance ? `${data.monthlyAllowance} / mo` : 'Pay as you go');
+      document.getElementById('usage-plan').textContent = `${data.plan} plan`;
+
+      const list = document.getElementById('usage-list');
+      const empty = document.getElementById('usage-empty');
+      const txs = data.transactions || [];
+
+      if (!txs.length) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      list.innerHTML = txs.map((tx) => {
+        const positive = tx.amount > 0;
+        const amountClass = positive ? 'text-emerald-400' : 'text-amber-400';
+        const date = new Date(tx.createdAt).toLocaleString(undefined, {
+          month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+        });
+        return `<li class="px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="font-medium text-zinc-200">${tx.label}</p>
+            <p class="text-xs text-zinc-500 mt-0.5">${date}</p>
+          </div>
+          <div class="text-right">
+            <p class="${amountClass} font-semibold">${formatAmount(tx.amount)} credits</p>
+            <p class="text-xs text-zinc-500">Balance ${tx.balanceAfter}</p>
+          </div>
+        </li>`;
+      }).join('');
+    }
+
+    async function loadUsage() {
+      if (!ProResumeAPI.isLoggedIn()) {
+        document.getElementById('auth-gate').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('usage-panel').classList.remove('hidden');
+      try {
+        const data = await ProResumeAPI.getUsage();
+        renderUsage(data);
+      } catch (e) {
+        document.getElementById('usage-empty').textContent = e.message || 'Could not load usage.';
+        document.getElementById('usage-empty').classList.remove('hidden');
+      }
+    }
+
+    loadUsage();
+  </script>
+</body>
+</html>
