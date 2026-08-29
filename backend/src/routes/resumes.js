@@ -3,6 +3,11 @@ import { query } from '../db.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { getPlanLimits } from '../plans.js';
 import { notifyResumeUpdated } from '../services/realtime.js';
+import {
+  saveResumeVersion,
+  listResumeVersions,
+  getResumeVersion
+} from '../services/resume-history.js';
 
 const router = Router();
 
@@ -37,6 +42,51 @@ router.get('/', async (req, res) => {
   }
 });
 
+/** List version history for a resume */
+router.get('/:id/history', async (req, res) => {
+  try {
+    const owned = await query(
+      'SELECT id FROM resumes WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (!owned.rows[0]) return res.status(404).json({ error: 'Resume not found' });
+
+    const versions = await listResumeVersions(req.params.id, req.userId);
+    res.json({ versions });
+  } catch (err) {
+    console.error('list resume history:', err);
+    res.status(500).json({ error: 'Failed to load history' });
+  }
+});
+
+/** Save an explicit history snapshot (e.g. page unload beacon) */
+router.post('/:id/history', async (req, res) => {
+  try {
+    const owned = await query(
+      'SELECT id, title FROM resumes WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.userId]
+    );
+    if (!owned.rows[0]) return res.status(404).json({ error: 'Resume not found' });
+
+    const normalized = normalizeResumeData(req.body?.data);
+    const title = (req.body?.title || owned.rows[0].title || 'My Resume').trim();
+    const source = (req.body?.source || 'snapshot').slice(0, 50);
+
+    const version = await saveResumeVersion({
+      resumeId: req.params.id,
+      userId: req.userId,
+      data: normalized,
+      title,
+      source
+    });
+
+    res.status(version ? 201 : 200).json({ version, skipped: !version });
+  } catch (err) {
+    console.error('save resume history:', err);
+    res.status(500).json({ error: 'Failed to save history' });
+  }
+});
+
 /** Get one resume */
 router.get('/:id', async (req, res) => {
   try {
@@ -52,6 +102,20 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+/** Get one history version with full data */
+router.get('/:id/history/:versionId', async (req, res) => {
+  try {
+    const version = await getResumeVersion(req.params.versionId, req.userId);
+    if (!version || version.resume_id !== req.params.id) {
+      return res.status(404).json({ error: 'Version not found' });
+    }
+    res.json({ version });
+  } catch (err) {
+    console.error('get resume version:', err);
+    res.status(500).json({ error: 'Failed to load version' });
+  }
+});
+
 /** Create a new resume */
 router.post('/', async (req, res) => {
   try {
@@ -63,12 +127,22 @@ router.post('/', async (req, res) => {
       });
     }
     const { title, data } = req.body;
+    const normalized = normalizeResumeData(data);
     const { rows } = await query(
       `INSERT INTO resumes (user_id, title, data, is_default)
        VALUES ($1, $2, $3, false)
        RETURNING id, title, data, is_default, updated_at`,
-      [req.userId, (title || 'Untitled Resume').trim(), JSON.stringify(normalizeResumeData(data))]
+      [req.userId, (title || 'Untitled Resume').trim(), JSON.stringify(normalized)]
     );
+
+    await saveResumeVersion({
+      resumeId: rows[0].id,
+      userId: req.userId,
+      data: normalized,
+      title: rows[0].title,
+      source: 'create'
+    }).catch((err) => console.warn('Initial history snapshot failed:', err.message));
+
     res.status(201).json({ resume: rows[0] });
   } catch (err) {
     console.error('create resume:', err);
@@ -92,6 +166,15 @@ router.put('/:id', async (req, res) => {
     const { rows } = await query(sql, fields);
     if (!rows[0]) return res.status(404).json({ error: 'Resume not found' });
 
+    const source = (req.body?.historySource || 'auto').slice(0, 50);
+    await saveResumeVersion({
+      resumeId: rows[0].id,
+      userId: req.userId,
+      data: normalized,
+      title: rows[0].title,
+      source
+    }).catch((err) => console.warn('History snapshot failed:', err.message));
+
     notifyResumeUpdated({
       userId: req.userId,
       resumeId: rows[0].id,
@@ -103,6 +186,45 @@ router.put('/:id', async (req, res) => {
   } catch (err) {
     console.error('update resume:', err);
     res.status(500).json({ error: 'Failed to save resume' });
+  }
+});
+
+/** Restore a history version as the current resume */
+router.post('/:id/history/:versionId/restore', async (req, res) => {
+  try {
+    const version = await getResumeVersion(req.params.versionId, req.userId);
+    if (!version || version.resume_id !== req.params.id) {
+      return res.status(404).json({ error: 'Version not found' });
+    }
+
+    const normalized = normalizeResumeData(version.data);
+    const { rows } = await query(
+      `UPDATE resumes SET data = $1, title = $2, updated_at = NOW()
+       WHERE id = $3 AND user_id = $4
+       RETURNING id, title, data, is_default, updated_at`,
+      [JSON.stringify(normalized), version.title || 'My Resume', req.params.id, req.userId]
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Resume not found' });
+
+    await saveResumeVersion({
+      resumeId: rows[0].id,
+      userId: req.userId,
+      data: normalized,
+      title: rows[0].title,
+      source: 'restore'
+    }).catch((err) => console.warn('Restore history snapshot failed:', err.message));
+
+    notifyResumeUpdated({
+      userId: req.userId,
+      resumeId: rows[0].id,
+      resume: rows[0],
+      clientId: req.body?.clientId || null
+    }).catch((err) => console.warn('Resume sync notify failed:', err.message));
+
+    res.json({ resume: rows[0], restoredFrom: version.id });
+  } catch (err) {
+    console.error('restore resume version:', err);
+    res.status(500).json({ error: 'Failed to restore version' });
   }
 });
 

@@ -34,6 +34,7 @@ const ProResumeAPI = (() => {
   }
 
   function clearSession() {
+    window.dispatchEvent(new CustomEvent('proresume:before-logout'));
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     window.dispatchEvent(new CustomEvent('proresume:auth', { detail: { user: null } }));
@@ -128,10 +129,37 @@ const ProResumeAPI = (() => {
       return request(`/api/resumes/${id}`);
     },
 
-    async saveResume(id, data, title, clientId) {
+    async saveResume(id, data, title, clientId, historySource) {
       return request(`/api/resumes/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ data, title, clientId: clientId || null })
+        body: JSON.stringify({
+          data,
+          title,
+          clientId: clientId || null,
+          historySource: historySource || 'auto'
+        })
+      });
+    },
+
+    async listResumeHistory(id) {
+      return request(`/api/resumes/${id}/history`);
+    },
+
+    async getResumeHistoryVersion(resumeId, versionId) {
+      return request(`/api/resumes/${resumeId}/history/${versionId}`);
+    },
+
+    async saveResumeHistorySnapshot(id, data, title, source) {
+      return request(`/api/resumes/${id}/history`, {
+        method: 'POST',
+        body: JSON.stringify({ data, title, source: source || 'snapshot' })
+      });
+    },
+
+    async restoreResumeVersion(resumeId, versionId, clientId) {
+      return request(`/api/resumes/${resumeId}/history/${versionId}/restore`, {
+        method: 'POST',
+        body: JSON.stringify({ clientId: clientId || null })
       });
     },
 
