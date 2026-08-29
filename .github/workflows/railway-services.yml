@@ -47,3 +47,12 @@ jobs:
           cp "../${{ matrix.config }}" railway.toml
           railway link --service "${{ matrix.service }}" || railway link
           railway up --detach
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: ${{ secrets.RAILWAY_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify production stack
+        run: bash backend/scripts/verify-production.sh

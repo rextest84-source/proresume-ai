@@ -11,7 +11,9 @@
     "dev": "node --watch src/index.js",
     "migrate": "node src/migrate.js",
     "stripe:setup": "node scripts/create-stripe-products.js",
-    "deploy:railway": "bash scripts/deploy-railway.sh"
+    "deploy:railway": "bash scripts/deploy-railway.sh",
+    "setup:railway": "bash scripts/setup-railway-live.sh",
+    "verify:production": "bash scripts/verify-production.sh"
   },
   "engines": {
     "node": ">=20"

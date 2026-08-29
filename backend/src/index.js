@@ -64,6 +64,20 @@ app.use(express.json({ limit: '2mb' }));
 const apiLimiter = rateLimit({ windowMs: 60 * 1000, max: 120 });
 app.use('/api/', apiLimiter);
 
+function getStackStatus(redis, queue) {
+  const stack = {
+    websocket: 'ok',
+    redis: !redis.configured ? 'not_configured' : (redis.ok ? 'connected' : 'unreachable'),
+    worker: 'unknown'
+  };
+  if (queue) {
+    if (queue.processing > 0) stack.worker = 'active';
+    else if (queue.pending > 0) stack.worker = 'likely_down';
+    else stack.worker = 'idle';
+  }
+  return stack;
+}
+
 app.get('/health', async (_req, res) => {
   let queue = null;
   let redis = { configured: isRedisConfigured(), ok: false };
@@ -73,13 +87,15 @@ app.get('/health', async (_req, res) => {
   if (isRedisConfigured()) {
     redis = await pingRedis();
   }
+  const stack = getStackStatus(redis, queue);
   res.status(200).json({
     ok: true,
     service: 'proresume-api',
     database: dbReady ? 'connected' : (dbError ? 'error' : 'connecting'),
     redis,
     queue,
-    realtime: getRealtimeStats()
+    realtime: getRealtimeStats(),
+    stack
   });
 });
 
