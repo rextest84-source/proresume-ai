@@ -42,11 +42,14 @@ All three Node services use **root directory `backend`** and the matching `servi
 2. On **proresume-ai**, **worker**, and **cron**, add variable reference:  
    `DATABASE_URL` → `${{Postgres.DATABASE_URL}}`
 
-### 2. Redis (recommended)
+### 2. Redis (recommended — required for full realtime + instant worker)
 
 1. Project → **+ New** → **Database** → **Redis**
 2. On **all three Node services**, add:  
    `REDIS_URL` → `${{Redis.REDIS_URL}}`
+3. On **all three Node services**, add:  
+   `REQUIRE_REDIS=true`  
+   (services log a warning if Redis is configured but unreachable; with `REQUIRE_REDIS=true` they fail startup until Redis is linked)
 
 Without Redis:
 - Worker polls the Postgres queue every 3s (still works)
@@ -90,21 +93,44 @@ On startup the worker **drains pending queue jobs** then listens for Redis signa
 - Share `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`
 - Runs maintenance enqueue every 15 minutes (`CRON_INTERVAL_MS` to override)
 
+## One-command live stack (CLI)
+
+With `RAILWAY_TOKEN` exported:
+
+```bash
+cd backend
+npm run setup:railway   # add Redis, worker, cron, set REQUIRE_REDIS, deploy all
+npm run verify:production
+```
+
+Manual dashboard steps may still be needed to link `REDIS_URL=${{Redis.REDIS_URL}}` on each service.
+
 ## Verify deployment
 
 ```bash
-curl https://proresume-ai-production.up.railway.app/health
+cd backend && npm run verify:production
 ```
 
-Expected:
+Expected health:
 
 ```json
 {
   "ok": true,
   "database": "connected",
   "redis": { "configured": true, "ok": true },
-  "realtime": { "connections": 0, "rooms": 0 }
+  "realtime": { "connections": 0, "rooms": 0 },
+  "stack": { "websocket": "ok", "redis": "connected", "worker": "idle" }
 }
+```
+
+WebSocket check must use **HTTP/1.1** (Railway edge returns 404 for WS upgrade over HTTP/2):
+
+```bash
+curl --http1.1 -sS -o /dev/null -w "%{http_code}\n" \
+  -H "Connection: Upgrade" -H "Upgrade: websocket" \
+  -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
+  "https://proresume-ai-production.up.railway.app/ws?token=test"
+# Expected: 101 (or 4401 with invalid token)
 ```
 
 ## GitHub Actions deploy
