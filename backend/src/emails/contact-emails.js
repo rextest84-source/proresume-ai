@@ -18,7 +18,7 @@ export function buildContactReceiptHtml({ name }) {
               <p style="margin:0 0 8px;font-size:15px;color:#52525b;">Hi ${escapeHtml(name)},</p>
               <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#18181b;line-height:1.3;">We received your message</h1>
               <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#52525b;">
-                Thanks for contacting ProResume AI. Our team will respond within one business day.
+                We'll reply within a business day.
               </p>
               <p style="margin:0;font-size:14px;line-height:1.6;color:#71717a;">
                 Reply to this email or write to
@@ -33,7 +33,7 @@ export function buildContactReceiptText({ name }) {
   const supportEmail = process.env.SUPPORT_EMAIL || 'support@aeloriacareer.com';
   return `Hi ${name},
 
-Thanks for contacting ProResume AI. We received your message and will respond within 1 business day.
+Thanks for contacting ProResume AI. We received your message and will reply within a business day.
 
 Reply to this email or write to ${supportEmail} if you need to follow up.
 

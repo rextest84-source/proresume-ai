@@ -14,7 +14,7 @@ const chatLimiter = rateLimit({
 });
 
 const WELCOME_MESSAGE =
-  'Hi! How can we help you today? Our team usually replies within one business day. You can ask about billing, your account, or using ProResume AI.';
+  'Ask us about billing, your account, or using the builder. We usually reply within a business day.';
 
 function mapRow(row) {
   return {

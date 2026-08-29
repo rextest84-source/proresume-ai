@@ -62,14 +62,14 @@
           <div class="support-chat-header">
             <div>
               <p class="support-chat-title">Support</p>
-              <p class="support-chat-subtitle">We reply within 1 business day</p>
+              <p class="support-chat-subtitle">Usually reply within a business day</p>
             </div>
             <button type="button" class="support-chat-close" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
           </div>
           <div class="support-chat-messages"></div>
           <div class="support-chat-compose">
             <p class="support-chat-gate hidden">Sign in to message our team.</p>
-            <textarea class="support-chat-input hidden" rows="2" maxlength="4000" placeholder="Type your message…"></textarea>
+            <textarea class="support-chat-input hidden" rows="2" maxlength="4000" placeholder="Write your message…"></textarea>
             <div class="support-chat-actions hidden">
               <button type="button" class="support-chat-send">Send</button>
             </div>
@@ -112,7 +112,7 @@
       if (loggedIn) {
         this.gate.innerHTML = '';
       } else {
-        this.gate.innerHTML = `Sign in to chat with support, or email <a href="mailto:${SUPPORT_EMAIL}" class="text-emerald-400 hover:underline">${SUPPORT_EMAIL}</a>. <a href="/login.html" class="text-emerald-400 hover:underline">Sign in</a>`;
+        this.gate.innerHTML = `Sign in to message support, or email <a href="mailto:${SUPPORT_EMAIL}" class="text-emerald-400 hover:underline">${SUPPORT_EMAIL}</a>. <a href="/login.html" class="text-emerald-400 hover:underline">Sign in</a>`;
       }
     }
 
@@ -142,7 +142,7 @@
       if (!window.ProResumeAPI?.isLoggedIn()) {
         this.messages = [{
           role: 'system',
-          body: `Questions about billing, usage, or your account? Sign in to chat with us, or email ${SUPPORT_EMAIL}.`,
+          body: `Billing, usage, or account questions? Sign in to message us, or email ${SUPPORT_EMAIL}.`,
           createdAt: new Date().toISOString()
         }];
         this.paintMessages();

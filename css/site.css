@@ -10,6 +10,13 @@ body {
   max-width: 100vw;
 }
 
+/* iOS Safari zooms focused fields when font-size is below 16px */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']),
+textarea,
+select {
+  font-size: 16px !important;
+}
+
 /* Safe areas for iOS notch/home indicator */
 @supports (padding: env(safe-area-inset-top)) {
   #site-nav {
@@ -307,7 +314,7 @@ body.nav-menu-open {
   background: #18181b;
   color: #fafafa;
   padding: 10px 12px;
-  font-size: 0.875rem;
+  font-size: 16px;
   font-family: inherit;
 }
 
