@@ -2018,21 +2018,7 @@ function resetBuilderScroll() {
   });
 }
 
-async function init() {
-  if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'manual';
-  }
-  resetBuilderScroll();
-  updateAuthHeader();
-  showCloudSaveBanner();
-  await refreshLiveAiStatus();
-  if (window.ProResumeAPI?.isLoggedIn()) {
-    await refreshCloudUser();
-    const loaded = await loadFromCloud();
-    if (loaded) syncFormFields();
-    await mergeLocalToCloud();
-  }
-
+function initBuilderUI() {
   renderTemplatePicker();
   resumeData.template = normalizeTemplate(resumeData.template);
 
@@ -2052,6 +2038,34 @@ async function init() {
   updateCreditsDisplay();
   setupEvents();
   setupMobileScrollGuard();
+}
+
+async function bootstrapBuilderData() {
+  await refreshLiveAiStatus();
+  if (!window.ProResumeAPI?.isLoggedIn()) return;
+
+  await refreshCloudUser();
+  const loaded = await loadFromCloud();
+  if (loaded) {
+    syncFormFields();
+    renderExperienceFields();
+    renderEducationFields();
+    resumeData.template = normalizeTemplate(resumeData.template);
+    selectTemplate(resumeData.template);
+    renderPreview();
+  }
+  await mergeLocalToCloud();
+}
+
+async function init() {
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  resetBuilderScroll();
+  updateAuthHeader();
+  showCloudSaveBanner();
+  initBuilderUI();
+  void bootstrapBuilderData();
   requestAnimationFrame(resetBuilderScroll);
   window.addEventListener('pageshow', resetBuilderScroll);
   window.addEventListener('proresume:auth', () => {
