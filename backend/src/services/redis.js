@@ -30,6 +30,28 @@ export async function pingRedis() {
   }
 }
 
+/** Wait until Redis answers PING (used on service startup). */
+export async function ensureRedisReady({ retries = 8, delayMs = 1500 } = {}) {
+  if (!isRedisConfigured()) {
+    return { configured: false, ok: false };
+  }
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const status = await pingRedis();
+    if (status.ok) {
+      console.log('Redis: connected');
+      return status;
+    }
+    console.warn(`Redis: waiting to connect (${attempt}/${retries})…`);
+    await new Promise((r) => setTimeout(r, delayMs));
+  }
+  const msg = 'Redis is configured but unreachable after retries';
+  if (process.env.REQUIRE_REDIS === 'true') {
+    throw new Error(msg);
+  }
+  console.error(`Redis: ${msg}`);
+  return { configured: true, ok: false, error: msg };
+}
+
 export async function publishJobSignal(jobId) {
   try {
     const redis = await getClient();

@@ -9,12 +9,19 @@ export function applyEnvDefaults() {
   }
 }
 
+export function isProduction() {
+  return process.env.NODE_ENV === 'production' || Boolean(process.env.RAILWAY_ENVIRONMENT);
+}
+
 export function requireCoreEnv() {
   const missing = [];
   if (!process.env.JWT_SECRET) missing.push('JWT_SECRET');
   if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
   if (missing.length) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+  if (process.env.REQUIRE_REDIS === 'true' && !process.env.REDIS_URL?.trim()) {
+    throw new Error('REQUIRE_REDIS=true but REDIS_URL is not set');
   }
 }
 

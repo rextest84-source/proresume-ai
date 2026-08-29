@@ -10,7 +10,8 @@
     "start:cron": "node src/cron.js",
     "dev": "node --watch src/index.js",
     "migrate": "node src/migrate.js",
-    "stripe:setup": "node scripts/create-stripe-products.js"
+    "stripe:setup": "node scripts/create-stripe-products.js",
+    "deploy:railway": "bash scripts/deploy-railway.sh"
   },
   "engines": {
     "node": ">=20"
@@ -28,5 +29,8 @@
     "stripe": "^17.5.0",
     "uuid": "^11.0.5",
     "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@railway/cli": "^5.45.8"
   }
 }

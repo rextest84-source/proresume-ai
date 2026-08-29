@@ -3,7 +3,7 @@ import { applyEnvDefaults, requireCoreEnv, getServicePort } from './lib/env.js';
 import { runMigrations } from './lib/migrate.js';
 import { startHealthServer } from './lib/health-server.js';
 import { enqueueJob, getQueueStats } from './queue/index.js';
-import { isRedisConfigured, pingRedis } from './services/redis.js';
+import { isRedisConfigured, pingRedis, ensureRedisReady } from './services/redis.js';
 import { query } from './db.js';
 
 applyEnvDefaults();
@@ -46,6 +46,7 @@ async function start() {
   requireCoreEnv();
   await runMigrations();
   await query('SELECT 1');
+  await ensureRedisReady();
 
   startHealthServer({
     service: 'proresume-cron',

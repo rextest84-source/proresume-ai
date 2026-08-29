@@ -14,7 +14,7 @@ import aiRoutes from './routes/ai.js';
 import contactRoutes, { deliverContactMessage } from './routes/contact.js';
 import supportRoutes from './routes/support.js';
 import { isGrokConfigured, getGrokModel } from './services/grok.js';
-import { isRedisConfigured, pingRedis } from './services/redis.js';
+import { isRedisConfigured, pingRedis, ensureRedisReady } from './services/redis.js';
 import { isEmailConfigured } from './services/email.js';
 import { getQueueStats } from './queue/index.js';
 import { attachRealtimeServer, getRealtimeStats } from './services/realtime.js';
@@ -133,6 +133,19 @@ async function drainQueuedContactMessages() {
 async function start() {
   requireCoreEnv();
 
+  try {
+    await runMigrations();
+    dbReady = true;
+    dbError = null;
+    await bootstrapStripe();
+    await drainQueuedContactMessages();
+  } catch (err) {
+    dbError = err.message;
+    console.error('Database setup failed:', err.message);
+  }
+
+  await ensureRedisReady();
+
   const httpServer = createServer(app);
   attachRealtimeServer(httpServer);
 
@@ -156,16 +169,6 @@ async function start() {
     }
   });
 
-  try {
-    await runMigrations();
-    dbReady = true;
-    dbError = null;
-    await bootstrapStripe();
-    await drainQueuedContactMessages();
-  } catch (err) {
-    dbError = err.message;
-    console.error('Database setup failed:', err.message);
-  }
 }
 
 start().catch(err => {
