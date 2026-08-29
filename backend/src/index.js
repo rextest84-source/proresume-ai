@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { createServer } from 'http';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -13,9 +14,10 @@ import aiRoutes from './routes/ai.js';
 import contactRoutes, { deliverContactMessage } from './routes/contact.js';
 import supportRoutes from './routes/support.js';
 import { isGrokConfigured, getGrokModel } from './services/grok.js';
-import { isRedisConfigured } from './services/redis.js';
+import { isRedisConfigured, pingRedis } from './services/redis.js';
 import { isEmailConfigured } from './services/email.js';
 import { getQueueStats } from './queue/index.js';
+import { attachRealtimeServer, getRealtimeStats } from './services/realtime.js';
 import { query } from './db.js';
 
 applyEnvDefaults();
@@ -64,15 +66,20 @@ app.use('/api/', apiLimiter);
 
 app.get('/health', async (_req, res) => {
   let queue = null;
+  let redis = { configured: isRedisConfigured(), ok: false };
   if (dbReady) {
     try { queue = await getQueueStats(); } catch { /* ignore */ }
+  }
+  if (isRedisConfigured()) {
+    redis = await pingRedis();
   }
   res.status(200).json({
     ok: true,
     service: 'proresume-api',
     database: dbReady ? 'connected' : (dbError ? 'error' : 'connecting'),
-    redis: isRedisConfigured(),
-    queue
+    redis,
+    queue,
+    realtime: getRealtimeStats()
   });
 });
 
@@ -126,7 +133,10 @@ async function drainQueuedContactMessages() {
 async function start() {
   requireCoreEnv();
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const httpServer = createServer(app);
+  attachRealtimeServer(httpServer);
+
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`ProResume API listening on port ${PORT}`);
     console.log(`CORS: configured origins + *.netlify.app + *.aeloriacareer.com`);
     if (isGrokConfigured()) {
@@ -135,7 +145,9 @@ async function start() {
       console.log('Grok AI: not configured (set XAI_API_KEY for live suggestions)');
     }
     if (isRedisConfigured()) {
-      console.log('Redis: configured for job queue signals');
+      console.log('Redis: configured for job signals and cross-instance resume sync');
+    } else {
+      console.log('Redis: not configured (worker uses DB polling; sync is single-instance only)');
     }
     if (isEmailConfigured()) {
       console.log('Email: Resend configured for transactional mail');

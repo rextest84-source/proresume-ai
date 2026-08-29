@@ -128,10 +128,10 @@ const ProResumeAPI = (() => {
       return request(`/api/resumes/${id}`);
     },
 
-    async saveResume(id, data, title) {
+    async saveResume(id, data, title, clientId) {
       return request(`/api/resumes/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ data, title })
+        body: JSON.stringify({ data, title, clientId: clientId || null })
       });
     },
 

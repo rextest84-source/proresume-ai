@@ -5,7 +5,7 @@ import { runMigrations } from './lib/migrate.js';
 import { startHealthServer } from './lib/health-server.js';
 import { claimNextJob, completeJob, failJob, getQueueStats } from './queue/index.js';
 import { runJob } from './queue/handlers.js';
-import { subscribeJobSignals } from './services/redis.js';
+import { isRedisConfigured, pingRedis, subscribeJobSignals } from './services/redis.js';
 import { query } from './db.js';
 
 applyEnvDefaults();
@@ -32,6 +32,18 @@ async function processOneJob() {
   return true;
 }
 
+async function drainPendingJobs(maxJobs = 50) {
+  let processed = 0;
+  while (processed < maxJobs) {
+    const didProcess = await processOneJob();
+    if (!didProcess) break;
+    processed += 1;
+  }
+  if (processed) {
+    console.log(`Worker drained ${processed} queued job(s) on startup`);
+  }
+}
+
 async function workerLoop() {
   while (running) {
     const processed = await processOneJob();
@@ -43,12 +55,16 @@ async function workerLoop() {
 
 async function getStatus() {
   const stats = await getQueueStats();
+  let redis = { configured: isRedisConfigured(), ok: false };
+  if (isRedisConfigured()) {
+    redis = await pingRedis();
+  }
   return {
     ready: true,
     workerId: WORKER_ID,
     activeJob,
     queue: stats,
-    redis: Boolean(process.env.REDIS_URL)
+    redis
   };
 }
 
@@ -68,6 +84,13 @@ async function start() {
   });
 
   console.log(`ProResume worker started (${WORKER_ID})`);
+  if (isRedisConfigured()) {
+    console.log('Redis: job signals enabled');
+  } else {
+    console.log('Redis: not configured — polling queue every', POLL_MS, 'ms');
+  }
+
+  await drainPendingJobs();
   await workerLoop();
 }
 

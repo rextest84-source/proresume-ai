@@ -1,5 +1,9 @@
 let redisClient = null;
 let pubClient = null;
+let subClient = null;
+
+const JOB_CHANNEL = 'proresume:jobs';
+const RESUME_SYNC_CHANNEL = 'proresume:resume-sync';
 
 export function isRedisConfigured() {
   return Boolean(process.env.REDIS_URL?.trim());
@@ -15,11 +19,22 @@ async function getClient() {
   return redisClient;
 }
 
+export async function pingRedis() {
+  try {
+    const redis = await getClient();
+    if (!redis) return { configured: false, ok: false };
+    const pong = await redis.ping();
+    return { configured: true, ok: pong === 'PONG' };
+  } catch (err) {
+    return { configured: true, ok: false, error: err.message };
+  }
+}
+
 export async function publishJobSignal(jobId) {
   try {
     const redis = await getClient();
     if (!redis) return;
-    await redis.publish('proresume:jobs', jobId);
+    await redis.publish(JOB_CHANNEL, jobId);
   } catch (err) {
     console.warn('Redis publish failed:', err.message);
   }
@@ -31,8 +46,39 @@ export async function subscribeJobSignals(onSignal) {
   const { default: Redis } = await import('ioredis');
   pubClient = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2 });
   pubClient.on('error', (err) => console.warn('Redis sub error:', err.message));
-  await pubClient.subscribe('proresume:jobs');
+  await pubClient.subscribe(JOB_CHANNEL);
   pubClient.on('message', (_channel, jobId) => onSignal(jobId));
   console.log('Redis job subscriber active');
   return pubClient;
+}
+
+export async function publishResumeSync(event) {
+  try {
+    const redis = await getClient();
+    if (!redis) return;
+    await redis.publish(RESUME_SYNC_CHANNEL, JSON.stringify(event));
+  } catch (err) {
+    console.warn('Redis resume sync publish failed:', err.message);
+  }
+}
+
+export async function subscribeResumeSync(onEvent) {
+  if (!isRedisConfigured()) {
+    console.log('Redis not configured — resume sync is local to this API instance only');
+    return null;
+  }
+
+  const { default: Redis } = await import('ioredis');
+  subClient = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2 });
+  subClient.on('error', (err) => console.warn('Redis resume sync sub error:', err.message));
+  await subClient.subscribe(RESUME_SYNC_CHANNEL);
+  subClient.on('message', (_channel, raw) => {
+    try {
+      onEvent(JSON.parse(raw));
+    } catch (err) {
+      console.warn('Redis resume sync message parse failed:', err.message);
+    }
+  });
+  console.log('Redis resume sync subscriber active');
+  return subClient;
 }

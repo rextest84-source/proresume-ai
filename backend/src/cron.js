@@ -3,6 +3,7 @@ import { applyEnvDefaults, requireCoreEnv, getServicePort } from './lib/env.js';
 import { runMigrations } from './lib/migrate.js';
 import { startHealthServer } from './lib/health-server.js';
 import { enqueueJob, getQueueStats } from './queue/index.js';
+import { isRedisConfigured, pingRedis } from './services/redis.js';
 import { query } from './db.js';
 
 applyEnvDefaults();
@@ -34,7 +35,11 @@ async function tick() {
 
 async function getStatus() {
   const stats = await getQueueStats();
-  return { ready: true, queue: stats, intervalMs: INTERVAL_MS };
+  let redis = { configured: isRedisConfigured(), ok: false };
+  if (isRedisConfigured()) {
+    redis = await pingRedis();
+  }
+  return { ready: true, queue: stats, intervalMs: INTERVAL_MS, redis };
 }
 
 async function start() {
@@ -49,6 +54,12 @@ async function start() {
   });
 
   console.log(`ProResume cron started (every ${INTERVAL_MS}ms)`);
+  if (isRedisConfigured()) {
+    const redis = await pingRedis();
+    console.log(`Redis: ${redis.ok ? 'connected' : 'unreachable'}`);
+  } else {
+    console.log('Redis: not configured (jobs still enqueue to Postgres)');
+  }
   await tick();
   setInterval(() => {
     tick().catch(err => console.error('Cron tick failed:', err.message));

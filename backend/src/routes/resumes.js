@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { query } from '../db.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { getPlanLimits } from '../plans.js';
+import { notifyResumeUpdated } from '../services/realtime.js';
 
 const router = Router();
 
@@ -90,6 +91,14 @@ router.put('/:id', async (req, res) => {
 
     const { rows } = await query(sql, fields);
     if (!rows[0]) return res.status(404).json({ error: 'Resume not found' });
+
+    notifyResumeUpdated({
+      userId: req.userId,
+      resumeId: rows[0].id,
+      resume: rows[0],
+      clientId: req.body?.clientId || null
+    }).catch((err) => console.warn('Resume sync notify failed:', err.message));
+
     res.json({ resume: rows[0] });
   } catch (err) {
     console.error('update resume:', err);

@@ -12,6 +12,8 @@ Everything you need in one place. The code is ready - connect Stripe on Railway 
 | Support email | support@aeloriacareer.com |
 | Railway API | https://proresume-ai-production.up.railway.app |
 | PostgreSQL (cloud saves) | Connected |
+| WebSocket live resume sync | `/ws` on API (signed-in builder) |
+| Redis + worker + cron | See [backend/RAILWAY-SERVICES.md](backend/RAILWAY-SERVICES.md) |
 | Sign up / sign in | `/signup.html`, `/login.html` |
 | Resume builder + cloud sync | `/builder.html` (when signed in) |
 | Account page + billing portal | `/account.html` |

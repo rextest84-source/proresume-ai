@@ -5,22 +5,44 @@
     {
       "name": "proresume-ai",
       "configFile": "services/api/railway.toml",
-      "startCommand": "node src/index.js"
+      "startCommand": "node src/index.js",
+      "description": "REST API + WebSocket /ws live resume sync"
     },
     {
       "name": "proresume-worker",
       "configFile": "services/worker/railway.toml",
-      "startCommand": "node src/worker.js"
+      "startCommand": "node src/worker.js",
+      "description": "Background job processor (Stripe, email queue, maintenance)"
     },
     {
       "name": "proresume-cron",
       "configFile": "services/cron/railway.toml",
-      "startCommand": "node src/cron.js"
+      "startCommand": "node src/cron.js",
+      "description": "Scheduled maintenance job enqueue"
     }
   ],
   "plugins": [
     { "name": "Postgres", "required": true, "provides": ["DATABASE_URL"] },
-    { "name": "Redis", "required": false, "provides": ["REDIS_URL"] }
+    {
+      "name": "Redis",
+      "required": false,
+      "recommended": true,
+      "provides": ["REDIS_URL"],
+      "note": "Job signals + cross-instance WebSocket resume sync"
+    }
   ],
-  "sharedVariables": ["DATABASE_URL", "JWT_SECRET", "FRONTEND_URL", "CORS_ORIGINS", "RESEND_API_KEY", "SUPPORT_EMAIL", "FROM_EMAIL", "REPLY_TO_EMAIL"]
+  "sharedVariables": [
+    "DATABASE_URL",
+    "REDIS_URL",
+    "JWT_SECRET",
+    "FRONTEND_URL",
+    "CORS_ORIGINS",
+    "RESEND_API_KEY",
+    "SUPPORT_EMAIL",
+    "FROM_EMAIL",
+    "REPLY_TO_EMAIL",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "XAI_API_KEY"
+  ]
 }

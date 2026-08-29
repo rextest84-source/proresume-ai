@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import { verifyToken as verifyJwtToken } from '../lib/jwt.js';
 import { query } from '../db.js';
 
 export function requireAuth(req, res, next) {
@@ -8,7 +8,7 @@ export function requireAuth(req, res, next) {
   }
   const token = header.slice(7);
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = verifyJwtToken(token);
     req.userId = payload.sub;
     req.userEmail = payload.email;
     next();

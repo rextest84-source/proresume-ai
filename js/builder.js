@@ -16,6 +16,9 @@ let cloudResumeId = localStorage.getItem('proresume_resume_id');
 let cloudSaveTimer = null;
 let cloudUser = null;
 let liveGrokEnabled = false;
+let lastCloudUpdatedAt = null;
+let lastLocalEditAt = 0;
+let applyingRemoteUpdate = false;
 
 const TEMPLATE_TIERS = {
   modern: 'free', classic: 'free', minimal: 'free', stanford: 'free', horizon: 'free', serif: 'free',
@@ -183,9 +186,75 @@ function loadData() {
 }
 
 function saveData() {
+  if (!applyingRemoteUpdate) {
+    lastLocalEditAt = Date.now();
+  }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
   updateSaveIndicator();
   scheduleCloudSave();
+}
+
+async function ensureCloudResumeId() {
+  if (!window.ProResumeAPI?.isLoggedIn()) return false;
+
+  if (cloudResumeId) {
+    try {
+      await ProResumeAPI.getResume(cloudResumeId);
+      return true;
+    } catch {
+      cloudResumeId = null;
+      localStorage.removeItem('proresume_resume_id');
+    }
+  }
+
+  try {
+    const { resumes } = await ProResumeAPI.listResumes();
+    if (resumes?.length) {
+      const target = resumes.find(r => r.is_default) || resumes[0];
+      cloudResumeId = target.id;
+    } else {
+      const { resume } = await ProResumeAPI.createResume('My Resume', resumeData);
+      cloudResumeId = resume.id;
+    }
+    localStorage.setItem('proresume_resume_id', cloudResumeId);
+    return true;
+  } catch (e) {
+    console.warn('ensureCloudResumeId failed:', e);
+    return false;
+  }
+}
+
+function connectRealtimeSync() {
+  if (!window.ProResumeRealtime || !window.ProResumeAPI?.isLoggedIn() || !cloudResumeId) {
+    window.ProResumeRealtime?.disconnect?.();
+    return;
+  }
+  window.ProResumeRealtime.connect(cloudResumeId, applyRemoteResume);
+}
+
+function applyRemoteResume(msg) {
+  const ownClientId = window.ProResumeRealtime?.getClientId?.();
+  if (msg.clientId && msg.clientId === ownClientId) return;
+  if (!msg.resume?.data) return;
+
+  const remoteTs = new Date(msg.updatedAt || msg.resume.updated_at || 0).getTime();
+  if (lastCloudUpdatedAt && remoteTs <= lastCloudUpdatedAt) return;
+  if (Date.now() - lastLocalEditAt < 2000) return;
+
+  applyingRemoteUpdate = true;
+  resumeData = { ...structuredClone(defaultData), ...msg.resume.data };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+  lastCloudUpdatedAt = remoteTs;
+  syncFormFields();
+  renderExperienceFields();
+  renderEducationFields();
+  resumeData.template = normalizeTemplate(resumeData.template);
+  selectTemplate(resumeData.template);
+  renderPreview();
+  refreshTemplateAccess();
+  applyingRemoteUpdate = false;
+  updateSaveIndicator();
+  showToast('Resume synced from cloud', 'success');
 }
 
 async function refreshCloudUser() {
@@ -222,6 +291,7 @@ async function loadFromCloud() {
     const { resume } = await ProResumeAPI.getResume(cloudResumeId);
     resumeData = { ...structuredClone(defaultData), ...resume.data };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+    lastCloudUpdatedAt = new Date(resume.updated_at || 0).getTime() || Date.now();
     return true;
   } catch (e) {
     console.warn('Cloud load failed:', e);
@@ -230,12 +300,18 @@ async function loadFromCloud() {
 }
 
 function scheduleCloudSave() {
-  if (!window.ProResumeAPI?.isLoggedIn() || !cloudResumeId) return;
+  if (!window.ProResumeAPI?.isLoggedIn()) return;
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer = setTimeout(async () => {
     try {
+      const ready = cloudResumeId || await ensureCloudResumeId();
+      if (!ready || !cloudResumeId) return;
+
       const title = resumeData.name?.trim() || resumeData.title?.trim() || 'My Resume';
-      await ProResumeAPI.saveResume(cloudResumeId, resumeData, title);
+      const clientId = window.ProResumeRealtime?.getClientId?.() || null;
+      const { resume } = await ProResumeAPI.saveResume(cloudResumeId, resumeData, title, clientId);
+      lastCloudUpdatedAt = new Date(resume.updated_at || 0).getTime() || Date.now();
+      connectRealtimeSync();
       const el = document.getElementById('save-indicator');
       if (el) {
         el.textContent = 'Saved to cloud';
@@ -2042,9 +2118,13 @@ function initBuilderUI() {
 
 async function bootstrapBuilderData() {
   await refreshLiveAiStatus();
-  if (!window.ProResumeAPI?.isLoggedIn()) return;
+  if (!window.ProResumeAPI?.isLoggedIn()) {
+    window.ProResumeRealtime?.disconnect?.();
+    return;
+  }
 
   await refreshCloudUser();
+  await ensureCloudResumeId();
   const loaded = await loadFromCloud();
   if (loaded) {
     syncFormFields();
@@ -2054,6 +2134,7 @@ async function bootstrapBuilderData() {
     selectTemplate(resumeData.template);
     renderPreview();
   }
+  connectRealtimeSync();
   await mergeLocalToCloud();
 }
 
@@ -2069,7 +2150,7 @@ async function init() {
   requestAnimationFrame(resetBuilderScroll);
   window.addEventListener('pageshow', resetBuilderScroll);
   window.addEventListener('proresume:auth', () => {
-    refreshCloudUser();
+    refreshCloudUser().then(() => bootstrapBuilderData());
   });
 
   let resizeTimer;
