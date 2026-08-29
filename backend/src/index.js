@@ -10,10 +10,11 @@ import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resumes.js';
 import stripeRoutes, { handleStripeWebhook } from './routes/stripe.js';
 import aiRoutes from './routes/ai.js';
-import contactRoutes from './routes/contact.js';
+import contactRoutes, { deliverContactMessage } from './routes/contact.js';
 import supportRoutes from './routes/support.js';
 import { isGrokConfigured, getGrokModel } from './services/grok.js';
 import { isRedisConfigured } from './services/redis.js';
+import { isEmailConfigured } from './services/email.js';
 import { getQueueStats } from './queue/index.js';
 import { query } from './db.js';
 
@@ -99,6 +100,29 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+async function drainQueuedContactMessages() {
+  if (!isEmailConfigured()) return;
+  try {
+    const { rows } = await query(
+      `SELECT id, name, email, subject, message
+       FROM contact_messages
+       WHERE status IS DISTINCT FROM 'sent'
+       ORDER BY created_at ASC
+       LIMIT 25`
+    );
+    for (const message of rows) {
+      try {
+        await deliverContactMessage(message);
+        console.log(`Delivered queued contact message ${message.id}`);
+      } catch (err) {
+        console.error(`Queued contact ${message.id} failed:`, err.message);
+      }
+    }
+  } catch (err) {
+    console.error('Contact message drain failed:', err.message);
+  }
+}
+
 async function start() {
   requireCoreEnv();
 
@@ -113,6 +137,11 @@ async function start() {
     if (isRedisConfigured()) {
       console.log('Redis: configured for job queue signals');
     }
+    if (isEmailConfigured()) {
+      console.log('Email: Resend configured for transactional mail');
+    } else {
+      console.log('Email: not configured (set RESEND_API_KEY on API service)');
+    }
   });
 
   try {
@@ -120,6 +149,7 @@ async function start() {
     dbReady = true;
     dbError = null;
     await bootstrapStripe();
+    await drainQueuedContactMessages();
   } catch (err) {
     dbError = err.message;
     console.error('Database setup failed:', err.message);

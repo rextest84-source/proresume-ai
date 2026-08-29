@@ -1,7 +1,14 @@
 import { query } from '../db.js';
 import { processStoredStripeEvent } from '../services/stripe-events.js';
-import { sendContactNotification } from '../services/email.js';
+import { deliverContactMessage } from '../routes/contact.js';
 import { cleanupOldJobs } from '../queue/index.js';
+
+async function loadContactMessage(messageId) {
+  const { rows } = await query('SELECT id, name, email, subject, message, status FROM contact_messages WHERE id = $1', [messageId]);
+  if (!rows[0]) throw new Error(`Contact message ${messageId} not found`);
+  if (rows[0].status === 'sent') return null;
+  return rows[0];
+}
 
 export async function runJob(job) {
   const payload = typeof job.payload === 'string' ? JSON.parse(job.payload) : job.payload;
@@ -11,9 +18,11 @@ export async function runJob(job) {
       await processStoredStripeEvent(payload.stripeEventId);
       break;
 
-    case 'contact_message':
-      await deliverContactMessage(payload.messageId);
+    case 'contact_message': {
+      const message = await loadContactMessage(payload.messageId);
+      if (message) await deliverContactMessage(message);
       break;
+    }
 
     case 'maintenance.cleanup':
       await cleanupOldJobs(payload.days || 14);
@@ -26,16 +35,4 @@ export async function runJob(job) {
     default:
       throw new Error(`Unknown job type: ${job.type}`);
   }
-}
-
-async function deliverContactMessage(messageId) {
-  const { rows } = await query('SELECT * FROM contact_messages WHERE id = $1', [messageId]);
-  if (!rows[0]) throw new Error(`Contact message ${messageId} not found`);
-  if (rows[0].status === 'sent') return;
-
-  await sendContactNotification(rows[0]);
-  await query(
-    `UPDATE contact_messages SET status = 'sent', sent_at = NOW(), updated_at = NOW() WHERE id = $1`,
-    [messageId]
-  );
 }

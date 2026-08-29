@@ -1,5 +1,5 @@
 /**
- * Contact form → Railway API → worker email queue
+ * Contact form → Railway API (emails sent immediately via Resend on the API service)
  */
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('contact-form');
