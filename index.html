@@ -358,7 +358,7 @@
   <script src="/js/nav.js"></script>
   <script src="/js/support-chat.js"></script>
   <script>
-    document.getElementById('legal-address-block').innerHTML = window.formatLegalAddress?.() || 'United States';
+    document.getElementById('legal-address-block').innerHTML = window.formatLegalAddress?.({ inline: true }) || 'United States';
   </script>
 </body>
 </html>

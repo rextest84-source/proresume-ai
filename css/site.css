@@ -1,4 +1,24 @@
-/* ProResume AI - shared responsive layout */
+/* Legal / business address blocks */
+.legal-address {
+  font-style: normal;
+  line-height: 1.65;
+  display: block;
+}
+
+.legal-address .legal-addr-name {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.legal-address .legal-addr-line {
+  display: block;
+}
+
+.legal-address .legal-addr-country {
+  opacity: 0.88;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
