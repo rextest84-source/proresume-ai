@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>My Projects | ProResume AI</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="/css/site.css" rel="stylesheet">
+  <style>html,body{font-family:'Inter',system-ui,sans-serif}</style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+  <div data-site-nav="default"></div>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">My Projects</h1>
+        <p class="text-zinc-400 text-sm max-w-xl">Each project is one resume. Edits save continuously to that project — nothing duplicates unless you start a new project.</p>
+        <p id="projects-storage-note" class="text-zinc-500 text-xs mt-2 hidden">Signed in — projects sync to your account.</p>
+      </div>
+      <button type="button" id="new-project-btn" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-sm shrink-0">
+        <i class="fa-solid fa-plus"></i> New project
+      </button>
+    </div>
+
+    <div id="projects-guest-banner" class="hidden mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-sm text-amber-100/90">
+      Projects are saved on this device. <a href="/signup.html?next=/projects.html" class="text-emerald-400 font-semibold hover:underline">Create a free account</a> to access them anywhere.
+    </div>
+
+    <div id="projects-loading" class="text-zinc-500 text-sm py-12 text-center">Loading projects…</div>
+    <div id="projects-empty" class="hidden text-center py-16 px-4 bg-zinc-900/50 border border-white/10 rounded-2xl">
+      <p class="text-zinc-400 mb-4">No projects yet. Start your first resume.</p>
+      <button type="button" data-action="new-project" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-sm">Create first project</button>
+    </div>
+    <ul id="projects-list" class="hidden space-y-3"></ul>
+    <p id="projects-error" class="hidden text-red-400 text-sm mt-4"></p>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/resume-projects.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/app-menu.js"></script>
+  <script src="/js/projects-page.js"></script>
+</body>
+</html>

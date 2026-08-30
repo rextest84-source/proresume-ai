@@ -3,6 +3,7 @@
  */
 (function () {
   const APP_LINKS = [
+    { href: '/projects.html', label: 'My Projects', icon: 'fa-folder-open' },
     { href: '/builder.html', label: 'Builder', icon: 'fa-pen-to-square' },
     { href: '/account.html', label: 'Account', icon: 'fa-user' },
     { href: '/usage.html', label: 'Usage', icon: 'fa-chart-column' },
@@ -12,6 +13,7 @@
 
   const GUEST_LINKS = [
     { href: '/', label: 'Home', icon: 'fa-house' },
+    { href: '/projects.html', label: 'My Projects', icon: 'fa-folder-open' },
     { href: '/builder.html', label: 'Builder', icon: 'fa-pen-to-square' },
     { href: '/pricing.html', label: 'Pricing', icon: 'fa-tags' },
     { href: '/about.html', label: 'About', icon: 'fa-circle-info' },

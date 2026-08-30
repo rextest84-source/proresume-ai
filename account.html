@@ -42,19 +42,22 @@
           <p id="user-credits" class="text-2xl font-bold text-amber-400">-</p>
         </div>
         <div class="bg-zinc-900 border border-white/10 rounded-2xl p-6">
-          <p class="text-zinc-500 text-xs uppercase tracking-wider mb-1">Resumes</p>
+          <p class="text-zinc-500 text-xs uppercase tracking-wider mb-1">Projects</p>
           <p id="resume-count" class="text-2xl font-bold">-</p>
         </div>
       </div>
 
       <section class="bg-zinc-900 border border-white/10 rounded-2xl p-6">
-        <h2 class="text-lg font-semibold mb-4">Saved resumes</h2>
-        <ul id="resume-list" class="space-y-2 text-sm text-zinc-300"></ul>
-        <a href="/builder.html" class="inline-block mt-4 text-emerald-400 hover:underline text-sm">Open builder →</a>
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 class="text-lg font-semibold">My projects</h2>
+          <a href="/projects.html" class="text-emerald-400 hover:underline text-sm font-medium">View all projects →</a>
+        </div>
+        <p class="text-zinc-500 text-sm mb-4">Each resume lives in its own project. Open one to continue editing, or start a new project from the projects page.</p>
+        <p class="text-2xl font-bold mb-2"><span id="resume-count-detail">-</span> <span class="text-base font-normal text-zinc-400">saved project(s)</span></p>
       </section>
 
       <section class="flex flex-wrap gap-3">
-        <a href="/builder.html" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-sm">Open builder</a>
+        <a href="/projects.html" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold text-sm">My projects</a>
         <a href="/usage.html" class="px-5 py-2.5 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm">View usage</a>
         <a href="/billing.html" class="px-5 py-2.5 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm">Billing</a>
         <button type="button" data-support-chat-open class="px-5 py-2.5 border border-white/20 hover:bg-white/5 rounded-xl font-semibold text-sm">Support chat</button>
@@ -76,12 +79,7 @@
       document.getElementById('user-plan').textContent = user.plan;
       document.getElementById('user-credits').textContent = user.credits >= 999999 ? 'Unlimited' : user.credits;
       document.getElementById('resume-count').textContent = resumes.length;
-      document.getElementById('resume-list').innerHTML = resumes.map(r => `
-        <li class="flex justify-between items-center gap-3 py-2 border-b border-white/5">
-          <a href="/builder.html?resume=${encodeURIComponent(r.id)}" class="text-emerald-400 hover:underline truncate">${r.preview_name || r.title || 'Untitled'}${r.is_default ? ' <span class="text-emerald-400/80 text-xs">(default)</span>' : ''}</a>
-          <span class="text-zinc-500 text-xs shrink-0">${new Date(r.updated_at).toLocaleDateString()}</span>
-        </li>
-      `).join('') || '<li class="text-zinc-500">No resumes yet</li>';
+      document.getElementById('resume-count-detail').textContent = resumes.length;
     }
 
     async function fetchAccount() {

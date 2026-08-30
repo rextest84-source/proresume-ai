@@ -18,6 +18,7 @@
 
   const PUBLIC_HOME_LINKS = [
     { href: '/builder.html', label: 'Builder' },
+    { href: '/projects.html', label: 'My Projects' },
     { href: '/pricing.html', label: 'Pricing' },
     { href: '/#features', label: 'Features' },
     { href: '/#how-it-works', label: 'How It Works' },
@@ -28,6 +29,7 @@
 
   const PUBLIC_DEFAULT_LINKS = [
     { href: '/builder.html', label: 'Builder' },
+    { href: '/projects.html', label: 'My Projects' },
     { href: '/pricing.html', label: 'Pricing' },
     { href: '/about.html', label: 'About' },
     { href: '/contact.html', label: 'Contact' }
@@ -51,7 +53,7 @@
   function renderNav(variant, loggedIn) {
     const links = navLinksFor(variant, loggedIn);
     const hasGuestMenu = links.length > 0;
-    const ctaHref = '/builder.html';
+    const ctaHref = '/projects.html';
     const ctaLabel = loggedIn ? 'Open Builder' : 'Try Free';
 
     const authDesktop = variant !== 'minimal' && !loggedIn
