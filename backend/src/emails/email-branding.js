@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { formatLegalAddressPlain } from '../legal-config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGO_CID = 'proresume-logo';
@@ -37,7 +38,7 @@ export function emailFooterHtml(siteUrl = 'https://proresume.aeloriacareer.com')
           <tr>
             <td style="padding:20px 32px 28px;border-top:1px solid #e4e4e7;text-align:center;background-color:#fafafa;">
               <p style="margin:0;font-size:12px;line-height:1.6;color:#71717a;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-                Aeloria Career Services · ProResume AI<br>
+                ${formatLegalAddressPlain()}<br>
                 <a href="${url}" style="color:#059669;text-decoration:none;">proresume.aeloriacareer.com</a>
               </p>
             </td>
@@ -116,7 +117,7 @@ export function darkEmailFooterHtml(siteUrl = 'https://proresume.aeloriacareer.c
                 This is an automated security notification for your account.
               </p>
               <p style="margin:0;font-size:12px;line-height:1.6;color:#52525b;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
-                Aeloria Career Services · ProResume AI<br>
+                ${formatLegalAddressPlain()}<br>
                 <a href="${url}" style="color:#71717a;text-decoration:none;">proresume.aeloriacareer.com</a>
                 · <a href="mailto:${supportEmail}" style="color:#71717a;text-decoration:none;">${supportEmail}</a>
               </p>

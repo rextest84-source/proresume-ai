@@ -1409,8 +1409,6 @@ function switchTab(tab) {
   }
 }
 
-const EXPORT_SCALE = 2;
-
 let pendingExport = null;
 
 function getExportBaseName() {
@@ -1537,14 +1535,6 @@ async function deliverExport(blob, filename, format) {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-function getExportBackgroundColor(clone, doc = document) {
-  const themed = clone.querySelector('[class*="tm-"]');
-  if (!themed) return '#ffffff';
-  const win = doc.defaultView || window;
-  const bg = win.getComputedStyle(themed).backgroundColor;
-  return bg && bg !== 'rgba(0, 0, 0, 0)' ? bg : '#ffffff';
-}
-
 async function prepareExportFrame() {
   const tpl = normalizeTemplate(resumeData.template);
   const renderer = TEMPLATE_RENDERERS[tpl];
@@ -1589,13 +1579,13 @@ async function prepareExportFrame() {
   await new Promise(r => setTimeout(r, 450));
 
   const clone = doc.getElementById('resume-export-clone');
-  applyExportCaptureFixes(clone, doc);
+  window.PDF_EXPORT?.applyExportCaptureFixes(clone, doc);
 
-  void clone.offsetHeight;
-  const contentHeight = Math.max(Math.ceil(clone.scrollHeight), Math.ceil(clone.offsetHeight), 1);
+  const contentHeight = window.PDF_EXPORT?.measureExportHeight(clone)
+    || Math.max(Math.ceil(clone.scrollHeight), Math.ceil(clone.offsetHeight), 1);
   iframe.style.height = `${contentHeight}px`;
 
-  const bgColor = getExportBackgroundColor(clone, doc);
+  const bgColor = window.PDF_EXPORT?.getExportBackgroundColor(clone, doc) || '#ffffff';
   return { iframe, clone, contentHeight, bgColor, tpl, bodyHtml, doc, pageSize };
 }
 
@@ -1607,82 +1597,10 @@ function cleanupExportFrame(iframe) {
   }
 }
 
-function applyExportCaptureFixes(root, doc = document) {
-  const win = doc.defaultView || window;
-  root.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
-  root.querySelectorAll('[class*="tm-"]').forEach(el => {
-    el.style.boxSizing = 'border-box';
-  });
-  root.querySelectorAll('[class*="-side"], .tm-sidebar, .tm-side-skills').forEach(el => {
-    const style = win.getComputedStyle(el);
-    if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-      el.style.backgroundColor = style.backgroundColor;
-    }
-    if (style.color) el.style.color = style.color;
-  });
-}
-
 function blobFromCanvas(canvas, type, quality) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Failed to create image')), type, quality);
   });
-}
-
-async function captureResumeCanvas(clone, bgColor, contentHeight, doc = document, pageWidth = 816) {
-  if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
-  applyExportCaptureFixes(clone, doc);
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  const height = contentHeight || Math.max(clone.scrollHeight, clone.offsetHeight, 1);
-  return html2canvas(clone, {
-    scale: EXPORT_SCALE,
-    width: pageWidth,
-    height,
-    windowWidth: pageWidth,
-    windowHeight: height,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: bgColor === 'rgba(0, 0, 0, 0)' ? null : bgColor,
-    scrollX: 0,
-    scrollY: 0,
-    logging: false,
-    foreignObjectRendering: false,
-    onclone: (_doc, clonedEl) => applyExportCaptureFixes(clonedEl, _doc)
-  });
-}
-
-async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff', orientation = 'portrait') {
-  if (!window.jspdf?.jsPDF) throw new Error('PDF library not loaded. Please refresh the page.');
-  const { jsPDF } = window.jspdf;
-  const pageWidth = orientation === 'landscape' ? 792 : 612;
-  const pageHeight = orientation === 'landscape' ? 612 : 792;
-  const pxToPt = pageWidth / canvas.width;
-  const totalHeightPt = canvas.height * pxToPt;
-
-  // Keep the full layout on one PDF page instead of slicing the canvas into letter
-  // strips, which breaks two-column templates (sidebar skills vs main content).
-  const format = totalHeightPt <= pageHeight * 1.02
-    ? 'letter'
-    : [pageWidth, totalHeightPt];
-
-  const pdf = new jsPDF({
-    orientation,
-    unit: 'pt',
-    format,
-    compress: true
-  });
-
-  pdf.addImage(
-    canvas.toDataURL('image/jpeg', 0.95),
-    'JPEG',
-    0,
-    0,
-    pageWidth,
-    totalHeightPt
-  );
-
-  const blob = pdf.output('blob');
-  const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
-  await deliverExport(pdfBlob, filename, 'pdf');
 }
 
 const EXPORT_CREDIT_MAP = {
@@ -1762,10 +1680,14 @@ async function exportResume(format = 'pdf') {
       iframe = frame.iframe;
       const { clone, contentHeight, bgColor, doc, pageSize } = frame;
       if (document.fonts?.ready) await document.fonts.ready;
-      const canvas = await captureResumeCanvas(clone, bgColor, contentHeight, doc, pageSize.width);
+      if (!window.PDF_EXPORT) throw new Error('PDF export module not loaded. Please refresh the page.');
+      const canvas = await window.PDF_EXPORT.captureResumeCanvas(clone, {
+        bgColor, contentHeight, doc, pageWidth: pageSize.width
+      });
 
       if (format === 'pdf') {
-        await saveCanvasAsPdf(canvas, filename, bgColor, pageSize.orientation);
+        const pdfBlob = window.PDF_EXPORT.saveCanvasAsPdf(canvas, { orientation: pageSize.orientation });
+        await deliverExport(pdfBlob, filename, 'pdf');
       } else if (format === 'png') {
         const blob = await blobFromCanvas(canvas, 'image/png');
         await deliverExport(blob, filename, 'png');

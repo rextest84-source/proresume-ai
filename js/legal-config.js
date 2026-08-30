@@ -81,3 +81,34 @@ window.formatLegalAddress = function formatLegalAddress(opts = {}) {
   if (!parts.length) return escapeLegalHtml(country || 'United States');
   return `<address class="legal-address">${parts.join('')}</address>`;
 };
+
+/** Plain-text / inline address for footers and emails */
+window.formatLegalAddressPlain = function formatLegalAddressPlain() {
+  return window.formatLegalAddress({ includeName: true, inline: true });
+};
+
+/**
+ * Full contact block for legal pages (address + website + email + contact form).
+ * @param {{ showContactForm?: boolean, extraLines?: string[] }} [opts]
+ */
+window.formatLegalContactBlock = function formatLegalContactBlock(opts = {}) {
+  const c = window.LEGAL_CONFIG || {};
+  const address = window.formatLegalAddress({ includeName: true });
+  const website = (c.websiteUrl || '').replace(/\/$/, '');
+  const email = c.supportEmail || '';
+  const contactUrl = c.contactUrl || '/contact.html';
+  const contactLabel = c.contactLabel || 'Contact us';
+  const showContactForm = opts.showContactForm !== false;
+
+  const lines = [
+    `Website: <a href="${escapeLegalHtml(website)}" class="text-emerald-400 hover:underline">${escapeLegalHtml(website)}</a>`,
+    `Email: <a href="mailto:${escapeLegalHtml(email)}" class="text-emerald-400 hover:underline">${escapeLegalHtml(email)}</a>`
+  ];
+  if (showContactForm) {
+    lines.push(`Contact form: <a href="${escapeLegalHtml(contactUrl)}" class="text-emerald-400 hover:underline">${escapeLegalHtml(contactLabel)}</a>`);
+  }
+  (opts.extraLines || []).forEach(line => lines.push(escapeLegalHtml(line)));
+
+  return `${address}
+<p class="legal-contact-links mt-2">${lines.join('<br>\n')}</p>`;
+};

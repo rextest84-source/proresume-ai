@@ -44,7 +44,7 @@
         <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
           <div class="icon-wrap icon-wrap-md mb-4" aria-hidden="true"><i class="fa-solid fa-building"></i></div>
           <h3 class="font-semibold text-lg mb-2">Company</h3>
-          <div id="legal-address-block" class="text-zinc-400 text-sm"></div>
+          <div data-legal-address="name" class="text-zinc-400 text-sm"></div>
           <p class="text-zinc-400 text-sm mt-2"><a href="https://proresume.aeloriacareer.com" class="text-emerald-400 hover:underline">proresume.aeloriacareer.com</a></p>
         </div>
         <div class="bg-zinc-900 p-6 rounded-2xl border border-white/5">
@@ -99,12 +99,10 @@
   </footer>
   <script src="/js/config.js"></script>
   <script src="/js/legal-config.js"></script>
+  <script src="/js/legal-mount.js"></script>
   <script src="/js/api-client.js"></script>
   <script src="/js/nav.js"></script>
   <script src="/js/support-chat.js"></script>
   <script src="/js/contact-form.js"></script>
-  <script>
-    document.getElementById('legal-address-block').innerHTML = window.formatLegalAddress?.({ includeName: true }) || 'United States';
-  </script>
 </body>
 </html>
