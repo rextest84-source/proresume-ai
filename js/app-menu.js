@@ -2,14 +2,6 @@
  * Shared hamburger menu for logged-in app navigation.
  */
 (function () {
-  const GUEST_LINKS = [
-    { href: '/projects.html', label: 'My Projects', icon: 'fa-folder-open' },
-    { href: '/builder.html', label: 'Builder', icon: 'fa-pen-to-square' },
-    { href: '/pricing.html', label: 'Pricing', icon: 'fa-tag' },
-    { href: '/about.html', label: 'About', icon: 'fa-circle-info' },
-    { href: '/contact.html', label: 'Contact', icon: 'fa-envelope' }
-  ];
-
   const APP_LINKS = [
     { href: '/projects.html', label: 'My Projects', icon: 'fa-folder-open' },
     { href: '/builder.html', label: 'Builder', icon: 'fa-pen-to-square' },
@@ -17,6 +9,16 @@
     { href: '/usage.html', label: 'Usage', icon: 'fa-chart-column' },
     { href: '/billing.html', label: 'Billing', icon: 'fa-credit-card' },
     { href: '#', label: 'Support', icon: 'fa-comments', attrs: 'data-support-chat-open' }
+  ];
+
+  const GUEST_LINKS = [
+    { href: '/', label: 'Home', icon: 'fa-house' },
+    { href: '/projects.html', label: 'My Projects', icon: 'fa-folder-open' },
+    { href: '/builder.html', label: 'Builder', icon: 'fa-pen-to-square' },
+    { href: '/pricing.html', label: 'Pricing', icon: 'fa-tags' },
+    { href: '/about.html', label: 'About', icon: 'fa-circle-info' },
+    { href: '/contact.html', label: 'Contact', icon: 'fa-envelope' },
+    { href: '/login.html', label: 'Sign in', icon: 'fa-right-to-bracket' }
   ];
 
   function linkItems(links) {
@@ -41,6 +43,10 @@
           ${signOut ? `<button type="button" id="${idPrefix}-signout-btn" class="app-menu-item app-menu-signout" role="menuitem"><i class="fa-solid fa-right-from-bracket w-4 text-center text-zinc-500" aria-hidden="true"></i><span>Sign out</span></button>` : ''}
         </div>
       </div>`;
+  }
+
+  function renderGuestMenu({ idPrefix = 'guest', links = GUEST_LINKS } = {}) {
+    return renderMenu({ idPrefix, links, signOut: false });
   }
 
   function bindMenu(idPrefix, { onSignOut } = {}) {
@@ -80,5 +86,5 @@
     });
   }
 
-  window.ProResumeAppMenu = { APP_LINKS, GUEST_LINKS, renderMenu, bindMenu };
+  window.ProResumeAppMenu = { APP_LINKS, GUEST_LINKS, renderMenu, renderGuestMenu, bindMenu };
 })();

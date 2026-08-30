@@ -61,7 +61,8 @@
 
     #builder-header {
       flex-shrink: 0;
-      z-index: 40;
+      z-index: 50;
+      position: relative;
       background: rgba(9, 9, 11, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -247,6 +248,7 @@
       </section>
 
       <section class="space-y-3">
+        <h2 class="text-sm font-semibold text-zinc-300">Personal Information</h2>
         <input id="name" type="text" placeholder="Full Name" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
         <input id="title" type="text" placeholder="Professional Title" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -356,11 +356,11 @@ function updateAuthHeader() {
     const prefix = loggedIn ? 'builder' : 'builder-guest';
     const existing = menuMount.querySelector('[data-app-menu]');
     if (existing?.getAttribute('data-app-menu') !== prefix) {
-      menuMount.innerHTML = window.ProResumeAppMenu.renderMenu({
-        idPrefix: prefix,
-        links: loggedIn ? window.ProResumeAppMenu.APP_LINKS : window.ProResumeAppMenu.GUEST_LINKS,
-        signOut: loggedIn
-      });
+      if (loggedIn) {
+        menuMount.innerHTML = window.ProResumeAppMenu.renderMenu({ idPrefix: 'builder' });
+      } else {
+        menuMount.innerHTML = window.ProResumeAppMenu.renderGuestMenu({ idPrefix: 'builder-guest' });
+      }
       window.ProResumeAppMenu.bindMenu(prefix);
     }
   }
