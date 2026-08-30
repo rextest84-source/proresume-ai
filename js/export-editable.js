@@ -2,6 +2,7 @@
 
 (function () {
   let cssCache = null;
+  let currentWordTemplate = 'modern';
 
   const CSS_FILES = [
     'css/resume-templates.css',
@@ -154,8 +155,45 @@
     td.className = sourceEl.className;
     td.setAttribute('valign', 'top');
     if (width) td.setAttribute('width', String(width));
+    const cellStyle = getWordCellStyle(sourceEl);
+    if (cellStyle.bgcolor) td.setAttribute('bgcolor', cellStyle.bgcolor);
+    if (cellStyle.style) td.setAttribute('style', cellStyle.style);
     td.innerHTML = sourceEl.innerHTML;
     tr.appendChild(td);
+  }
+
+  function convertSidebarLayouts(root) {
+    root.querySelectorAll(':scope > [class*="tm-"]').forEach(container => {
+      if (container.querySelector(':scope > table.tm-word-table')) return;
+
+      const tmpl = [...container.classList].find(c => /^tm-[a-z0-9-]+$/.test(c) && !c.includes('tm-word'));
+      if (!tmpl) return;
+      const id = tmpl.slice(3);
+      const side = container.querySelector(`:scope > .tm-${id}-side, :scope > .tm-sidebar`);
+      const main = container.querySelector(`:scope > .tm-${id}-main, :scope > .tm-main`);
+      if (!side || !main) return;
+
+      const widths = {
+        verdant: [210, null], jade: [200, null], harbor: [null, 190],
+        modern: [220, null], slate: [null, 200]
+      };
+      const layoutWidths = widths[id] || (side.classList.contains('tm-sidebar') ? [220, null] : [200, null]);
+      const doc = container.ownerDocument;
+      const table = createWordTable(doc, container.className);
+      const tr = doc.createElement('tr');
+      if (side.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING) {
+        moveIntoCell(doc, tr, side, layoutWidths[0]);
+        moveIntoCell(doc, tr, main, layoutWidths[1]);
+      } else {
+        moveIntoCell(doc, tr, main, layoutWidths[1]);
+        moveIntoCell(doc, tr, side, layoutWidths[0]);
+      }
+      if (tr.children.length) {
+        table.appendChild(tr);
+        container.innerHTML = '';
+        container.appendChild(table);
+      }
+    });
   }
 
   function convertGridToTable(root, { container, columns, widths, skip = [] }) {
@@ -232,17 +270,258 @@
     });
   }
 
-  function prepareHtmlForWord(bodyHtml) {
+  function prepareHtmlForWord(bodyHtml, tpl) {
+    currentWordTemplate = tpl || 'modern';
     const root = parseHtmlFragment(sanitizeBodyHtml(bodyHtml));
+    convertStackedHeaderLayouts(root);
     GRID_LAYOUTS.forEach(layout => convertGridToTable(root, layout));
+    convertSidebarLayouts(root);
+    convertSwissGridLayouts(root);
     DUAL_COLUMN_CONTAINERS.forEach(layout => convertDualColumnToTables(root, layout));
+    applyWordTemplateTheme(root, tpl);
+    applyWordInlineStyles(root, tpl);
     return root.innerHTML;
+  }
+
+  function isSidebarContainer(container) {
+    const tmpl = [...container.classList].find(c => /^tm-[a-z0-9-]+$/.test(c));
+    if (!tmpl) return false;
+    const id = tmpl.slice(3);
+    return !!(container.querySelector(`:scope > .tm-${id}-side, :scope > .tm-sidebar`)
+      && container.querySelector(`:scope > .tm-${id}-main, :scope > .tm-main`));
+  }
+
+  function isHeaderBlock(el) {
+    const cls = el.className || '';
+    return /header|banner|-top|corp-bar|exec-header|themed-header|luxury-header|tech-header|intl-header|harvard-rule|creative-header|horizon-top|serif-header|radiant-header|stream-header|acad-header|corp-bar|tech-bar/i.test(cls)
+      && !/body|sidebar|main/i.test(cls);
+  }
+
+  function convertStackedHeaderLayouts(root) {
+    root.querySelectorAll(':scope > [class*="tm-"]').forEach(container => {
+      if (container.querySelector(':scope > table.tm-word-table') || isSidebarContainer(container)) return;
+
+      const children = [...container.children];
+      const headerIdx = children.findIndex(isHeaderBlock);
+      if (headerIdx < 0) return;
+
+      const headerChild = children[headerIdx];
+      const bodyChildren = children.filter((_, i) => i !== headerIdx);
+      if (!bodyChildren.length) return;
+
+      const doc = container.ownerDocument;
+      const table = createWordTable(doc, container.className);
+
+      const headerTr = doc.createElement('tr');
+      const headerTd = doc.createElement('td');
+      headerTd.colSpan = 2;
+      headerTd.className = headerChild.className;
+      headerTd.innerHTML = headerChild.innerHTML;
+      headerTr.appendChild(headerTd);
+      table.appendChild(headerTr);
+
+      const bodyTr = doc.createElement('tr');
+      const bodyTd = doc.createElement('td');
+      bodyTd.colSpan = 2;
+      bodyTd.className = 'tm-word-body-cell';
+      bodyChildren.forEach(child => {
+        bodyTd.appendChild(child.cloneNode(true));
+      });
+      bodyTr.appendChild(bodyTd);
+      table.appendChild(bodyTr);
+
+      container.innerHTML = '';
+      container.appendChild(table);
+    });
+  }
+
+  function convertSwissGridLayouts(root) {
+    root.querySelectorAll('[class*="-grid"]').forEach(el => {
+      if (el.closest('table.tm-word-table') || el.querySelector(':scope > table.tm-word-table')) return;
+      const children = [...el.children].filter(c => c.nodeType === 1);
+      if (children.length < 2) return;
+
+      const doc = el.ownerDocument;
+      const table = createWordTable(doc, el.className);
+      const tr = doc.createElement('tr');
+      children.slice(0, 2).forEach((child, idx) => {
+        const td = doc.createElement('td');
+        td.className = child.className;
+        td.setAttribute('valign', 'top');
+        td.setAttribute('width', idx === 0 ? '65%' : '35%');
+        td.innerHTML = child.innerHTML;
+        tr.appendChild(td);
+      });
+      if (tr.children.length) {
+        table.appendChild(tr);
+        el.innerHTML = '';
+        el.appendChild(table);
+      }
+    });
+  }
+
+  function getWordTheme(tpl) {
+    return window.WORD_EXPORT_THEMES?.getTheme?.(tpl)
+      || window.WORD_EXPORT_THEMES?.DEFAULT
+      || {};
+  }
+
+  function applyWordTemplateTheme(root, tpl) {
+    const theme = getWordTheme(tpl);
+
+    root.querySelectorAll('[class*="-header"], [class*="-banner"], [class*="-top"], .tm-corp-bar, .tm-exec-header, .tm-themed-header, .tm-luxury-header, .tm-tech-header, .tm-intl-header').forEach(el => {
+      if (theme.headerBg) {
+        el.setAttribute('bgcolor', theme.headerBg);
+        mergeStyle(el, `background-color:${theme.headerBg};color:${theme.headerText};padding:24px 32px;`);
+      }
+      el.querySelectorAll('.tm-name, .tm-themed-name').forEach(n => mergeStyle(n, `color:${theme.headerText};font-size:22pt;font-weight:700;margin:0 0 4px;`));
+      el.querySelectorAll('.tm-title, .tm-themed-title').forEach(n => mergeStyle(n, `color:${theme.headerText};opacity:0.92;font-size:11pt;margin:0 0 10px;`));
+      el.querySelectorAll('.tm-contact, .tm-themed-contact, .tm-contact-item').forEach(n => mergeStyle(n, `color:${theme.headerText};font-size:9pt;`));
+    });
+
+    if (theme.bodyBg && theme.bodyBg !== '#ffffff') {
+      root.querySelectorAll('.tm-word-body-cell, [class*="-body"]').forEach(el => {
+        mergeStyle(el, `background-color:${theme.bodyBg};color:${theme.bodyText};padding:24px 32px;`);
+      });
+      root.querySelectorAll('.tm-section-title').forEach(el => mergeStyle(el, `color:${theme.accent};border-bottom-color:${theme.accentBorder || theme.accent};`));
+      root.querySelectorAll('.tm-summary, .tm-bullets li, .tm-entry-company, .tm-entry-meta').forEach(el => mergeStyle(el, `color:${theme.bodyText};`));
+      root.querySelectorAll('.tm-entry-role, .tm-name').forEach(el => {
+        if (!el.closest('[class*="-header"], [class*="-side"], .tm-sidebar')) {
+          mergeStyle(el, `color:${theme.bodyHeading};`);
+        }
+      });
+    }
+  }
+
+  const WORD_SIDEBAR_CELLS = {
+    'tm-sidebar': { bgcolor: '#0f766e', style: 'background-color:#0f766e;color:#ffffff;padding:24px 20px;vertical-align:top;' },
+    'tm-verdant-side': { bgcolor: '#047857', style: 'background-color:#047857;color:#ffffff;padding:28px 18px;vertical-align:top;' },
+    'tm-jade-side': { bgcolor: '#065f46', style: 'background-color:#065f46;color:#ffffff;padding:24px 18px;vertical-align:top;' },
+    'tm-harbor-side': { bgcolor: '#1e3a5f', style: 'background-color:#1e3a5f;color:#ffffff;padding:24px 18px;vertical-align:top;' },
+    'tm-slate-side': { bgcolor: '#334155', style: 'background-color:#334155;color:#ffffff;padding:24px 18px;vertical-align:top;' },
+    'tm-side-skills': { bgcolor: '#f8fafc', style: 'background-color:#f8fafc;padding:16px;vertical-align:top;border-left:1px solid #e2e8f0;' }
+  };
+
+  const WORD_MAIN_CELLS = {
+    'tm-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-verdant-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-jade-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-harbor-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-slate-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' }
+  };
+
+  function getWordCellStyle(el, theme = getWordTheme(currentWordTemplate)) {
+    for (const cls of el.classList) {
+      if (WORD_SIDEBAR_CELLS[cls]) {
+        const base = WORD_SIDEBAR_CELLS[cls];
+        return {
+          bgcolor: theme.sidebarBg || base.bgcolor,
+          style: (base.style || '').replace(/#047857/g, theme.sidebarBg || '#047857')
+        };
+      }
+      if (WORD_MAIN_CELLS[cls]) return WORD_MAIN_CELLS[cls];
+    }
+    if ([...el.classList].some(c => c.endsWith('-side') || c === 'tm-sidebar')) {
+      return {
+        bgcolor: theme.sidebarBg,
+        style: `background-color:${theme.sidebarBg};color:${theme.sidebarText};padding:24px 18px;vertical-align:top;`
+      };
+    }
+    if ([...el.classList].some(c => c.endsWith('-main') || c === 'tm-main')) {
+      return { style: `padding:28px 32px;vertical-align:top;color:${theme.bodyText};background-color:${theme.bodyBg};` };
+    }
+    return {};
+  }
+
+  function mergeStyle(el, style) {
+    const prev = el.getAttribute('style') || '';
+    el.setAttribute('style', `${prev}${prev && !prev.endsWith(';') ? ';' : ''}${style}`);
+  }
+
+  function applyWordInlineStyles(root, tpl) {
+    const theme = getWordTheme(tpl);
+
+    root.querySelectorAll('.tm-name, .tm-themed-name').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar, .tm-side-skills');
+      const inHeader = el.closest('[class*="-header"], [class*="-banner"], [class*="-top"], .tm-exec-header, .tm-themed-header');
+      if (inHeader) return;
+      mergeStyle(el, inSidebar
+        ? `font-size:16pt;font-weight:700;color:${theme.sidebarText};margin:0 0 6px;line-height:1.2;`
+        : `font-size:22pt;font-weight:700;color:${theme.bodyHeading};margin:0 0 4px;`);
+    });
+
+    root.querySelectorAll('.tm-title, .tm-themed-title').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar');
+      const inHeader = el.closest('[class*="-header"], [class*="-banner"]');
+      if (inHeader) return;
+      mergeStyle(el, inSidebar
+        ? `font-size:9pt;color:${theme.sidebarLabel};margin:0 0 16px;`
+        : `font-size:11pt;color:#475569;margin:0 0 12px;`);
+    });
+
+    root.querySelectorAll('.tm-side-label, .tm-side-title').forEach(el => {
+      mergeStyle(el, `font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:${theme.sidebarLabel};margin:0 0 8px;display:block;`);
+    });
+
+    root.querySelectorAll('.tm-contact-item, .tm-contact div, .tm-themed-contact, .tm-themed-contact span').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar');
+      const inHeader = el.closest('[class*="-header"], [class*="-banner"]');
+      mergeStyle(el, inHeader
+        ? `font-size:9pt;color:${theme.headerText};display:block;margin:0 0 4px;`
+        : inSidebar
+          ? `font-size:8pt;color:${theme.sidebarText};display:block;margin:0 0 6px;`
+          : 'font-size:9pt;color:#475569;display:block;margin:0 0 4px;');
+    });
+
+    root.querySelectorAll('.tm-section-title').forEach(el => {
+      mergeStyle(el, `font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${theme.accent};border-bottom:2px solid ${theme.accentBorder || theme.accent};padding-bottom:4px;margin:0 0 10px;display:block;`);
+    });
+
+    root.querySelectorAll('.tm-summary, .tm-bullets, .tm-bullets li, .tm-entry-company, .tm-entry-meta').forEach(el => {
+      mergeStyle(el, `font-size:10pt;color:${theme.bodyText};line-height:1.45;`);
+    });
+
+    root.querySelectorAll('.tm-entry-role').forEach(el => {
+      mergeStyle(el, `font-size:11pt;font-weight:700;color:${theme.bodyHeading};display:block;`);
+    });
+
+    root.querySelectorAll('.tm-entry-dates').forEach(el => {
+      mergeStyle(el, 'font-size:9pt;color:#64748b;display:block;margin-top:2px;');
+    });
+
+    root.querySelectorAll('.tm-entry-top').forEach(el => {
+      mergeStyle(el, 'display:block;margin-bottom:8px;');
+    });
+
+    root.querySelectorAll('[class*="tm-skill"]').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar, .tm-side-skills');
+      if (inSidebar) {
+        mergeStyle(el, `display:block;font-size:8pt;background-color:${theme.skillSidebarBg};color:${theme.skillSidebarText};padding:4px 8px;margin:0 0 4px;border-radius:4px;`);
+      } else {
+        mergeStyle(el, `display:inline-block;font-size:9pt;background-color:${theme.skillBodyBg};color:${theme.skillBodyText};padding:3px 8px;margin:2px 4px 2px 0;border-radius:4px;`);
+      }
+    });
+
+    root.querySelectorAll('table.tm-word-table td').forEach(td => {
+      const cellStyle = getWordCellStyle(td, theme);
+      if (cellStyle.bgcolor) td.setAttribute('bgcolor', cellStyle.bgcolor);
+      if (cellStyle.style) mergeStyle(td, cellStyle.style);
+    });
+
+    root.querySelectorAll('td[colspan="2"]').forEach(td => {
+      if (td.className && isHeaderBlock({ className: td.className })) {
+        if (theme.headerBg) {
+          td.setAttribute('bgcolor', theme.headerBg);
+          mergeStyle(td, `background-color:${theme.headerBg};color:${theme.headerText};padding:24px 32px;vertical-align:top;`);
+        }
+      }
+    });
   }
 
   function buildDocumentShell(tpl, bodyHtml, { wordMode = false } = {}) {
     const dim = getPageDimensions(tpl);
     const docClass = getPreviewDocumentClass(tpl);
-    const content = wordMode ? prepareHtmlForWord(bodyHtml) : sanitizeBodyHtml(bodyHtml);
+    const content = wordMode ? prepareHtmlForWord(bodyHtml, tpl) : sanitizeBodyHtml(bodyHtml);
     return { docClass, content, dim };
   }
 
@@ -298,8 +577,10 @@
     ${getPageCss(tpl)}
     body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; background: #fff; }
     .resume-document { width: ${dim.widthIn}; margin: 0 auto; }
-    table.tm-word-table { border-collapse: collapse; }
-    td { vertical-align: top; }
+    table.tm-word-table { border-collapse: collapse; width: 100%; }
+    table.tm-word-table td { vertical-align: top; border: none; }
+    .resume-document .tm-section { margin-bottom: 16px; page-break-inside: avoid; }
+    .resume-document .tm-entry { page-break-inside: avoid; margin-bottom: 10px; }
   </style>
 </head>
 <body>
