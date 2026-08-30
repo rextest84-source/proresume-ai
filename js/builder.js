@@ -203,17 +203,6 @@ function saveData() {
   scheduleCloudSave();
 }
 
-async function validateCloudProject(projectId) {
-  if (!window.ProResumeAPI?.isLoggedIn() || !projectId || isGuestProjectId(projectId)) return false;
-  try {
-    await ProResumeAPI.getResume(projectId);
-    cloudResumeId = projectId;
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function connectRealtimeSync() {
   if (!window.ProResumeRealtime || !window.ProResumeAPI?.isLoggedIn() || !cloudResumeId) {
     window.ProResumeRealtime?.disconnect?.();
