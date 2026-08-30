@@ -383,15 +383,13 @@ function updateAuthHeader() {
     }
   }
   if (menuMount && window.ProResumeAppMenu) {
+    menuMount.classList.remove('hidden');
     if (loggedIn) {
-      menuMount.classList.remove('hidden');
-      if (!menuMount.querySelector('[data-app-menu]')) {
-        menuMount.innerHTML = window.ProResumeAppMenu.renderMenu({ idPrefix: 'builder' });
-        window.ProResumeAppMenu.bindMenu('builder');
-      }
+      menuMount.innerHTML = window.ProResumeAppMenu.renderMenu({ idPrefix: 'builder' });
+      window.ProResumeAppMenu.bindMenu('builder');
     } else {
-      menuMount.classList.add('hidden');
-      menuMount.innerHTML = '';
+      menuMount.innerHTML = window.ProResumeAppMenu.renderGuestMenu({ idPrefix: 'builder-guest' });
+      window.ProResumeAppMenu.bindMenu('builder-guest');
     }
   }
   if (pricingLink) {
