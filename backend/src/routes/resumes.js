@@ -135,14 +135,6 @@ router.post('/', async (req, res) => {
       [req.userId, (title || 'Untitled Resume').trim(), JSON.stringify(normalized)]
     );
 
-    await saveResumeVersion({
-      resumeId: rows[0].id,
-      userId: req.userId,
-      data: normalized,
-      title: rows[0].title,
-      source: 'create'
-    }).catch((err) => console.warn('Initial history snapshot failed:', err.message));
-
     res.status(201).json({ resume: rows[0] });
   } catch (err) {
     console.error('create resume:', err);
@@ -165,15 +157,6 @@ router.put('/:id', async (req, res) => {
 
     const { rows } = await query(sql, fields);
     if (!rows[0]) return res.status(404).json({ error: 'Resume not found' });
-
-    const source = (req.body?.historySource || 'auto').slice(0, 50);
-    await saveResumeVersion({
-      resumeId: rows[0].id,
-      userId: req.userId,
-      data: normalized,
-      title: rows[0].title,
-      source
-    }).catch((err) => console.warn('History snapshot failed:', err.message));
 
     notifyResumeUpdated({
       userId: req.userId,
@@ -205,14 +188,6 @@ router.post('/:id/history/:versionId/restore', async (req, res) => {
       [JSON.stringify(normalized), version.title || 'My Resume', req.params.id, req.userId]
     );
     if (!rows[0]) return res.status(404).json({ error: 'Resume not found' });
-
-    await saveResumeVersion({
-      resumeId: rows[0].id,
-      userId: req.userId,
-      data: normalized,
-      title: rows[0].title,
-      source: 'restore'
-    }).catch((err) => console.warn('Restore history snapshot failed:', err.message));
 
     notifyResumeUpdated({
       userId: req.userId,
