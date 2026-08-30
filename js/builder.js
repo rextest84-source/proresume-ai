@@ -1589,7 +1589,7 @@ async function prepareExportFrame() {
   await new Promise(r => setTimeout(r, 450));
 
   const clone = doc.getElementById('resume-export-clone');
-  applyExportCaptureFixes(clone);
+  applyExportCaptureFixes(clone, doc);
 
   void clone.offsetHeight;
   const contentHeight = Math.max(Math.ceil(clone.scrollHeight), Math.ceil(clone.offsetHeight), 1);
@@ -1607,10 +1607,18 @@ function cleanupExportFrame(iframe) {
   }
 }
 
-function applyExportCaptureFixes(root) {
+function applyExportCaptureFixes(root, doc = document) {
+  const win = doc.defaultView || window;
   root.querySelectorAll('i').forEach(el => { el.style.display = 'none'; });
   root.querySelectorAll('[class*="tm-"]').forEach(el => {
     el.style.boxSizing = 'border-box';
+  });
+  root.querySelectorAll('[class*="-side"], .tm-sidebar, .tm-side-skills').forEach(el => {
+    const style = win.getComputedStyle(el);
+    if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+      el.style.backgroundColor = style.backgroundColor;
+    }
+    if (style.color) el.style.color = style.color;
   });
 }
 
@@ -1620,20 +1628,9 @@ function blobFromCanvas(canvas, type, quality) {
   });
 }
 
-function sliceCanvas(canvas, offsetY, sliceHeight, fillColor = '#ffffff') {
-  const slice = document.createElement('canvas');
-  slice.width = canvas.width;
-  slice.height = sliceHeight;
-  const ctx = slice.getContext('2d');
-  ctx.fillStyle = fillColor;
-  ctx.fillRect(0, 0, slice.width, slice.height);
-  ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-  return slice;
-}
-
 async function captureResumeCanvas(clone, bgColor, contentHeight, doc = document, pageWidth = 816) {
   if (typeof html2canvas !== 'function') throw new Error('Export library not loaded. Please refresh the page.');
-  applyExportCaptureFixes(clone);
+  applyExportCaptureFixes(clone, doc);
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   const height = contentHeight || Math.max(clone.scrollHeight, clone.offsetHeight, 1);
   return html2canvas(clone, {
@@ -1649,30 +1646,39 @@ async function captureResumeCanvas(clone, bgColor, contentHeight, doc = document
     scrollY: 0,
     logging: false,
     foreignObjectRendering: false,
-    onclone: (_doc, clonedEl) => applyExportCaptureFixes(clonedEl)
+    onclone: (_doc, clonedEl) => applyExportCaptureFixes(clonedEl, _doc)
   });
 }
 
 async function saveCanvasAsPdf(canvas, filename, fillColor = '#ffffff', orientation = 'portrait') {
   if (!window.jspdf?.jsPDF) throw new Error('PDF library not loaded. Please refresh the page.');
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation, unit: 'pt', format: 'letter', compress: true });
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+  const pageWidth = orientation === 'landscape' ? 792 : 612;
+  const pageHeight = orientation === 'landscape' ? 612 : 792;
   const pxToPt = pageWidth / canvas.width;
-  const pageSlicePx = Math.floor(pageHeight / pxToPt);
-  let offsetY = 0;
-  let pageIndex = 0;
+  const totalHeightPt = canvas.height * pxToPt;
 
-  while (offsetY < canvas.height) {
-    if (pageIndex > 0) pdf.addPage();
-    const sliceHeight = Math.min(pageSlicePx, canvas.height - offsetY);
-    const slice = sliceCanvas(canvas, offsetY, sliceHeight, fillColor);
-    const displayH = sliceHeight * pxToPt;
-    pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageWidth, displayH);
-    offsetY += sliceHeight;
-    pageIndex++;
-  }
+  // Keep the full layout on one PDF page instead of slicing the canvas into letter
+  // strips, which breaks two-column templates (sidebar skills vs main content).
+  const format = totalHeightPt <= pageHeight * 1.02
+    ? 'letter'
+    : [pageWidth, totalHeightPt];
+
+  const pdf = new jsPDF({
+    orientation,
+    unit: 'pt',
+    format,
+    compress: true
+  });
+
+  pdf.addImage(
+    canvas.toDataURL('image/jpeg', 0.95),
+    'JPEG',
+    0,
+    0,
+    pageWidth,
+    totalHeightPt
+  );
 
   const blob = pdf.output('blob');
   const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
@@ -1740,6 +1746,7 @@ async function exportResume(format = 'pdf') {
   }
 
   let iframe = null;
+  let frame = null;
   try {
     const baseName = getExportBaseName();
     const ext = EXPORT_EXT_MAP[format] || 'pdf';
@@ -1751,7 +1758,7 @@ async function exportResume(format = 'pdf') {
       const bodyHtml = renderer();
       await exportEditableResume(format, tpl, bodyHtml, baseName);
     } else {
-      const frame = await prepareExportFrame();
+      frame = await prepareExportFrame();
       iframe = frame.iframe;
       const { clone, contentHeight, bgColor, doc, pageSize } = frame;
       if (document.fonts?.ready) await document.fonts.ready;
@@ -1768,9 +1775,15 @@ async function exportResume(format = 'pdf') {
       }
     }
 
+    const pageHeight = frame?.pageSize?.height || 1056;
+    const isTallImage = !EDITABLE_FORMATS.has(format) && frame && frame.contentHeight > pageHeight * 1.5;
     const creditMsg = UNLIMITED_AI ? '' : ` (−${creditCost} credits)`;
     if (isMobileIOS()) {
       showToast(`Tap Save to Files to download${creditMsg}`);
+    } else if (isTallImage && (format === 'png' || format === 'jpeg')) {
+      showToast(`${label} saved as one full-length image (design preserved). Use PDF to print.${creditMsg}`);
+    } else if (!EDITABLE_FORMATS.has(format) && format === 'pdf' && frame && frame.contentHeight > pageHeight * 1.02) {
+      showToast(`${label} saved as one continuous page — layout preserved.${creditMsg}`);
     } else {
       showToast(`${label} downloaded: ${filename}${creditMsg}`);
     }

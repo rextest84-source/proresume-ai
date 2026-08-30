@@ -154,8 +154,45 @@
     td.className = sourceEl.className;
     td.setAttribute('valign', 'top');
     if (width) td.setAttribute('width', String(width));
+    const cellStyle = getWordCellStyle(sourceEl);
+    if (cellStyle.bgcolor) td.setAttribute('bgcolor', cellStyle.bgcolor);
+    if (cellStyle.style) td.setAttribute('style', cellStyle.style);
     td.innerHTML = sourceEl.innerHTML;
     tr.appendChild(td);
+  }
+
+  function convertSidebarLayouts(root) {
+    root.querySelectorAll(':scope > [class*="tm-"]').forEach(container => {
+      if (container.querySelector(':scope > table.tm-word-table')) return;
+
+      const tmpl = [...container.classList].find(c => /^tm-[a-z0-9-]+$/.test(c) && !c.includes('tm-word'));
+      if (!tmpl) return;
+      const id = tmpl.slice(3);
+      const side = container.querySelector(`:scope > .tm-${id}-side, :scope > .tm-sidebar`);
+      const main = container.querySelector(`:scope > .tm-${id}-main, :scope > .tm-main`);
+      if (!side || !main) return;
+
+      const widths = {
+        verdant: [210, null], jade: [200, null], harbor: [null, 190],
+        modern: [220, null], slate: [null, 200]
+      };
+      const layoutWidths = widths[id] || (side.classList.contains('tm-sidebar') ? [220, null] : [200, null]);
+      const doc = container.ownerDocument;
+      const table = createWordTable(doc, container.className);
+      const tr = doc.createElement('tr');
+      if (side.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING) {
+        moveIntoCell(doc, tr, side, layoutWidths[0]);
+        moveIntoCell(doc, tr, main, layoutWidths[1]);
+      } else {
+        moveIntoCell(doc, tr, main, layoutWidths[1]);
+        moveIntoCell(doc, tr, side, layoutWidths[0]);
+      }
+      if (tr.children.length) {
+        table.appendChild(tr);
+        container.innerHTML = '';
+        container.appendChild(table);
+      }
+    });
   }
 
   function convertGridToTable(root, { container, columns, widths, skip = [] }) {
@@ -235,8 +272,108 @@
   function prepareHtmlForWord(bodyHtml) {
     const root = parseHtmlFragment(sanitizeBodyHtml(bodyHtml));
     GRID_LAYOUTS.forEach(layout => convertGridToTable(root, layout));
+    convertSidebarLayouts(root);
     DUAL_COLUMN_CONTAINERS.forEach(layout => convertDualColumnToTables(root, layout));
+    applyWordInlineStyles(root);
     return root.innerHTML;
+  }
+
+  const WORD_SIDEBAR_CELLS = {
+    'tm-sidebar': { bgcolor: '#0f766e', style: 'background-color:#0f766e;color:#ffffff;padding:24px 20px;vertical-align:top;' },
+    'tm-verdant-side': { bgcolor: '#047857', style: 'background-color:#047857;color:#ffffff;padding:28px 18px;vertical-align:top;' },
+    'tm-jade-side': { bgcolor: '#065f46', style: 'background-color:#065f46;color:#ffffff;padding:24px 18px;vertical-align:top;' },
+    'tm-harbor-side': { bgcolor: '#1e3a5f', style: 'background-color:#1e3a5f;color:#ffffff;padding:24px 18px;vertical-align:top;' },
+    'tm-slate-side': { bgcolor: '#334155', style: 'background-color:#334155;color:#ffffff;padding:24px 18px;vertical-align:top;' },
+    'tm-side-skills': { bgcolor: '#f8fafc', style: 'background-color:#f8fafc;padding:16px;vertical-align:top;border-left:1px solid #e2e8f0;' }
+  };
+
+  const WORD_MAIN_CELLS = {
+    'tm-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-verdant-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-jade-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-harbor-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' },
+    'tm-slate-main': { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' }
+  };
+
+  function getWordCellStyle(el) {
+    for (const cls of el.classList) {
+      if (WORD_SIDEBAR_CELLS[cls]) return WORD_SIDEBAR_CELLS[cls];
+      if (WORD_MAIN_CELLS[cls]) return WORD_MAIN_CELLS[cls];
+    }
+    if ([...el.classList].some(c => c.endsWith('-side') || c === 'tm-sidebar')) {
+      return { bgcolor: '#047857', style: 'background-color:#047857;color:#ffffff;padding:24px 18px;vertical-align:top;' };
+    }
+    if ([...el.classList].some(c => c.endsWith('-main') || c === 'tm-main')) {
+      return { style: 'padding:28px 32px;vertical-align:top;color:#1e293b;' };
+    }
+    return {};
+  }
+
+  function mergeStyle(el, style) {
+    const prev = el.getAttribute('style') || '';
+    el.setAttribute('style', `${prev}${prev && !prev.endsWith(';') ? ';' : ''}${style}`);
+  }
+
+  function applyWordInlineStyles(root) {
+    root.querySelectorAll('.tm-name').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar, .tm-side-skills');
+      mergeStyle(el, inSidebar
+        ? 'font-size:16pt;font-weight:700;color:#ffffff;margin:0 0 6px;line-height:1.2;'
+        : 'font-size:22pt;font-weight:700;color:#0f172a;margin:0 0 4px;');
+    });
+
+    root.querySelectorAll('.tm-title').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar');
+      mergeStyle(el, inSidebar
+        ? 'font-size:9pt;color:#d1fae5;margin:0 0 16px;'
+        : 'font-size:11pt;color:#475569;margin:0 0 12px;');
+    });
+
+    root.querySelectorAll('.tm-side-label, .tm-side-title').forEach(el => {
+      mergeStyle(el, 'font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#a7f3d0;margin:0 0 8px;display:block;');
+    });
+
+    root.querySelectorAll('.tm-contact-item, .tm-contact div, .tm-themed-contact span').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar');
+      mergeStyle(el, inSidebar
+        ? 'font-size:8pt;color:#ecfdf5;display:block;margin:0 0 6px;'
+        : 'font-size:9pt;color:#475569;display:block;margin:0 0 4px;');
+    });
+
+    root.querySelectorAll('.tm-section-title').forEach(el => {
+      mergeStyle(el, 'font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#047857;border-bottom:2px solid #34d399;padding-bottom:4px;margin:0 0 10px;display:block;');
+    });
+
+    root.querySelectorAll('.tm-summary, .tm-bullets, .tm-bullets li, .tm-entry-company, .tm-entry-meta').forEach(el => {
+      mergeStyle(el, 'font-size:10pt;color:#334155;line-height:1.45;');
+    });
+
+    root.querySelectorAll('.tm-entry-role').forEach(el => {
+      mergeStyle(el, 'font-size:11pt;font-weight:700;color:#0f172a;display:block;');
+    });
+
+    root.querySelectorAll('.tm-entry-dates').forEach(el => {
+      mergeStyle(el, 'font-size:9pt;color:#64748b;display:block;margin-top:2px;');
+    });
+
+    root.querySelectorAll('.tm-entry-top').forEach(el => {
+      mergeStyle(el, 'display:block;margin-bottom:8px;');
+    });
+
+    root.querySelectorAll('[class*="tm-skill"]').forEach(el => {
+      const inSidebar = el.closest('[class*="-side"], .tm-sidebar, .tm-side-skills');
+      if (inSidebar) {
+        mergeStyle(el, 'display:block;font-size:8pt;background-color:#ecfdf5;color:#065f46;padding:4px 8px;margin:0 0 4px;border-radius:4px;');
+      } else {
+        mergeStyle(el, 'display:inline-block;font-size:9pt;background-color:#ecfdf5;color:#065f46;padding:3px 8px;margin:2px 4px 2px 0;border-radius:4px;');
+      }
+    });
+
+    root.querySelectorAll('table.tm-word-table td').forEach(td => {
+      const cellStyle = getWordCellStyle(td);
+      if (cellStyle.bgcolor) td.setAttribute('bgcolor', cellStyle.bgcolor);
+      if (cellStyle.style) mergeStyle(td, cellStyle.style);
+    });
   }
 
   function buildDocumentShell(tpl, bodyHtml, { wordMode = false } = {}) {
@@ -298,8 +435,10 @@
     ${getPageCss(tpl)}
     body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; background: #fff; }
     .resume-document { width: ${dim.widthIn}; margin: 0 auto; }
-    table.tm-word-table { border-collapse: collapse; }
-    td { vertical-align: top; }
+    table.tm-word-table { border-collapse: collapse; width: 100%; }
+    table.tm-word-table td { vertical-align: top; border: none; }
+    .resume-document .tm-section { margin-bottom: 16px; page-break-inside: avoid; }
+    .resume-document .tm-entry { page-break-inside: avoid; margin-bottom: 10px; }
   </style>
 </head>
 <body>
