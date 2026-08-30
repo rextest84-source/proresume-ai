@@ -61,7 +61,8 @@
 
     #builder-header {
       flex-shrink: 0;
-      z-index: 40;
+      z-index: 50;
+      position: relative;
       background: rgba(9, 9, 11, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -179,7 +180,7 @@
         <span class="hidden sm:inline truncate">ProResume AI</span>
       </a>
       <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
-        <div id="builder-app-menu" class="hidden shrink-0"></div>
+        <div id="builder-app-menu" class="shrink-0"></div>
         <a href="/usage.html" id="builder-credits-link" class="credits-pill shrink-0 inline-flex items-center gap-1.5 hover:bg-amber-500/10 transition rounded-full" title="View credit usage"><span class="icon-wrap icon-wrap-sm icon-amber" aria-hidden="true"><i class="fa-solid fa-bolt"></i></span> <span id="credits-count">20</span></a>
         <span id="unlimited-badge" class="hidden text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full shrink-0">Unlimited AI</span>
         <a id="auth-nav-link" href="/login.html?next=/builder.html" class="sm:inline text-xs text-zinc-400 hover:text-white shrink-0">Sign in</a>
@@ -254,6 +255,7 @@
       </section>
 
       <section class="space-y-3">
+        <h2 class="text-sm font-semibold text-zinc-300">Personal Information</h2>
         <input id="name" type="text" placeholder="Full Name" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
         <input id="title" type="text" placeholder="Professional Title" class="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-500/50 focus:outline-none transition">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">

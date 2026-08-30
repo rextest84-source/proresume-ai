@@ -208,12 +208,23 @@
 .tm-executive .tm-entry-company { font-size: 9pt; color: #475569; margin-bottom: 4px; }
 .tm-executive .tm-bullets { margin: 0; padding-left: 16px; font-size: 9pt; color: #475569; }
 .tm-executive .tm-bullets li { margin-bottom: 3px; }
-.tm-executive .tm-side-skills .tm-skill-pill {
+.tm-executive .tm-side-skills .tm-skill-pill,
+.tm-executive .tm-side-skills .tm-skill-exec {
   display: block;
+  width: 100%;
   font-size: 8.5pt;
-  color: #475569;
-  padding: 4px 0;
-  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  background: #f8fafc;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  border-left: 3px solid #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+}
+.tm-executive .tm-side-skills .tm-skills-exec-side {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 /* ─── STANFORD (academic-professional) ─── */
@@ -324,7 +335,7 @@
 .tm-skills-inline-dots, .tm-skills-compact, .tm-skills-elegant, .tm-skills-academic { font-size: 9pt; color: #475569; line-height: 1.6; margin: 0; }
 .tm-skill-minimal { color: #64748b; padding: 2px 0; }
 .tm-skill-minimal + .tm-skill-minimal::before { content: '·'; margin: 0 6px; color: #e2e8f0; }
-.tm-skill-exec { display: block; width: 100%; background: rgba(255,255,255,0.1); color: #e2e8f0; padding: 5px 10px; border-radius: 4px; margin-bottom: 5px; font-size: 8pt; }
+.tm-skill-exec { display: block; width: 100%; background: #f8fafc; color: #334155; padding: 5px 10px; border-radius: 4px; margin-bottom: 5px; font-size: 8pt; border-left: 3px solid #0f172a; }
 .tm-skill-stanford { font-size: 8.5pt; color: #475569; padding: 3px 0; border-bottom: 1px dotted #e2e8f0; }
 .tm-skill-creative { background: #ede9fe; color: #5b21b6; padding: 4px 10px; border-radius: 20px; border: 1px solid #c4b5fd; }
 .tm-skill-corp { background: #dbeafe; color: #1e3a5f; padding: 4px 10px; border-radius: 3px; border-left: 3px solid #1e3a5f; }
@@ -351,7 +362,7 @@
 .tm-skill-vivid { background: linear-gradient(90deg, #fce7f3, #fdf2f8); color: #9d174d; padding: 4px 10px; border-radius: 14px; border: 1px solid #f9a8d4; }
 .tm-skill-forest { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 4px; border: 1px solid #86efac; }
 .tm-skill-onyx { background: transparent; color: #e5e5e5; padding: 4px 10px; border: 1px solid #525252; border-radius: 2px; }
-.tm-skill-radiant { background: rgba(255,255,255,0.2); color: #fff; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.35); }
+.tm-skill-radiant { background: #ffedd5; color: #9a3412; padding: 4px 10px; border-radius: 20px; border: 1px solid #fdba74; }
 .tm-skill-streamline { display: block; width: 100%; color: #1e40af; padding: 4px 0 4px 14px; border-left: 3px solid #3b82f6; margin-bottom: 3px; }
 .tm-skill-default { background: #f0fdf4; color: #166534; padding: 4px 8px; border-radius: 4px; }
 
@@ -658,8 +669,25 @@
 .tm-radiant .tm-name { font-size: 26pt; font-weight: 800; margin: 0 0 4px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 .tm-radiant .tm-title { font-size: 11pt; color: #fffbeb; margin: 0 0 12px; font-weight: 500; }
 .tm-radiant .tm-contact { font-size: 8.5pt; color: #fef3c7; }
-.tm-radiant .tm-radiant-body { padding: 28px 38px 36px; }
-.tm-radiant .tm-section-title { color: #ea580c; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.tm-radiant .tm-radiant-body { padding: 28px 38px 36px; background: #fff; color: #1e293b; }
+.tm-radiant .tm-radiant-body .tm-section-title { color: #ea580c; font-size: 9pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.tm-radiant .tm-radiant-body .tm-summary,
+.tm-radiant .tm-radiant-body .tm-bullets,
+.tm-radiant .tm-radiant-body .tm-entry-meta,
+.tm-radiant .tm-radiant-body .tm-entry-company { color: #475569; }
+.tm-radiant .tm-radiant-body .tm-entry-role { color: #0f172a; }
+.tm-radiant .tm-radiant-body .tm-skill-radiant {
+  background: #ffedd5;
+  color: #9a3412;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #fdba74;
+}
+.tm-radiant .tm-radiant-header .tm-skill-radiant {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.35);
+}
 
 .tm-streamline { padding: 30px 36px; }
 .tm-streamline .tm-stream-header { border-bottom: 2px solid #e2e8f0; padding-bottom: 18px; margin-bottom: 22px; }
@@ -698,6 +726,11 @@
   #resume-preview:not(.page-preview) .tm-modern .tm-sidebar { padding: 20px; }
   #resume-preview:not(.page-preview) .tm-executive .tm-exec-body,
   #resume-preview:not(.page-preview) .tm-stanford .tm-body { grid-template-columns: 1fr; }
+  #resume-preview:not(.page-preview) .tm-executive .tm-side-skills {
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+  }
   #resume-preview:not(.page-preview) .tm-slate { grid-template-columns: 1fr; }
   #resume-preview:not(.page-preview) .tm-slate .tm-slate-side { order: -1; }
   #resume-preview:not(.page-preview) .tm-metro .tm-metro-body { grid-template-columns: 1fr; }
